@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include "file_appender.h"
-#include "util/util_macro.h"
+#include "util/macro_util.h"
 
 namespace logger {
 

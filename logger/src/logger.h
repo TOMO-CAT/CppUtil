@@ -27,6 +27,12 @@ class Logger : boost::noncopyable {
      */
     void Log(Level log_level, const char* fmt, ...);
 
+ public:
+    static void set_pid(int pid);
+    static int get_pid();
+    static void set_trace_id(uint64_t trace_id = 0);
+    static uint64_t get_trace_id();
+
  private:
     Logger();
     ~Logger();
@@ -39,6 +45,40 @@ class Logger : boost::noncopyable {
     bool is_console_output_;
     FileAppender* file_appender_;
     Level priority_;
+    static __thread uint64_t trace_id_;
+    static __thread int pid_;
 };
 
 }  // namespace logger
+
+// ======================================对外接口======================================
+#define log_debug(fmt, args...) \
+do { \
+    logger::Logger::GetInstance()->Log(logger::Logger::Level::DEBUG_LEVEL, "[DEBUG][%s:%d][%s]" fmt, \
+        __FILE__, __LINE__, __FUNCTION__, ##args); \
+} while (0) \
+
+#define log_info(fmt, args...) \
+do { \
+    logger::Logger::GetInstance()->Log(logger::Logger::Level::INFO_LEVEL, "[INFO ][%s:%d][%s]" fmt, \
+        __FILE__, __LINE__, __FUNCTION__, ##args); \
+} while (0) \
+
+#define log_warn(fmt, args...) \
+do { \
+    logger::Logger::GetInstance()->Log(logger::Logger::Level::WARN_LEVEL, "[WARN ][%s:%d][%s]" fmt, \
+        __FILE__, __LINE__, __FUNCTION__, ##args); \
+} while (0) \
+
+#define log_error(fmt, args...) \
+do { \
+    logger::Logger::GetInstance()->Log(logger::Logger::Level::ERROR_LEVEL, "[ERROR][%s:%d][%s]" fmt, \
+        __FILE__, __LINE__, __FUNCTION__, ##args); \
+} while (0) \
+
+#define log_error_t(tag, fmt, args...) \
+do { \
+    logger::Logger::GetInstance()->Log(logger::Logger::Level::ERROR_LEVEL, "[ERROR][%s:%d][%s][tag=%s]" fmt, \
+        __FILE__, __LINE__, __FUNCTION__, tag, ##args); \
+} while (0) \
+

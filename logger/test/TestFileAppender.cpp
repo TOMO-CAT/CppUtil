@@ -11,8 +11,8 @@
 
 #include <thread>
 #include <vector>
-#include "util/util_macro.h"
-#include "util/util_time.h"
+#include "util/macro_util.h"
+#include "util/time_util/time_util.h"
 #include "file_appender.h"
 
 using logger::FileAppender;
