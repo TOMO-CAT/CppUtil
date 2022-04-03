@@ -34,4 +34,3 @@ do { \
     perror(new_str.c_str()); \
 } while (0) \
 
-

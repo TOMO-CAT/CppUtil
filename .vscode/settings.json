@@ -59,6 +59,8 @@
         "ratio": "cpp",
         "thread": "cpp",
         "typeindex": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "condition_variable": "cpp",
+        "future": "cpp"
     }
 }
