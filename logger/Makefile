@@ -8,6 +8,16 @@ INCLUDE = -I ./ \
 		  -I ../thirdpkg/include \
 		  -I ../ \
 
+all:
+	mkdir -p include
+	mkdir -p lib
+	cp src/*.h include
+	$(CXX) $(CXXFLAG) $(INCLUDE) -c src/logger.cpp -o lib/logger.o
+	$(CXX) $(CXXFLAG) $(INCLUDE) -c src/file_appender.cpp -o lib/file_appender.o
+	ar -rcs liblogger.a lib/*.o
+	mv liblogger.a lib/
+	rm -rf lib/*.o
+
 test:
 	mkdir -p output
 	mkdir -p output/bin

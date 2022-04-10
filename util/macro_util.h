@@ -1,14 +1,3 @@
-/**
- * @file util_macro.h
- * @author tomocat (512676561@qq.com)
- * @brief 
- * @version 0.1
- * @date 2022-04-02
- * 
- * @copyright Copyright (c) 2022
- * 
- */
-
 #pragma once
 
 #include <cstring>
