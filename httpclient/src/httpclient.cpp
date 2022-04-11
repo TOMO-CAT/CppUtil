@@ -6,7 +6,7 @@
 
 namespace httpclient {
 
-int debug_func(CURL*, curl_infotype itype, char * p_data, size_t size, void *) {
+int debug_func(CURL*, curl_infotype itype, char* p_data, size_t size, void*) {
     if (itype == CURLINFO_TEXT) {
         log_info("[TEXT]%s", p_data);
     } else if (itype == CURLINFO_HEADER_IN) {
@@ -21,13 +21,14 @@ int debug_func(CURL*, curl_infotype itype, char * p_data, size_t size, void *) {
     return 0;
 }
 
-size_t write_callback_func(void* buffer, size_t size, size_t nmemb, void* lpVoid) {
-    std::string* str = reinterpret_cast<std::string*>(lpVoid);
+size_t write_callback_func(void* buffer, size_t size, size_t nmemb, void* p_data) {
+    std::string* str = reinterpret_cast<std::string*>(p_data);
     if (nullptr == str || nullptr == buffer) {
         return -1;
     }
-    char* pData = reinterpret_cast<char*>(buffer);
-    str->append(pData, size* nmemb);
+    char* p_buffer = reinterpret_cast<char*>(buffer);
+    // size always equals to 1
+    str->append(p_buffer, size * nmemb);
     return nmemb;
 }
 
