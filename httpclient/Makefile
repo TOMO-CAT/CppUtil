@@ -24,7 +24,7 @@ all:
 test:
 	mkdir -p output
 	mkdir -p output/bin
-	g++ ${CXXFLAG} ${INCLUDE} test/httpclient_test.cpp src/httpclient.cpp ${LDFLAGS} -o output/bin/httpclient_test
+	g++ ${CXXFLAG} ${INCLUDE} -D_HTTP_CLIENT_DEBUG=true test/httpclient_test.cpp src/httpclient.cpp ${LDFLAGS} -o output/bin/httpclient_test
 
 clean:
 	rm -rf output
