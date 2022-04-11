@@ -4,6 +4,7 @@ CXX := g++
 CXXFLAG := -g -std=c++11
 LDFLAGS := ../logger/lib/liblogger.a \
 		   -L../thirdpkg/lib/curl -lcurl \
+		   -luuid \
 
 INCLUDE = -I ../thirdpkg/include \
 		  -I ./src \

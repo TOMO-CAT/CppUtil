@@ -8,33 +8,34 @@ namespace httpclient {
 
 int debug_func(CURL*, curl_infotype itype, char * p_data, size_t size, void *) {
     if (itype == CURLINFO_TEXT) {
-        printf("[TEXT]%s\n", p_data);
+        log_info("[TEXT]%s", p_data);
     } else if (itype == CURLINFO_HEADER_IN) {
-        printf("[HEADER_IN]%s\n", p_data);
+        log_info("[HEADER_IN]%s", p_data);
     } else if (itype == CURLINFO_HEADER_OUT) {
-        printf("[HEADER_OUT]%s\n", p_data);
+        log_info("[HEADER_OUT]%s", p_data);
     } else if (itype == CURLINFO_DATA_IN) {
-        printf("[DATA_IN]%s\n", p_data);
+        log_info("[DATA_IN]%s", p_data);
     } else if (itype == CURLINFO_DATA_OUT) {
-        printf("[DATA_OUT]%s\n", p_data);
+        log_info("[DATA_OUT]%s", p_data);
     }
     return 0;
 }
 
 size_t write_callback_func(void* buffer, size_t size, size_t nmemb, void* lpVoid) {
     std::string* str = reinterpret_cast<std::string*>(lpVoid);
-    if (NULL == str || NULL == buffer) {
+    if (nullptr == str || nullptr == buffer) {
         return -1;
     }
     char* pData = reinterpret_cast<char*>(buffer);
-    str->append(pData, size * nmemb);
+    str->append(pData, size* nmemb);
     return nmemb;
 }
 
-int Post(const std::string& url, const std::string& post_params, std::string& resp, const char* ca_path) {
+int Post(const std::string& url, const std::string& post_params, int timeout_ms, int conn_timeout_ms, std::string& resp, const char* ca_path) {
     CURLcode res;
     CURL* curl = curl_easy_init();
     if (nullptr == curl) {
+        log_error("curl_easy_init fail");
         return CURLE_FAILED_INIT;
     }
     if (_HTTP_CLIENT_DEBUG) {
@@ -48,7 +49,7 @@ int Post(const std::string& url, const std::string& post_params, std::string& re
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback_func);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, reinterpret_cast<void*>(&resp));
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
-    if (NULL == ca_path) {
+    if (nullptr == ca_path) {
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
     } else {
@@ -57,14 +58,20 @@ int Post(const std::string& url, const std::string& post_params, std::string& re
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, true);
         curl_easy_setopt(curl, CURLOPT_CAINFO, ca_path);
     }
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
+    // without set this param, ms timeout is not work
+    // http://www.laruence.com/2014/01/21/2939.html
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, timeout_ms);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, conn_timeout_ms);
     res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        log_error("curl_easy_perform fail, err:%s url:%s", curl_easy_strerror(res), url.c_str());
+    }
     curl_easy_cleanup(curl);
     return res;
 }
 
-int Get(const std::string& url, std::string& resp, const char* ca_path) {
+int Get(const std::string& url, int timeout_ms, int conn_timeout_ms, std::string& resp, const char* ca_path) {
     CURLcode res;
     CURL* curl = curl_easy_init();
     if (NULL == curl) {
@@ -86,9 +93,15 @@ int Get(const std::string& url, std::string& resp, const char* ca_path) {
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, true);
         curl_easy_setopt(curl, CURLOPT_CAINFO, ca_path);
     }
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3);
+    // without set this param, ms timeout is not work
+    // http://www.laruence.com/2014/01/21/2939.html
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, timeout_ms);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, conn_timeout_ms);
     res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        log_error("curl_easy_perform fail, err:%s url:%s", curl_easy_strerror(res), url.c_str());
+    }
     curl_easy_cleanup(curl);
     return res;
 }
