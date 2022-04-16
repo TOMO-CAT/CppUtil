@@ -2,9 +2,12 @@
 
 CXX := g++
 CXXFLAG := -g -std=c++11
-LDFLAGS := ../logger/lib/liblogger.a \
+
+# 由于libhttpserver.a依赖liblogger.a, 因此这两者顺序不可颠倒
+LDFLAGS := ../thirdpkg/lib/jsoncpp/libjsoncpp.a \
 		   -luuid \
 		   ./lib/libhttpserver.a \
+		   ../logger/lib/liblogger.a \
 		   -L../thirdpkg/lib/curl -lcurl \
 
 INCLUDE = -I ../thirdpkg/include \
@@ -29,7 +32,7 @@ all:
 test:
 	mkdir -p output
 	mkdir -p output/bin
-	g++ ${CXXFLAG} ${INCLUDE} test/http_server_test.cpp ${LDFLAGS} -o output/bin/http_server_test
+	g++ ${CXXFLAG} ${INCLUDE} ../util/string_util/string_util.cpp test/http_server_test.cpp ${LDFLAGS} -o output/bin/http_server_test
 
 clean:
 	rm -rf output
