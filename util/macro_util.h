@@ -4,6 +4,11 @@
 #include <string>
 
 /**
+ * check ret, if ret != 0, then return.
+ */
+#define CHECK_RET(ret) do {if (ret != 0) return ret; } while (0)
+
+/**
  * printf with debug info
  */
 #define printf2console(fmt, args...) \

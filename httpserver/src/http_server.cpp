@@ -6,7 +6,7 @@
 
 namespace httpserver {
 
-explicit HttpServer::HttpServer(int port, int backlog = 10, int max_events = 1000) {
+HttpServer::HttpServer(int port, int backlog, int max_events) {
     epoll_event_handler_ = new HttpEpollEventHandler();
     epoll_socket_ = new EpollSocket(port, backlog, max_events, epoll_event_handler_);
 }
