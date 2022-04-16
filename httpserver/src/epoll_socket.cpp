@@ -9,15 +9,13 @@ namespace httpserver {
 
 // 设置fd对应的文件为非阻塞
 int EpollSocket::set_nonblocking(int fd) {
-    int flags = fcntl(fd, F_GETFL, 0);
+    int flags = ::fcntl(fd, F_GETFL, 0);
     if (flags == -1) {
         flags = 0;
-        perror2console("fcntl");
     }
     return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-// 接收一个套接字中已建立的连接
 int EpollSocket::accept_socket(int socket_fd, std::string& client_ip) {
     struct sockaddr_in client_addr;
     socklen_t client_addr_size = sizeof(struct sockaddr_in);
@@ -30,176 +28,210 @@ int EpollSocket::accept_socket(int socket_fd, std::string& client_ip) {
     return conn_fd;
 }
 
-int EpollSocket::listen_on(int port, int backlog) {
-    int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_fd == -1) {
-        perror2console("socket");
-        exit(1);
+int EpollSocket::listen_on() {
+    listen_socket_fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
+    if (listen_socket_fd_ == -1) {
+        log_error("socket() err:%s", strerror(errno));
+        return -1;
     }
+    // 一般而言端口释放2分钟后才能被复用, SO_REUSEADDR 可以让端口释放后就立刻被再次使用
+    int opt = -1;
+    setsockopt(listen_socket_fd_, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     struct sockaddr_in my_addr;
     memset(&my_addr, 0, sizeof(my_addr));
     my_addr.sin_family = AF_INET;
-    my_addr.sin_port = htons(port);
+    my_addr.sin_port = htons(port_);
     my_addr.sin_addr.s_addr = INADDR_ANY;
 
-    int opt = -1;
-    setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-    if (bind(socket_fd, (struct sockaddr*)&my_addr, sizeof(struct sockaddr)) == -1) {
-        perror2console("bind");
-        exit(1);
-    }
-
-    if (listen(socket_fd, backlog) == -1) {
-        perror2console("listen");
-        exit(1);
-    }
-
-    log_info("start listening on port: %d", port);
-    return socket_fd;
-}
-
-int EpollSocket::close_and_release(int& epoll_fd, epoll_event& event, EpollSocketWatcher& watcher) {
-    if (event.data.ptr == nullptr) {
-        return 0;
-    }
-
-    EpollContext* ctx = reinterpret_cast<EpollContext*>(event.data.ptr);
-    watcher.OnClose(*ctx);
-
-    int fd = ctx->fd;
-    event.events = EPOLLIN | EPOLLOUT | EPOLLET;
-    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, &event);
-
-    delete ctx;
-    event.data.ptr = nullptr;
-
-    int ret = close(fd);
-    log_info("close connection, fd:%d ret:%d", fd, ret);
-    return ret;
-}
-
-int EpollSocket::handle_accept_event(int& epoll_fd, epoll_event& event, EpollSocketWatcher& watcher) {
-    int socket_fd = event.data.fd;
-
-    std::string client_ip;
-    int conn_socket = accept_socket(socket_fd, client_ip);
-    if (conn_socket == -1) {
-        log_error_t(ErrorTag, "accept socket fail, client_ip:%s socket_fd:%d conn_socket:%d", client_ip.c_str(), socket_fd, conn_socket);
+    if (::bind(listen_socket_fd_, (struct sockaddr*)&my_addr, sizeof(struct sockaddr)) == -1) {
+        log_error("bind() err:%s", strerror(errno));
         return -1;
     }
-    set_nonblocking(conn_socket);
 
-    EpollContext* epoll_ctx = new EpollContext();
-    epoll_ctx->fd = conn_socket;
-    epoll_ctx->client_ip = client_ip;
-    watcher.OnAccept(*epoll_ctx);
-
-    struct epoll_event conn_socket_event;
-    conn_socket_event.events = EPOLLIN | EPOLLET;
-    conn_socket_event.data.ptr = epoll_ctx;
-
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, conn_socket, &conn_socket_event) == -1) {
-        perror2console("epoll_ctl");
-        exit(1);
+    if (::listen(listen_socket_fd_, backlog_) == -1) {
+        log_error("listen() err:%s", strerror(errno));
+        return -1;
     }
 
+    log_info("start listening on port: %d", port_);
     return 0;
 }
 
-int EpollSocket::handle_readable_event(int& epoll_fd, epoll_event& event, EpollSocketWatcher& watcher) {
-    EpollContext* epoll_ctx = reinterpret_cast<EpollContext*>(event.data.ptr);
-    int fd = epoll_ctx->fd;
-    char read_buffer[SS_READ_BUFFER_SIZE];
-    memset(read_buffer, 0, SS_READ_BUFFER_SIZE);
-
-    int read_size = recv(fd, read_buffer, SS_READ_BUFFER_SIZE, 0);
-    int handle_ret = 0;
-    if (read_size > 0) {
-        log_info("read size:%d", read_size);
-        handle_ret = watcher.OnReadable(*epoll_ctx, read_buffer, SS_READ_BUFFER_SIZE, read_size);
+int EpollSocket::create_epoll() {
+    // size 参数用于创建epoll实例时告诉内核需要使用多少个文件描述符
+    // linux 内核 >2.6.8 后 size 参数就被弃用, 内核会动态地申请需要的内存
+    // 但该参数必须 >0 以兼容旧版本的linux内核
+    epoll_fd_ = ::epoll_create(1024);
+    if (epoll_fd_ == -1) {
+        log_error("epoll_create() err:%s", strerror(errno));
+        return -1;
     }
+    log_info("create epoll successfully! epoll fd:%d", epoll_fd_);
+}
 
-    if (read_size <= 0 || handle_ret < 0) {
-        close_and_release(epoll_fd, event, watcher);
-        return 0;
+int EpollSocket::add_listen_socket_to_epoll() {
+    // epoll event 表示 epoll 事件, EPOLLIN表示对应的文件描述符可读
+    struct epoll_event ev;
+    ev.events = EPOLLIN;
+    ev.data.fd = listen_socket_fd_;
+    // epoll_ctl 用于控制某个文件描述符上的事件, EPOLL_CTL_ADD表示注册事件
+    if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, listen_socket_fd_, &ev) == -1) {
+        log_error("epoll_ctl() err:%s", strerror(errno));
+        return -1;
     }
-
-    if (handle_ret == READ_CONTINUE) {
-        event.events = EPOLLIN | EPOLLET;
-    } else {
-        event.events = EPOLLOUT | EPOLLET;
-    }
-    epoll_ctl(epoll_fd, EPOLL_CTL_MOD, fd, &event);
     return 0;
 }
 
-int EpollSocket::handle_writeable_event(int& epoll_fd, epoll_event& event, EpollSocketWatcher& watcher) {
-    EpollContext* epoll_ctx = reinterpret_cast<EpollContext*>(event.data.ptr);
-    int fd = epoll_ctx->fd;
-
-    int ret = watcher.OnWriteable(*epoll_ctx);
-    if (ret == WRITE_CONN_CLOSE) {
-        close_and_release(epoll_fd, event, watcher);
-        return 0;
-    }
-
-    if (ret == WRITE_CONN_CONTINUE) {
-        event.events = EPOLLOUT | EPOLLET;
-    } else {
-        event.events = EPOLLIN | EPOLLET;
-    }
-    epoll_ctl(epoll_fd, EPOLL_CTL_MOD, fd, &event);
-    return 0;
-}
-
-int EpollSocket::Start(int port, EpollSocketWatcher& watcher, int backlog, int max_events) {
-    int socket_fd = listen_on(port, backlog);
-
-    int epoll_fd = epoll_create(1024);
-    if (epoll_fd == -1) {
-        perror2console("epoll_create");
-        exit(1);
-    }
-
-    struct epoll_event event;
-    event.events = EPOLLIN;
-    event.data.fd = socket_fd;
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket_fd, &event) == -1) {
-        perror2console("epoll_ctl");
-        exit(1);
-    }
-
-    epoll_event* events = new epoll_event[max_events];
+int EpollSocket::start_epoll_loop() {
+    int ret = 0;
+    epoll_event* events = new epoll_event[max_events_];
 
     while (true) {
-        int fd_num = epoll_wait(epoll_fd, events, max_events, -1);
+        // -1 表示不设置超时时间
+        int fd_num = epoll_wait(epoll_fd_, events, max_events_, -1);
         if (fd_num == -1) {
-            perror2console("epoll_wait");
-            exit(1);
+            log_error("epoll_wait() err:%s", strerror(errno));
+            ret = -1;
+            break;
         }
 
-        for (int i = 0; i < fd_num; i++) {
-            if (events[i].data.fd == socket_fd) {
-                // accept connection
-                handle_accept_event(epoll_fd, events[i], watcher);
-            } else if (events[i].data.fd & EPOLLIN) {
-                // readable
-                handle_readable_event(epoll_fd, events[i], watcher);
-            } else if (events[i].data.fd & EPOLLOUT) {
-                // writeable
-                handle_writeable_event(epoll_fd, events[i], watcher);
+        for (size_t i = 0; i < fd_num; i++) {
+            if (events[i].data.fd == listen_socket_fd_) {
+                handle_accept_event();
+            } else if (events[i].events & EPOLLIN) {
+                handle_readable_event(events[i]);
+            } else if (events[i].events & EPOLLOUT) {
+                handle_writeable_event(events[i]);
             } else {
-                log_warn("unknown events: %d", events[i].events);
+                log_error("unknown events: %d", events[i].events);
             }
         }
     }
 
-    if (events != nullptr) {
-        delete []events;
+    if (events) {
+        delete[] events;
         events = nullptr;
     }
+
+    return ret;
+}
+
+int EpollSocket::handle_accept_event() {
+    std::string client_ip;
+    int conn_socket = accept_socket(listen_socket_fd_, client_ip);
+    if (conn_socket == -1) {
+        log_error("accept socket fail, client_ip:%s socket_fd:%d conn_socket:%d", client_ip.c_str(), listen_socket_fd_, conn_socket);
+        return -1;
+    }
+
+    set_nonblocking(conn_socket);
+
+    EpollEventContext* ctx = new EpollEventContext();
+    ctx->fd = conn_socket;
+    ctx->client_ip = client_ip;
+    event_handler_->OnAccept(ctx);
+
+    // Epoll 有两种触发模式: 水平触发(LT)和边缘触发(ET)
+    // 前者只要存在着事件就会不断触发直到处理完成, 后者只触发一次相同事件
+    // 多线程下可以使用 EPOLLONESHOT 避免不同的线程处理同一个 SOCKET 事件
+    struct epoll_event conn_socket_event;
+    conn_socket_event.events = EPOLLIN | EPOLLET;
+    conn_socket_event.data.ptr = ctx;
+
+    if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, conn_socket, &conn_socket_event) == -1) {
+        log_error("epoll_ctl() err:%s", strerror(errno));
+        close_and_release(conn_socket_event);
+        return -1;
+    }
+
+    return 0;
+}
+
+int EpollSocket::handle_readable_event(epoll_event& event) {
+    EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event.data.ptr);
+    int fd = ctx->fd;
+    char read_buffer[EPOLL_SOCKET_READ_BUFFER_SIZE];
+    ::memset(read_buffer, 0, EPOLL_SOCKET_READ_BUFFER_SIZE);
+
+    int read_size = ::recv(fd, read_buffer, EPOLL_SOCKET_READ_BUFFER_SIZE, 0);
+    ReadStatus ret;
+    if (read_size > 0) {
+        log_info("fd:%d read size:%d", fd, read_size);
+        ret = event_handler_->OnReadable(ctx, read_buffer, EPOLL_SOCKET_READ_BUFFER_SIZE, read_size);
+    }
+
+    if (read_size <= 0 || ret == ReadStatus::READ_ERROR || ret == ReadStatus::READ_REACH_MAX_SIZE) {
+        log_error("read error, ret:%d", ret);
+        close_and_release(event);
+        return 0;
+    }
+
+    if (ret == ReadStatus::READ_CONTINUE) {
+        event.events = EPOLLIN | EPOLLET;
+    } else {
+        event.events = EPOLLOUT | EPOLLET;
+    }
+    epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
+    return 0;
+}
+
+int EpollSocket::handle_writeable_event(epoll_event& event) {
+    EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event.data.ptr);
+    int fd = ctx->fd;
+
+    WriteStatus ret = event_handler_->OnWriteable(ctx);
+    if (ret == WriteStatus::WRITE_ERROR || ret == WriteStatus::WRITE_OVER) {
+        close_and_release(event);
+        return 0;
+    }
+
+    if (ret == WriteStatus::WRITE_CONTINUE) {
+        event.events = EPOLLOUT | EPOLLET;
+    } else {
+        event.events = EPOLLIN | EPOLLET;
+    }
+    epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
+    return 0;
+}
+
+int EpollSocket::close_and_release(epoll_event& event) {
+    int ret = 0;
+
+    if (event.data.ptr == nullptr) {
+        return ret;
+    }
+
+    EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event.data.ptr);
+    event_handler_->OnClose(ctx);
+
+    int fd = ctx->fd;
+    event.events = EPOLLIN | EPOLLOUT | EPOLLET;
+    epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, &event);
+
+    delete ctx;
+    event.data.ptr = nullptr;
+
+    if (fd > 0) {
+        ret = close(fd);
+    }
+    log_info("close connection, fd:%d ret:%d", fd, ret);
+    return ret;
+}
+
+int EpollSocket::Start() {
+    int ret = 0;
+
+    ret = listen_on();
+    CHECK_RET(ret);
+
+    ret = create_epoll();
+    CHECK_RET(ret);
+
+    ret = add_listen_socket_to_epoll();
+    CHECK_RET(ret);
+
+    return start_epoll_loop();
 }
 
 }  // namespace httpserver

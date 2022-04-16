@@ -1,31 +1,53 @@
 #pragma once
 
 #include <string>
-#include "epoll_socket_watcher.h"
+#include <boost/noncopyable.hpp>
+#include "epoll_event_handler.h"
 
 namespace httpserver {
 
-const char ErrorTag[] = "epoll socket error";
-const int SS_READ_BUFFER_SIZE = 4096;
+const int EPOLL_SOCKET_READ_BUFFER_SIZE = 4096;
+const int EPOLL_SOCKET_WRITE_BUFFER_SIZE = 4096;
 
-const int WRITE_CONN_ALIVE = 0;
-const int WRITE_CONN_CLOSE = 1;
-const int WRITE_CONN_CONTINUE = 2;
+enum class ReadStatus {
+    READ_ERROR = -1,
+    READ_OVER = 0,
+    READ_CONTINUE = 1,
+    READ_REACH_MAX_SIZE = 2,
+};
 
-const int READ_OVER = 0;
-const int READ_CONTINUE = 1;
+enum class WriteStatus {
+    WRITE_ERROR = -1,    // write error, we will close the connection
+    WRITE_OVER = 0,      // write done, we will close the connection
+    WRITE_ALIVE = 1,     // keep alive, we will continue to use this connection
+    WRITE_CONTINUE = 2,  // big response, we will continue to write
+};
 
-class EpollSocket {
+class EpollSocket : boost::noncopyable {
  public:
-    static int Start(int port, EpollSocketWatcher& watcher, int backlog, int max_events);
+    EpollSocket(int port, int backlog, int max_events, EpollEventHandler* handler) :
+        port_(port), backlog_(backlog), max_events_(max_events), event_handler_(handler) {}
+    int Start();
 
  private:
+    int listen_on();
+    int create_epoll();
+    int add_listen_socket_to_epoll();
+    int start_epoll_loop();
+    int handle_accept_event();
+    int handle_readable_event(epoll_event& event);
+    int handle_writeable_event(epoll_event& event);
+    int close_and_release(epoll_event& event);
+    int accept_socket(int socket_fd, std::string& client_ip);
     static int set_nonblocking(int fd);
-    static int accept_socket(int socket_fd, std::string& client_ip);
-    static int listen_on(int port, int backlog);
-    static int close_and_release(int& epoll_fd, epoll_event& event, EpollSocketWatcher& watcher);
-    static int handle_accept_event(int& epoll_fd, epoll_event& event, EpollSocketWatcher& watcher);
-    static int handle_readable_event(int& epoll_fd, epoll_event& event, EpollSocketWatcher& watcher);
-    static int handle_writeable_event(int& epoll_fd, epoll_event& event, EpollSocketWatcher& watcher);
+
+ private:
+    int epoll_fd_;
+    int listen_socket_fd_;
+    int port_;
+    int backlog_;
+    int max_events_;
+    EpollEventHandler* event_handler_;
 };
+
 }  // namespace httpserver

@@ -17,9 +17,11 @@ all:
 	mkdir -p include
 	mkdir -p lib
 	cp src/*.h include/
-	g++ -c ${CXXFLAG} ${INCLUDE} src/http_parse.cpp -o lib/http_parse.o
+	g++ -c ${CXXFLAG} ${INCLUDE} src/http_request.cpp -o lib/http_request.o
+	g++ -c ${CXXFLAG} ${INCLUDE} src/http_response.cpp -o lib/http_response.o
 	g++ -c ${CXXFLAG} ${INCLUDE} src/http_server.cpp -o lib/http_server.o
 	g++ -c ${CXXFLAG} ${INCLUDE} src/epoll_socket.cpp -o lib/epoll_socket.o
+	g++ -c ${CXXFLAG} ${INCLUDE} src/http_epoll_event_handler.cpp -o lib/http_epoll_event_handler.o
 	ar -rcs libhttpserver.a lib/*.o
 	mv libhttpserver.a lib/
 	rm -rf lib/*.o
