@@ -26,7 +26,7 @@ int HttpResponse::ExportBuffer2Response(const std::string& http_version, bool is
     if (is_keepalive) {
         resp_buff_ << "COnnection: Keep-Alive" << "\r\n";
     } else {
-        resp_buff_ << "COnnection: close" << "\r\n";
+        resp_buff_ << "Connection: close" << "\r\n";
     }
     for (auto iter = headers.begin(); iter != headers.end(); iter++) {
         resp_buff_ << iter->first << ": " << iter->second << "\r\n";

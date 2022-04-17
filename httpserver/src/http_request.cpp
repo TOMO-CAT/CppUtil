@@ -1,4 +1,5 @@
 #include <cstring>
+#include <utility>
 #include "http_request.h"
 #include "logger.h"
 #include "util/string_util/string_util.h"
@@ -98,7 +99,7 @@ bool HttpRequest::is_read_over() {
     if (strncmp(buff, "\r\n\r\n", CHECK_SIZE)) {
         return false;
     }
-
+    req_buff_.seekg(0);
     return true;
 }
 
@@ -140,7 +141,7 @@ int HttpRequest::parse_url_params() {
                 std::string key, value;
                 std::getline(kv_ss, key, '=');
                 std::getline(kv_ss, value, '=');
-                url_params.insert({key, value});
+                url_params[key] = value;
             }
         }
     }

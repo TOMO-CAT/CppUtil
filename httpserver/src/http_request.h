@@ -25,8 +25,8 @@ struct HttpRequest : boost::noncopyable {
     std::string uri;           // eg: /foo
     std::string http_version;  // eg: HTTP/1.1
     std::map<std::string, std::string> headers;
-    std::multimap<std::string, std::string> url_params;
-    std::multimap<std::string, std::string> body_params;
+    std::map<std::string, std::string> url_params;
+    std::map<std::string, std::string> body_params;
     int parse_part;
 
  private:
