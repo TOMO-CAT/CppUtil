@@ -14,7 +14,7 @@ namespace iowrapper {
 
 struct RedisCommand : boost::noncopyable {
  public:
-    RedisCommand() {}
+    RedisCommand() : reply(nullptr) {}
     ~RedisCommand() {
         if (reply) {
             freeReplyObject(reply);

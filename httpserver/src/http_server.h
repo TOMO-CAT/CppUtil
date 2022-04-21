@@ -12,8 +12,8 @@ class HttpServer {
     /**
      * @brief Construct a new Http Server object
      * 
-     * @param port 
-     * @param backlog 
+     * @param port 端口
+     * @param backlog TCK已完成队列的最大值
      * @param max_events 
      */
     explicit HttpServer(int port, int backlog = 10, int max_events = 1000);
@@ -28,7 +28,7 @@ class HttpServer {
      */
     void RegisterHandler(std::string path, HttpHandler handler);
     /**
-     * @brief 启动Http服务
+     * @brief 阻塞式启动Http服务
      * 
      * @return int 
      */

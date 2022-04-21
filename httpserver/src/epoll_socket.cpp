@@ -49,6 +49,11 @@ int EpollSocket::listen_on() {
         return -1;
     }
 
+    // 内核中维护着 未完成队列 和 已完成队列 两个队列
+    // 前者指没有完成三次握手的队列, 后者指完成三次握手但是进程还未处理的队列
+    // 前者大小由 /proc/sys/net/ipv4/tcp_max_syn_backlog 确定
+    // 后者大小由backlog参数决定
+    // 当已完成队列满了时, 如果再收到TCP第三次握手的ACK包, 那么Linux协议栈就会忽略这个包
     if (::listen(listen_socket_fd_, backlog_) == -1) {
         log_error("listen() err:%s", strerror(errno));
         return -1;
