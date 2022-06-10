@@ -67,6 +67,7 @@
     "cpplint.filters": [
         "-legal/copyright",      // 不显示copyright相关的报警
         "-runtime/references",   // 不显示引用修改成常量引用相关的报警
-        "-whitespace/ending_newline"
+        "-whitespace/ending_newline",
+        "-build/include_subdir"
     ],
 }
