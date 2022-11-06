@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
-#include <fstream>
 #include <boost/noncopyable.hpp>
+#include <fstream>
+#include <string>
 
 #define FILE_APPENDER_BUFF_SIZE 4096
 
@@ -53,4 +53,4 @@ class FileAppender : boost::noncopyable {
     static __thread char buffer_[FILE_APPENDER_BUFF_SIZE];
 };
 
-}  // namespace logger
+} // namespace logger

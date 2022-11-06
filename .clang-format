@@ -1,0 +1,10 @@
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 120
+ReflowComments: false
+AccessModifierOffset: -3
+FixNamespaceComments: true
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+SpacesBeforeTrailingComments: 2
+AllowShortLoopsOnASingleLine: false

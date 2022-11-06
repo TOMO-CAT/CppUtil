@@ -2,13 +2,13 @@
     "configurations": [
         {
             "name": "Linux",
-            "intelliSenseMode": "gcc-x64",
+            "intelliSenseMode": "${default}",
             "includePath": [
-                "${workspaceFolder}/**",
-                "/usr/include/c++/4.8.2/**",
-                "/usr/lib/gcc/x86_64-redhat-linux/4.8.2/include",
+                "${workspaceRoot}/**",
                 "/usr/local/include",
-                "/usr/include"
+                "/usr/include",
+                "${workspaceRoot}/logger/include",
+                "${workspaceRoot}/thirdpkg/include"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",

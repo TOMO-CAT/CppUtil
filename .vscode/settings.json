@@ -63,12 +63,19 @@
         "condition_variable": "cpp",
         "future": "cpp"
     },
-    "cpplint.lineLength": 200,  // 设置行长度
+    "cpplint.lineLength": 200,
     "cpplint.filters": [
-        "-legal/copyright",      // 不显示copyright相关的报警
-        "-runtime/references",   // 不显示引用修改成常量引用相关的报警
+        "-legal/copyright",
+        "-runtime/references",
         "-whitespace/ending_newline",
         "-build/include_subdir",
-        "-build/c++11"
+        "-build/c++11",
+        "-build/include_order"
     ],
+    // clang-format file path
+    "clang-format.assumeFilename": "./clang-format",
+    // clang-foramt bin path
+    "clang-format.executable": "/opt/rh/llvm-toolset-7/root/usr/bin/clang-format",
+    // format on save
+    "editor.formatOnSave": true,
 }
