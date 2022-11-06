@@ -1,8 +1,8 @@
 #pragma once
 
 #include <sys/time.h>
-#include <ctime>
 #include <cstdint>
+#include <ctime>
 
 namespace util {
 
