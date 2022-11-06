@@ -61,7 +61,17 @@
         "typeindex": "cpp",
         "regex": "cpp",
         "condition_variable": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "*.ipp": "cpp",
+        "csetjmp": "cpp",
+        "csignal": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "rope": "cpp",
+        "slist": "cpp",
+        "scoped_allocator": "cpp",
+        "cfenv": "cpp",
+        "valarray": "cpp"
     },
     "cpplint.lineLength": 200,
     "cpplint.filters": [
