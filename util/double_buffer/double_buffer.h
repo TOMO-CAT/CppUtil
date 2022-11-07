@@ -40,7 +40,7 @@ class DoubleBuffer {
     }
 
     /**
-     * @brief Update will block until it update write buffer successfully
+     * @brief It will block until it update write buffer successfully
      *        Only once writer thread can perform updater function at the same time
      * 
      */
@@ -52,6 +52,22 @@ class DoubleBuffer {
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             this->Update(updater);
+        }
+    }
+
+    /**
+     * @brief Reset the value of write buffer
+     * 
+     * @param data 
+     */
+    void Reset(const T& data) {
+        std::shared_ptr<T> write_buffer = try_monopolizer_writer_buffer();
+        if (write_buffer != nullptr) {
+            *write_buffer.get() = data;
+            swap_buffer();
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            this->Reset(data);
         }
     }
 
