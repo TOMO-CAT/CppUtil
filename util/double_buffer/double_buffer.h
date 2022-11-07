@@ -40,19 +40,12 @@ class DoubleBuffer {
     }
 
     /**
-     * @brief It will block until it update write buffer successfully
-     *        Only once writer thread can perform updater function at the same time
-     * 
+     * @brief It will block until it update two buffer successfully
+     *        
      */
     void Update(const UpdaterFunc& updater) {
-        std::shared_ptr<T> write_buffer = try_monopolizer_writer_buffer();
-        if (write_buffer != nullptr) {
-            updater(*write_buffer.get());
-            swap_buffer();
-        } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            this->Update(updater);
-        }
+        this->update_write_buffer(updater);
+        this->update_write_buffer(updater);
     }
 
     /**
@@ -61,14 +54,8 @@ class DoubleBuffer {
      * @param data 
      */
     void Reset(const T& data) {
-        std::shared_ptr<T> write_buffer = try_monopolizer_writer_buffer();
-        if (write_buffer != nullptr) {
-            *write_buffer.get() = data;
-            swap_buffer();
-        } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            this->Reset(data);
-        }
+        this->reset_write_buffer(data);
+        this->reset_write_buffer(data);
     }
 
  private:
@@ -81,6 +68,30 @@ class DoubleBuffer {
             return buffers_[write_idx];
         }
         return nullptr;
+    }
+
+    // Only once writer thread can perform updater function at the same time
+    // Lock by the reference count of write_buffer
+    void update_write_buffer(const UpdaterFunc& updater) {
+        std::shared_ptr<T> write_buffer = try_monopolizer_writer_buffer();
+        if (write_buffer != nullptr) {
+            updater(*write_buffer.get());
+            swap_buffer();
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            this->update_write_buffer(updater);
+        }
+    }
+
+    void reset_write_buffer(const T& data) {
+        std::shared_ptr<T> write_buffer = try_monopolizer_writer_buffer();
+        if (write_buffer != nullptr) {
+            *write_buffer.get() = data;
+            swap_buffer();
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            this->reset_write_buffer(data);
+        }
     }
 
     void swap_buffer() {

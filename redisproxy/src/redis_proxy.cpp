@@ -1,14 +1,14 @@
 #include <unistd.h>
-#include "redis_proxy.h"
 #include "logger.h"
+#include "redis_proxy.h"
 
 namespace {
-    const char ERR_LOG_TAG[] = "RedisClientErr";
+const char ERR_LOG_TAG[] = "RedisClientErr";
 }
 
 namespace iowrapper {
 
-std::string PrintRedisResponse(const redisReply* reply) {
+std::string PrintRedisResponse(const redisReply *reply) {
     if (!reply) {
         return "";
     }
@@ -20,12 +20,12 @@ std::string PrintRedisResponse(const redisReply* reply) {
         }
     }
     char buff[200];
-    snprintf(buff, sizeof(buff), "ret_code=%d||str=%s||integer=%ld||array=%s",
-        reply->type, std::string(reply->str, reply->len).c_str(), int64_t(reply->integer), array.c_str());
+    snprintf(buff, sizeof(buff), "ret_code=%d||str=%s||integer=%ld||array=%s", reply->type,
+             std::string(reply->str, reply->len).c_str(), int64_t(reply->integer), array.c_str());
     return buff;
 }
 
-std::string PrintRedisResponse(const std::shared_ptr<iowrapper::RedisProxy::Response>& resp) {
+std::string PrintRedisResponse(const std::shared_ptr<iowrapper::RedisProxy::Response> &resp) {
     if (!resp) {
         return "";
     }
@@ -37,8 +37,8 @@ std::string PrintRedisResponse(const std::shared_ptr<iowrapper::RedisProxy::Resp
         }
     }
     char buff[200];
-    snprintf(buff, sizeof(buff), "ret_code=%d||str=%s||integer=%ld||array=%s",
-        resp->ret_code, resp->str.c_str(), resp->integer, array.c_str());
+    snprintf(buff, sizeof(buff), "ret_code=%d||str=%s||integer=%ld||array=%s", resp->ret_code, resp->str.c_str(),
+             resp->integer, array.c_str());
     return buff;
 }
 
@@ -132,16 +132,16 @@ std::shared_ptr<RedisProxy::Response> RedisProxy::parse_redis_reply(const redisR
     }
 }
 
-std::shared_ptr<RedisProxy::Response> RedisProxy::execute(RedisCommand& redis_cmd) {
+std::shared_ptr<RedisProxy::Response> RedisProxy::execute(RedisCommand &redis_cmd) {
     std::shared_ptr<Response> resp = std::make_shared<Response>();
     if (!connect()) {
-       resp->ret_code = ReturnCode::CONNECTION_REFUSED;
-       return resp;
+        resp->ret_code = ReturnCode::CONNECTION_REFUSED;
+        return resp;
     }
 
     int argc = redis_cmd.argv.size();
-    const char** argv = redis_cmd.argv.data();
-    redis_cmd.reply = reinterpret_cast<redisReply*>(redisCommandArgv(ctx_, argc, argv, NULL));
+    const char **argv = redis_cmd.argv.data();
+    redis_cmd.reply = reinterpret_cast<redisReply *>(redisCommandArgv(ctx_, argc, argv, NULL));
     return parse_redis_reply(redis_cmd.reply, redis_cmd.get_cmd_str());
 }
 
@@ -149,8 +149,8 @@ std::shared_ptr<RedisProxy::Response> RedisProxy::Execute(const char *format, ..
     std::shared_ptr<Response> resp = std::make_shared<Response>();
 
     if (!connect()) {
-       resp->ret_code = ReturnCode::CONNECTION_REFUSED;
-       return resp;
+        resp->ret_code = ReturnCode::CONNECTION_REFUSED;
+        return resp;
     }
 
     // you can't use same va_list twice, or it may cause crash
@@ -158,7 +158,7 @@ std::shared_ptr<RedisProxy::Response> RedisProxy::Execute(const char *format, ..
     va_start(args, format);
     va_copy(args_copy, args);
 
-    redisReply *reply = reinterpret_cast<redisReply*>(redisvCommand(ctx_, format, args));
+    redisReply *reply = reinterpret_cast<redisReply *>(redisvCommand(ctx_, format, args));
     va_end(args);
 
     char buff[100];
@@ -176,13 +176,14 @@ std::shared_ptr<RedisProxy::Response> RedisProxy::Execute(const char *format, ..
     return resp;
 }
 
-bool RedisProxy::PipeExecute(std::vector<RedisCommand>& cmds, std::vector<std::shared_ptr<RedisProxy::Response>> &resps) {
+bool RedisProxy::PipeExecute(std::vector<RedisCommand> &cmds,
+                             std::vector<std::shared_ptr<RedisProxy::Response>> &resps) {
     if (!connect()) {
-       return false;
+        return false;
     }
 
     int ret = 0;
-    for (RedisCommand& cmd : cmds) {
+    for (RedisCommand &cmd : cmds) {
         ret = redisAppendCommandArgv(ctx_, cmd.argv.size(), cmd.argv.data(), nullptr);
         if (ret != 0) {
             log_error_t(ERR_LOG_TAG, "redisAppendCommandArgv fail, ret:%d cmd:%s", ret, cmd.get_cmd_str().c_str());
@@ -193,7 +194,7 @@ bool RedisProxy::PipeExecute(std::vector<RedisCommand>& cmds, std::vector<std::s
 
     redisReply *redis_reply = nullptr;
     for (size_t i = 0; i < cmds.size(); i++) {
-        ret = redisGetReply(ctx_, reinterpret_cast<void**>(&redis_reply));
+        ret = redisGetReply(ctx_, reinterpret_cast<void **>(&redis_reply));
         if (redis_reply == nullptr || ret != 0) {
             log_error_t(ERR_LOG_TAG, "redisGetReply fail, ret:%d is_reply_null:%d", ret, redis_reply == nullptr);
             close();
@@ -219,7 +220,7 @@ bool RedisProxy::Set(const std::string &key, const std::string &value, unsigned 
     return false;
 }
 
-bool RedisProxy::Get(const std::string  &key, std::string &value) {
+bool RedisProxy::Get(const std::string &key, std::string &value) {
     auto resp = ExecuteArgv("get", key);
     if (resp->ret_code == ReturnCode::REPLY_STRING) {
         value = resp->str;
@@ -228,17 +229,18 @@ bool RedisProxy::Get(const std::string  &key, std::string &value) {
     return false;
 }
 
-bool RedisProxy::PipeSet(const std::vector<std::string> &keys, const std::vector<std::string> &values, const std::vector<unsigned int> &expire_time_secs) {
+bool RedisProxy::PipeSet(const std::vector<std::string> &keys, const std::vector<std::string> &values,
+                         const std::vector<unsigned int> &expire_time_secs) {
     if (keys.size() != values.size() || values.size() != expire_time_secs.size()) {
-        log_error_t(ERR_LOG_TAG, "invalid param for PipeSet, keys.size:%d values.size:%d expires.size:%d",
-            keys.size(), values.size(), expire_time_secs.size());
+        log_error_t(ERR_LOG_TAG, "invalid param for PipeSet, keys.size:%d values.size:%d expires.size:%d", keys.size(),
+                    values.size(), expire_time_secs.size());
         return false;
     }
 
     size_t cmd_cnt = keys.size();
     std::vector<RedisCommand> cmds(cmd_cnt);
     for (size_t i = 0; i < keys.size(); i++) {
-        RedisCommand& cmd = cmds[i];
+        RedisCommand &cmd = cmds[i];
         cmd.append("set").append(keys[i]).append(values[i]);
         if (expire_time_secs[i] > 0) {
             cmd.append("ex");
@@ -253,7 +255,8 @@ bool RedisProxy::PipeSet(const std::vector<std::string> &keys, const std::vector
 
     for (const auto &resp : resps) {
         if (resp->ret_code != ReturnCode::REPLY_STATUS || resp->str != "OK") {
-            log_error_t(ERR_LOG_TAG, "PipeSet fail, ret_code:%d str:%s", static_cast<int>(resp->ret_code), resp->str.c_str());
+            log_error_t(ERR_LOG_TAG, "PipeSet fail, ret_code:%d str:%s", static_cast<int>(resp->ret_code),
+                        resp->str.c_str());
             return false;
         }
     }

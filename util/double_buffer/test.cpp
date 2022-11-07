@@ -59,7 +59,7 @@ void reset_writer(DoubleBuffer<std::map<int, std::string>>& db) {
     }
 }
 
-// g++ -g test.cpp -o test -pthread
+// g++ -g test.cpp -o test -pthread -std=c++11
 int main() {
     std::map<int, std::string> data;
     for (int i = 0; i < 1000; i++) {
