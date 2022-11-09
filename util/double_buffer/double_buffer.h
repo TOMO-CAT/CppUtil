@@ -50,9 +50,10 @@ class DoubleBuffer {
         std::lock_guard<std::mutex> lock(write_mtx_);
         std::shared_ptr<T> write_buffer = monopolizer_writer_buffer();
 
-        // update both two buffers
+        // update both two buffers, sleep to avoid data race on std::shared_ptr
         updater(*write_buffer);
         this->swap_buffer();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         updater(*write_buffer);
     }
 
@@ -66,9 +67,10 @@ class DoubleBuffer {
         std::lock_guard<std::mutex> lock(write_mtx_);
         std::shared_ptr<T> write_buffer = monopolizer_writer_buffer();
 
-        // reset both two buffers
+        // reset both two buffers, sleep to avoid data race on std::shared_ptr
         *write_buffer.get() = data;
         this->swap_buffer();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
         *write_buffer.get() = data;
     }
 
