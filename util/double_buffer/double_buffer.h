@@ -3,6 +3,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <thread>
 
 template <typename T>
@@ -40,15 +41,19 @@ class DoubleBuffer {
     }
 
     /**
-     * @brief It will block until it update two buffer successfully
+     * @brief It will block until it update both two buffers successfully
+     *        Only once writer thread can perform this function at the same time
      *        
      */
     void Update(const UpdaterFunc& updater) {
-        this->update_write_buffer(updater);
-        // avoid coredump in high-frequency update scenarios
-        // you can adjust your sleep time to suit your needs
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        this->update_write_buffer(updater);
+        // use std::mutex to update exclusively in multiple writer thread scenarios
+        std::lock_guard<std::mutex> lock(write_mtx_);
+        std::shared_ptr<T> write_buffer = monopolizer_writer_buffer();
+
+        // update both two buffers
+        updater(*write_buffer);
+        this->swap_buffer();
+        updater(*write_buffer);
     }
 
     /**
@@ -57,51 +62,24 @@ class DoubleBuffer {
      * @param data 
      */
     void Reset(const T& data) {
-        this->reset_write_buffer(data);
-        // avoid coredump in high-frequency update scenarios
-        // you can adjust your sleep time to suit your needs
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        this->reset_write_buffer(data);
+        // use std::mutex to update exclusively in multiple writer thread scenarios
+        std::lock_guard<std::mutex> lock(write_mtx_);
+        std::shared_ptr<T> write_buffer = monopolizer_writer_buffer();
+
+        // reset both two buffers
+        *write_buffer.get() = data;
+        this->swap_buffer();
+        *write_buffer.get() = data;
     }
 
  private:
-    // try to get write buffer exclusively multiple writer thread scenarios
-    std::shared_ptr<T> try_monopolizer_writer_buffer() {
+    // wait all reads task on this buffer to get write buffer
+    std::shared_ptr<T> monopolizer_writer_buffer() {
         int write_idx = 1 - read_idx_;
-        if (buffers_[write_idx].use_count() == 1) {
-            // reference count of write_buffer will add 1
-            // so other writer threads cannot obtain the write_buffer
-            return buffers_[write_idx];
+        while (buffers_[write_idx].use_count() != 1) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        return nullptr;
-    }
-
-    // Only once writer thread can perform updater function at the same time
-    // Lock by the reference count of write_buffer
-    void update_write_buffer(const UpdaterFunc& updater) {
-        std::shared_ptr<T> write_buffer = try_monopolizer_writer_buffer();
-        if (write_buffer != nullptr) {
-            updater(*write_buffer.get());
-            swap_buffer();
-        } else {
-            // avoid coredump in multiple writer threads scenarios
-            // you can adjust your sleep time to suit your needs
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            this->update_write_buffer(updater);
-        }
-    }
-
-    void reset_write_buffer(const T& data) {
-        std::shared_ptr<T> write_buffer = try_monopolizer_writer_buffer();
-        if (write_buffer != nullptr) {
-            *write_buffer.get() = data;
-            swap_buffer();
-        } else {
-            // avoid coredump in multiple writer threads scenarios
-            // you can adjust your sleep time to suit your needs
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            this->reset_write_buffer(data);
-        }
+        return buffers_[write_idx];
     }
 
     void swap_buffer() {
@@ -111,4 +89,5 @@ class DoubleBuffer {
  private:
     std::shared_ptr<T> buffers_[2];
     std::atomic<int> read_idx_;
+    std::mutex write_mtx_;
 };
