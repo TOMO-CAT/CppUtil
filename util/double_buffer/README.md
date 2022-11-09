@@ -17,7 +17,7 @@
 
 注意理论上是不存在“无锁”双 buffer 的，如果有多个写线程，且多写少读场景下，触发 coredump 的概率更高。如果想复现的话，你可以在 `test.cpp` 增加写线程的数目，并在 `double_buffer.h` 中缩短 `update_write_buffer` 和 `reset_write_buffer` 的 sleep 时间。
 
-另外需要注意的是写线程往往是阻塞的，即双 buffer 并不承诺 `Update()` 或者 `Reset()` 函数执行的时间，这意味着你最好以异步的方式调用这两个函数。
+另外需要注意的是写线程往往是阻塞的，即双 buffer 并不承诺 `Update()` 或者 `Reset()` 函数执行的时间，这意味着你最好以异步的方式调用这两个函数，而且写线程越多阻塞时间越长，最好是“一写多读”的场景。
 
 ## 用法
 
@@ -70,3 +70,7 @@ void DoubleBuffer::Update(const UpdaterFunc& updater);
 // 全量更新数据, 底层会进行拷贝, 这意味着 Update 性能更优
 void DoubleBuffer::Reset(const T& data);
 ```
+
+## 例子
+
+在 `test.cpp` 中我们起了 20 个读线程以 QPS 一万的速度去读一个 `std::map<int,std::string>`，同时起了两个写线程分别以一秒一次的速度 update 和 reset 该数据，这基本模拟了使用双 buffer 进行配置热更新的极端场景。

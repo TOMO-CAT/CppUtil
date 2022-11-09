@@ -45,6 +45,9 @@ class DoubleBuffer {
      */
     void Update(const UpdaterFunc& updater) {
         this->update_write_buffer(updater);
+        // avoid coredump in high-frequency update scenarios
+        // you can adjust your sleep time to suit your needs
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         this->update_write_buffer(updater);
     }
 
@@ -55,6 +58,9 @@ class DoubleBuffer {
      */
     void Reset(const T& data) {
         this->reset_write_buffer(data);
+        // avoid coredump in high-frequency update scenarios
+        // you can adjust your sleep time to suit your needs
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         this->reset_write_buffer(data);
     }
 
@@ -78,7 +84,9 @@ class DoubleBuffer {
             updater(*write_buffer.get());
             swap_buffer();
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            // avoid coredump in multiple writer threads scenarios
+            // you can adjust your sleep time to suit your needs
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             this->update_write_buffer(updater);
         }
     }
@@ -89,7 +97,9 @@ class DoubleBuffer {
             *write_buffer.get() = data;
             swap_buffer();
         } else {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            // avoid coredump in multiple writer threads scenarios
+            // you can adjust your sleep time to suit your needs
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
             this->reset_write_buffer(data);
         }
     }
