@@ -24,7 +24,7 @@ uint64_t timestamp_us() {
     return time.tv_sec * 1000 * 1000 + time.tv_usec;
 }
 
-void reader(DoubleBuffer<std::map<int, std::string>>& db) {
+void reader(util::DoubleBuffer<std::map<int, std::string>>& db) {
     while (1) {
         auto t_start_us = timestamp_us();
         int not_empty_cnt = 0;
@@ -43,7 +43,7 @@ void reader(DoubleBuffer<std::map<int, std::string>>& db) {
     }
 }
 
-void update_writer(DoubleBuffer<std::map<int, std::string>>& db) {
+void update_writer(util::DoubleBuffer<std::map<int, std::string>>& db) {
     while (1) {
         // you can use lambda expression to pass any parameter
         auto t_start_us = timestamp_us();
@@ -59,18 +59,16 @@ void update_writer(DoubleBuffer<std::map<int, std::string>>& db) {
     }
 }
 
-void reset_writer(DoubleBuffer<std::map<int, std::string>>& db) {
+void reset_writer(util::DoubleBuffer<std::map<int, std::string>>& db) {
     while (1) {
-        auto t_start_us = timestamp_us();
         std::map<int, std::string> data;
         for (int i = 0; i < 1000; i++) {
-            data[rand_int(1000)] = std::to_string(i);
+            data[rand_int(100)] = std::to_string(i);
         }
+        auto t_start_us = timestamp_us();
         db.Reset(data);
-        if (rand_int(200) == 0) {
-            printf("[reset writer]cost %ld us\n", timestamp_us() - t_start_us);
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        printf("[reset writer]cost %ld us\n", timestamp_us() - t_start_us);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
@@ -81,7 +79,7 @@ int main() {
     for (int i = 0; i < 1000; i++) {
         data[i] = std::to_string(i * i);
     }
-    DoubleBuffer<std::map<int, std::string>> double_buffer(data);
+    util::DoubleBuffer<std::map<int, std::string>> double_buffer(std::move(data));
     std::vector<std::thread> threads;
 
     // reader thread

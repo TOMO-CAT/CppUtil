@@ -5,28 +5,27 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <utility>
+
+namespace util {
 
 template <typename T>
+// #include <map>
+// #include <string>
+// using T = std::map<int, std::string>;
 class DoubleBuffer {
  public:
-    using UpdaterFunc = std::function<void(T& data)>;
+    using UpdaterFunc = std::function<void(T& write_buffer_data)>;
 
  public:
-    DoubleBuffer(std::shared_ptr<T> read_buffer, std::shared_ptr<T> write_buffer) {
-        buffers_[0] = read_buffer;
-        buffers_[1] = write_buffer;
-        read_idx_ = 0;
-    }
-
-    explicit DoubleBuffer(std::shared_ptr<T> data_sptr) {
-        buffers_[0] = data_sptr;
-        buffers_[1] = std::make_shared<T>(*data_sptr.get());
-        read_idx_ = 0;
-    }
-
     explicit DoubleBuffer(const T& data) {
         buffers_[0] = std::make_shared<T>(data);
         buffers_[1] = std::make_shared<T>(data);
+        read_idx_ = 0;
+    }
+    explicit DoubleBuffer(const T&& data) {
+        buffers_[0] = std::make_shared<T>(std::move(data));
+        buffers_[1] = std::make_shared<T>(*buffers_[0]);
         read_idx_ = 0;
     }
 
@@ -63,15 +62,10 @@ class DoubleBuffer {
      * @param data 
      */
     void Reset(const T& data) {
-        // use std::mutex to update exclusively in multiple writer thread scenarios
-        std::lock_guard<std::mutex> lock(write_mtx_);
-        std::shared_ptr<T> write_buffer = monopolizer_writer_buffer();
-
-        // reset both two buffers, sleep to avoid data race on std::shared_ptr
-        *write_buffer.get() = data;
-        this->swap_buffer();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        *write_buffer.get() = data;
+        this->Update([&](T& write_buffer_data) {
+            // deep copy
+            write_buffer_data = data;
+        });
     }
 
  private:
@@ -93,3 +87,5 @@ class DoubleBuffer {
     std::atomic<int> read_idx_;
     std::mutex write_mtx_;
 };
+
+}  // namespace util
