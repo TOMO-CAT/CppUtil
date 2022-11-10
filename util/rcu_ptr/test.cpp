@@ -23,7 +23,7 @@ int main() {
     const int RESET_THREAD_COUNT = 2;
     const int READ_QPS = 10000;
     const int UPDATE_QPS = 20;
-    const int RESET_QPS = 20;
+    const int RESET_QPS = 1;
 
     util::rcu_ptr<std::vector<int>> rp(std::make_shared<std::vector<int>>());
 
@@ -36,8 +36,8 @@ int main() {
                 t_start_us = timestamp_us();
                 cnt = rp.Load()->size();
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000 / READ_QPS * READ_THREAD_COUNT));
-                if (rand_int(10 * READ_QPS) == 0) {
-                    printf("[read]cnt:%d cost:%ldus\n", cnt, timestamp_us() - t_start_us);
+                if (rand_int(100 * READ_QPS) == 0) {
+                    printf("[readr]cnt:%d cost:%ldus\n", cnt, timestamp_us() - t_start_us);
                 }
             }
         }));
@@ -47,33 +47,33 @@ int main() {
             uint64_t t_start_us;
             while (1) {
                 t_start_us = timestamp_us();
-                rp.Update([](std::vector<int>* data) {
+                rp.Update([](std::vector<int>* write_buffer_data) {
                     for (int i = 0; i < 10; i++) {
-                        data->push_back(rand_int(100000));
+                        write_buffer_data->push_back(rand_int(100000));
                     }
                 });
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000 / UPDATE_QPS * UPDATE_THREAD_COUNT));
                 if (rand_int(10 * UPDATE_QPS) == 0) {
-                    printf("[write]cost:%ldus\n", timestamp_us() - t_start_us);
+                    printf("[update writer]cost:%ldus\n", timestamp_us() - t_start_us);
                 }
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000 / UPDATE_QPS * UPDATE_THREAD_COUNT));
             }
         }));
     }
-    for (int i = 0; i < RESET_QPS; i++) {
+    for (int i = 0; i < RESET_THREAD_COUNT; i++) {
         threads.push_back(std::thread([&]() {
             uint64_t t_start_us;
             while (1) {
-                t_start_us = timestamp_us();
                 std::shared_ptr<std::vector<int>> new_data_sp = std::make_shared<std::vector<int>>();
                 new_data_sp->reserve(100);
-                for (int i = 0; i < 100; i++) {
+                for (int i = 0; i < 300; i++) {
                     new_data_sp->push_back(rand_int(10000));
                 }
+                t_start_us = timestamp_us();
                 rp.Store(std::move(new_data_sp));
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000 / RESET_QPS * RESET_THREAD_COUNT));
                 if (rand_int(10 * RESET_QPS) == 0) {
-                    printf("[write]cost:%ldus\n", timestamp_us() - t_start_us);
+                    printf("[reset writer]cost:%ldus\n", timestamp_us() - t_start_us);
                 }
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000 / RESET_QPS * RESET_THREAD_COUNT));
             }
         }));
     }

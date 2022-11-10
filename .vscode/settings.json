@@ -85,7 +85,7 @@
     // clang-format file path
     "clang-format.assumeFilename": "./clang-format",
     // clang-foramt bin path
-    "clang-format.executable": "/opt/rh/llvm-toolset-7/root/usr/bin/clang-format",
+    "clang-format.executable": "/usr/bin/clang-format",
     // format on save
     "editor.formatOnSave": true,
 }
