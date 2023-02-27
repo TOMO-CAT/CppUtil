@@ -1,0 +1,3 @@
+cc_config(
+    warnings = ['-Wall', '-Wextra', '-Wframe-larger-than=69632'],
+)

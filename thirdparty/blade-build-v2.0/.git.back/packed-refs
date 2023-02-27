@@ -1,0 +1,21 @@
+# pack-refs with: peeled fully-peeled sorted 
+519412e4d00e45f2c6ad134d78f2d636a201f71b refs/remotes/origin/WindLeeWT-patch-1
+ba61e2a43100af12232a35949430c2170969418b refs/remotes/origin/add-open-function-and-re-module
+1a31f631f8d2c2e431493d548c1e085953fe83aa refs/remotes/origin/bugfix-sigpipe-awk
+8d1fb38285f922e932475e6f4ac030b07e6abe6a refs/remotes/origin/build-booster
+42bc7fdbeb5c9770b9a29ce9484bb20307c7b64e refs/remotes/origin/chen3feng-doc-prebuilt-libs
+b09f51598f73022742951c524e048d563d72adb7 refs/remotes/origin/chen3feng-stargazers
+409615e5fb1b391848bd5ffcd591c0878bd10355 refs/remotes/origin/fix-issue-995
+298fe5074e96d29d15f6bf8bec3f442409d19213 refs/remotes/origin/fix-some-bugs
+ae4339e3d1a16c5da73e597eededf6fea436e17a refs/remotes/origin/master
+1ddabf67b2815141b2d2e344f2e851d156be167a refs/remotes/origin/target.linkflags
+8dc84dba1ea63df414c6977fbe1b9f599f74af81 refs/tags/1.1.0
+4aaf4f039c704c58b49a52279f7c5dbd20162996 refs/tags/1.1.1
+5a002f995e5ec220098ed61d5c161a0cdeff5d72 refs/tags/1.1.2
+695cfcca3411c9ac75fdc15d035696b05cc3829d refs/tags/1.1.3
+cd8a789b50a7f0a3ea90c3e44cd606dec097548b refs/tags/v2.0
+3ff04a65a3c72a6a77b13b72b7d0328cdc68ab4c refs/tags/v2.0-alpha
+d96d3e9ba1b76c72b173784f6bb5bdb0902a65b9 refs/tags/v2.0-beta
+^cd8bda556b5c8abc3d7f9f267a6a3cc9b29f52c0
+4709c3bea9b5307b3b1c10732a47e715c261464e refs/tags/v2.0-beta1
+a505c77679ca2b940d13be434cdf826ebdd76054 refs/tags/v2.0-beta2

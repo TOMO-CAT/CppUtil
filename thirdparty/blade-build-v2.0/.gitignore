@@ -1,0 +1,14 @@
+.idea
+*.swp
+*.pyc
+.DS_Store
+
+blade-bin
+.Building.lock
+build32_*
+build64_*
+
+/blade.zip
+
+/.coverage*
+
