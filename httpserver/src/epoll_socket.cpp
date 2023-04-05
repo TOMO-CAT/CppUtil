@@ -1,9 +1,10 @@
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <netinet/in.h>
+
 #include "epoll_socket.h"
-#include "util/macro_util.h"
 #include "logger.h"
+#include "util/macro_util.h"
 
 namespace httpserver {
 
@@ -126,7 +127,8 @@ int EpollSocket::handle_accept_event() {
     std::string client_ip;
     int conn_socket = accept_socket(listen_socket_fd_, client_ip);
     if (conn_socket == -1) {
-        log_error("accept socket fail, client_ip:%s socket_fd:%d conn_socket:%d", client_ip.c_str(), listen_socket_fd_, conn_socket);
+        log_error("accept socket fail, client_ip:%s socket_fd:%d conn_socket:%d", client_ip.c_str(), listen_socket_fd_,
+                  conn_socket);
         return -1;
     }
 

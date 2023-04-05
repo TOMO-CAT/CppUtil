@@ -88,4 +88,11 @@
     "clang-format.executable": "/usr/bin/clang-format",
     // format on save
     "editor.formatOnSave": true,
+    "python.analysis.ignore": [
+        "**/BUILD/**",
+        "**/BLADE_ROOT/**"
+    ],
+    "python.linting.flake8Args": [
+        "--ignore=F821",
+    ],
 }

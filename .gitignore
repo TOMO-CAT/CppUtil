@@ -1,1 +1,7 @@
 output
+blade-bin
+blade-bin/
+build64_release/
+.cache/
+compile_commands.json
+logs
