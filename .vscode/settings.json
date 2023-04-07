@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "BUILD": "python",
         "array": "cpp",
         "atomic": "cpp",
         "strstream": "cpp",
@@ -71,7 +72,20 @@
         "slist": "cpp",
         "scoped_allocator": "cpp",
         "cfenv": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "any": "cpp",
+        "codecvt": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "coroutine": "cpp",
+        "source_location": "cpp",
+        "numbers": "cpp",
+        "ranges": "cpp",
+        "semaphore": "cpp",
+        "shared_mutex": "cpp",
+        "span": "cpp",
+        "stop_token": "cpp",
+        "variant": "cpp"
     },
     "cpplint.lineLength": 200,
     "cpplint.filters": [

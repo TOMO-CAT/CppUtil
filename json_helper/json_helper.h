@@ -1,3 +1,5 @@
 #pragma once
 
-#include "json/json.h"  // jsoncpp
+#include "json/json.h"
+
+namespace json_helper {}

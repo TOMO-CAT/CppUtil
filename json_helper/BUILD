@@ -1,7 +1,21 @@
 cc_library(
     name='json_helper',
     srcs=[],
-    hdrs=['json_helper.h'],
+    hdrs=[
+        'json_helper.h',
+        'unmarshal.h',
+    ],
     deps=['//thirdparty/jsoncpp:jsoncpp'],
     visibility=['PUBLIC'],
+)
+
+cc_binary(
+    name='json_helper_test',
+    srcs=[
+        'test.cc',
+    ],
+    deps=[
+        ':json_helper',
+        '//thirdparty/jsoncpp:jsoncpp'
+    ],
 )
