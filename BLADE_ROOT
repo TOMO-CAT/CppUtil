@@ -1,5 +1,4 @@
 cc_config(
     cxxflags=['-std=c++17'],
     optimize='-O2',
-    linkflags=[],
 )

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <boost/preprocessor.hpp>               // BOOST_PP_VARIADIC_TO_SEQ
+#include <boost/preprocessor/seq/for_each.hpp>  // BOOST_PP_SEQ_FOR_EACH
+#include <boost/preprocessor/stringize.hpp>     // BOOST_PP_STRINGIZE
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <string>
@@ -10,27 +14,28 @@
 
 namespace json_helper {
 
-// return false for uncaptured types
-template <typename T>
-inline bool Unmarshal(const Json::Value& root, T* const obj) {
-    return false;
-}
-
-// class with Unmarshal function
 template <typename T, typename = std::void_t<>>
 struct HasUnmarshalFunc : std::false_type {};
 template <typename T>
 struct HasUnmarshalFunc<T, std::void_t<decltype(&T::Unmarshal)>> : std::true_type {};
 
-template <typename T, typename std::enable_if<HasUnmarshalFunc<T>::value, bool>::type>
-inline bool Unmarshal(const Json::Value& root, T* const obj) {
+// return false for uncaptured types
+template <typename T>
+inline typename std::enable_if<!HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root,
+                                                                                  T* const obj) {
+    return false;
+}
+
+// class with Unmarshal function
+template <typename T>
+inline typename std::enable_if<HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root,
+                                                                                 T* const obj) {
     return obj->Unmarshal(root);
 }
 
 // enum class
 
 // int32_t
-template <>
 inline bool Unmarshal(const Json::Value& root, int32_t* const obj) {
     if (!root.isIntegral()) {
         return false;
@@ -40,7 +45,6 @@ inline bool Unmarshal(const Json::Value& root, int32_t* const obj) {
 }
 
 // int64_t
-template <>
 inline bool Unmarshal(const Json::Value& root, int64_t* const obj) {
     if (!root.isIntegral()) {
         return false;
@@ -50,7 +54,6 @@ inline bool Unmarshal(const Json::Value& root, int64_t* const obj) {
 }
 
 // uint32_t
-template <>
 inline bool Unmarshal(const Json::Value& root, uint32_t* const obj) {
     if (!root.isIntegral()) {
         return false;
@@ -60,7 +63,6 @@ inline bool Unmarshal(const Json::Value& root, uint32_t* const obj) {
 }
 
 // uint64_t
-template <>
 inline bool Unmarshal(const Json::Value& root, uint64_t* const obj) {
     if (!root.isIntegral()) {
         return false;
@@ -70,7 +72,6 @@ inline bool Unmarshal(const Json::Value& root, uint64_t* const obj) {
 }
 
 // float
-template <>
 inline bool Unmarshal(const Json::Value& root, float* const obj) {
     if (!root.isDouble()) {
         return false;
@@ -80,7 +81,6 @@ inline bool Unmarshal(const Json::Value& root, float* const obj) {
 }
 
 // double
-template <>
 inline bool Unmarshal(const Json::Value& root, double* const obj) {
     if (!root.isDouble()) {
         return false;
@@ -90,7 +90,6 @@ inline bool Unmarshal(const Json::Value& root, double* const obj) {
 }
 
 // bool
-template <>
 inline bool Unmarshal(const Json::Value& root, bool* const obj) {
     if (!root.isBool()) {
         return false;
@@ -100,7 +99,6 @@ inline bool Unmarshal(const Json::Value& root, bool* const obj) {
 }
 
 // string
-template <>
 inline bool Unmarshal(const Json::Value& root, std::string* const obj) {
     if (!root.isString()) {
         return false;
@@ -297,18 +295,20 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<uint64_t, T>* const o
     return ret;
 }
 
-#define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(r, _, field)          \
-    if (!json_helper::Unmarshal(root[#field], &field)) {             \
-        std::cout << "[json_helper] parse #field fail" << std::endl; \
-        ret = false;                                                 \
+#define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)                                                                  \
+    if (!json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) {                                                    \
+        /*std::cout << "[json_helper][debug] parse " BOOST_PP_STRINGIZE(field) " fail" << std::endl; */                        \
+        ret = false;                                                                                                           \
+    } else {                                                                                                                   \
+        /*std::cout << "[json_helper][debug] parse " BOOST_PP_STRINGIZE(field) " successfully, val: " << field << std::endl;*/ \
     }
 
-#define JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(...)                                                              \
- public:                                                                                                        \
-    bool Unmarshal(const Json::Value& root) {                                                                   \
-        bool ret = true;                                                                                        \
-        BOOST_PP_SEQ_FOR_EACH(__JSON_HELPER_UNMARSHAL_SINGLE_FIELD__, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)) \
-        return ret;                                                                                             \
+#define JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(...)                                                               \
+ public:                                                                                                         \
+    bool Unmarshal(const Json::Value& root) {                                                                    \
+        bool ret = true;                                                                                         \
+        BOOST_PP_SEQ_FOR_EACH(__JSON_HELPER_UNMARSHAL_SINGLE_FIELD__, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
+        return ret;                                                                                              \
     }
 
 }  // namespace json_helper

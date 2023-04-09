@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "BUILD": "python",
+        "BLADE_ROOT": "python",
         "array": "cpp",
         "atomic": "cpp",
         "strstream": "cpp",

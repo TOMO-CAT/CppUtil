@@ -1,0 +1,10 @@
+cc_test(
+    name='unmarshal_test',
+    srcs=[
+        'unmarshal_test.cc',
+    ],
+    deps=[
+        '//json_helper:json_helper',
+        '//thirdparty/gtest:gtest',
+    ]
+)
