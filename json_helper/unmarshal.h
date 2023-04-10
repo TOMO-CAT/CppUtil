@@ -23,6 +23,7 @@ struct HasUnmarshalFunc<T, std::void_t<decltype(&T::Unmarshal)>> : std::true_typ
 template <typename T>
 inline typename std::enable_if<!HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root,
                                                                                   T* const obj) {
+    std::cout << "[Warning] fallback to uncaptured types" << std::endl;
     return false;
 }
 
@@ -34,6 +35,15 @@ inline typename std::enable_if<HasUnmarshalFunc<T>::value, bool>::type Unmarshal
 }
 
 // enum class
+template <typename T>
+inline typename std::enable_if<std::is_enum<typename std::underlying_type<T>::type>::value, bool>::type Unmarshal(
+    const Json::Value& root, T* const obj) {
+    if (!root.isIntegral()) {
+        return false;
+    }
+    *obj = static_cast<T>(root.asInt());
+    return true;
+}
 
 // int32_t
 inline bool Unmarshal(const Json::Value& root, int32_t* const obj) {

@@ -122,6 +122,35 @@ TEST(UnmarshalTest, test_HasUnmarshalFunc) {
     EXPECT_TRUE(::json_helper::HasUnmarshalFunc<Cat_WithUnmarshalMacro>::value);
 }
 
+// enum 类的 Unmarshal
+TEST(UnmarshalTest, test_enum_class) {
+    enum class Color {
+        kUnknown = 0,
+        kRead = 1,
+        kBlue = 2,
+        kBlack = 3,
+    };
+
+    std::unordered_map<uint32_t, Color> num2enum = {
+        {0, Color::kUnknown},
+        {1, Color::kRead},
+        {2, Color::kBlue},
+        {3, Color::kBlack},
+    };
+
+    Json::Value root;
+    for (uint32_t i = 0; i < num2enum.size(); ++i) {
+        root[std::to_string(i)] = i;
+    }
+
+    Color color;
+    for (uint32_t i = 0; i < num2enum.size(); ++i) {
+        ::json_helper::Unmarshal(root[std::to_string(i)], &color);
+        std::cout << "color: " << static_cast<uint32_t>(color) << std::endl;
+        EXPECT_EQ(num2enum[i], color);
+    }
+}
+
 // 嵌套类的 Unmarshal
 TEST(UnmarshalTest, test_nested_class) {
     class Vehicle {
