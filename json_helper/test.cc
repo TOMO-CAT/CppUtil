@@ -1,52 +1,43 @@
-// #include <iostream>
-
-// #include "json_helper/unmarshal.h"
-// struct Cat {
-//     enum class Color {
-//         kWhite = 0,
-//         kBlack = 1,
-//         kBlue = 2,
-//         kOther = 3,
-//     };
-
-//     std::string name;
-//     int32_t age;
-
-//     bool Unmarshal(const Json::Value& root) {
-//         return true;
-//     }
-// };
-
-// int main() {
-//     Cat cat = {
-//         .name = "John",
-//         .age = 10,
-//     };
-
-//     std::cout << json_helper::HasUnmarshalFunc<Cat>::value << std::endl;
-
-//     return 0;
-// }
-
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/stringize.hpp>
 #include <iostream>
+#include <vector>
 
-#define FIELDS (name)(age)(address)
+#include "json/json.h"
 
-class Person {
- public:
-    std::string name;
-    int age;
-    std::string address;
-};
-
-#define PRINT_FIELD(r, data, field) std::cout << BOOST_PP_STRINGIZE(field) << " = " << data.field << '\n';
-
-#define PRINT_FIELDS(obj) BOOST_PP_SEQ_FOR_EACH(PRINT_FIELD, obj, FIELDS)
+template <typename T>
+inline bool Unmarshal(const Json::Value& root, std::vector<T>* const obj) {
+    std::cout << "[####### debug #######]" << std::endl;
+    if (!root.isArray()) {
+        std::cout << "no array" << std::endl;
+        return false;
+    }
+    obj->clear();
+    obj->resize(root.size());
+    bool ret = true;
+    for (int i = 0; i < static_cast<int>(root.size()); ++i) {
+        if (!Unmarshal(root[i], &obj[i])) {
+            std::cout << "i: " << i << ", root[i]: " << root[i] << std::endl;
+            ret = false;
+        }
+    }
+    std::cout << "[####### done #######]" << std::endl;
+    return ret;
+}
 
 int main() {
-    Person p{"Alice", 25, "123 Main St."};
-    PRINT_FIELDS(p)
-    return 0;
+    std::string str = R"(
+        ["a", "b", "c"]
+    )";
+
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(str, root)) {
+        std::cout << "parse fail" << std::endl;
+        exit(-1);
+    }
+    if (!root.isArray()) {
+        std::cout << "root is not array" << std::endl;
+    }
+
+    std::vector<std::string> res;
+    Unmarshal(root, &res);
 }

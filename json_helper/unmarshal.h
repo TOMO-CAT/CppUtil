@@ -30,22 +30,22 @@ struct IsEnumClass<T, typename std::enable_if<std::is_enum<T>::value && !std::is
 
 // return false for uncaptured types
 template <typename T>
-inline typename std::enable_if<!HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root,
-                                                                                  T* const obj) {
-    std::cout << "[Warning] fallback to uncaptured types" << std::endl;
+inline typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
+    const Json::Value& root, T* const obj) {
+    std::cout << "[JsonHelper][Warning] fallback to uncaptured types" << std::endl;
     return false;
 }
 
 // class with Unmarshal function
 template <typename T>
-inline typename std::enable_if<HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root,
-                                                                                 T* const obj) {
+inline typename std::enable_if<HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
+    const Json::Value& root, T* const obj) {
     return obj->Unmarshal(root);
 }
 
 // enum class
 template <typename T>
-inline typename std::enable_if<std::is_enum<typename std::underlying_type<T>::type>::value, bool>::type Unmarshal(
+inline typename std::enable_if<IsEnumClass<T>::value && !HasUnmarshalFunc<T>::value, bool>::type Unmarshal(
     const Json::Value& root, T* const obj) {
     if (!root.isIntegral()) {
         return false;
@@ -156,17 +156,21 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<uint64_t, T>* const o
 
 template <typename T>
 inline bool Unmarshal(const Json::Value& root, std::vector<T>* const obj) {
+    std::cout << "[####### debug #######]" << std::endl;
     if (!root.isArray()) {
+        std::cout << "no array" << std::endl;
         return false;
     }
     obj->clear();
-    obj->resize();
+    obj->resize(root.size());
     bool ret = true;
     for (int i = 0; i < static_cast<int>(root.size()); ++i) {
         if (!Unmarshal(root[i], &obj[i])) {
+            std::cout << "i: " << i << ", root[i]: " << root[i] << std::endl;
             ret = false;
         }
     }
+    std::cout << "[####### done #######]" << std::endl;
     return ret;
 }
 

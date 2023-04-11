@@ -135,7 +135,6 @@ TEST(UnmarshalTest, test_IsEnumClass) {
     EXPECT_TRUE(::json_helper::IsEnumClass<Color>::value);
 }
 
-#if 0
 // enum 类的 Unmarshal
 TEST(UnmarshalTest, test_enum_class) {
     enum class Color {
@@ -160,16 +159,16 @@ TEST(UnmarshalTest, test_enum_class) {
     Color color;
     for (uint32_t i = 0; i < num2enum.size(); ++i) {
         ::json_helper::Unmarshal(root[std::to_string(i)], &color);
-        std::cout << "color: " << static_cast<uint32_t>(color) << std::endl;
         EXPECT_EQ(num2enum[i], color);
     }
 }
-#endif
 
 // 嵌套类的 Unmarshal
 TEST(UnmarshalTest, test_nested_class) {
     class Vehicle {
+     public:
         class Wheel {
+         public:
             int temp = 0;
             double pressure = 0.0;
             std::string factory;
@@ -182,6 +181,48 @@ TEST(UnmarshalTest, test_nested_class) {
 
         JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(wheel, color);
     };
+
+    std::string str = R"(
+        {
+            "wheel": {
+                "temp": 45,
+                "pressure": 85.5,
+                "factory": "Audi"
+            },
+            "color": "blue"
+        }
+    )";
+
+    Json::Value root;
+    Json::Reader reader;
+    ASSERT_TRUE(reader.parse(str, root));
+
+    Vehicle vehicle;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &vehicle));
+
+    EXPECT_EQ("blue", vehicle.color);
+    EXPECT_EQ(45, vehicle.wheel.temp);
+    EXPECT_DOUBLE_EQ(85.5, vehicle.wheel.pressure);
+    EXPECT_EQ("Audi", vehicle.wheel.factory);
+}
+
+TEST(UnmarshalTest, test_unmarshal_vector) {
+    std::string str = R"(
+        ["a", "b", "c"]
+    )";
+
+    Json::Value root;
+    Json::Reader reader;
+    ASSERT_TRUE(reader.parse(str, root));
+    ASSERT_TRUE(root.isArray());
+
+    std::vector<std::string> res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &res));
+
+    // ASSERT_EQ(3u, res.size());
+    // EXPECT_EQ("a", res[0]);
+    // EXPECT_EQ("b", res[1]);
+    // EXPECT_EQ("c", res[2]);
 }
 
 }  // namespace json_helper
