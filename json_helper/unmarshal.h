@@ -156,21 +156,19 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<uint64_t, T>* const o
 
 template <typename T>
 inline bool Unmarshal(const Json::Value& root, std::vector<T>* const obj) {
-    std::cout << "[####### debug #######]" << std::endl;
     if (!root.isArray()) {
-        std::cout << "no array" << std::endl;
         return false;
     }
     obj->clear();
-    obj->resize(root.size());
+    obj->reserve(root.size());
     bool ret = true;
     for (int i = 0; i < static_cast<int>(root.size()); ++i) {
-        if (!Unmarshal(root[i], &obj[i])) {
-            std::cout << "i: " << i << ", root[i]: " << root[i] << std::endl;
+        T tmp;
+        if (!Unmarshal(root[i], &tmp)) {
             ret = false;
         }
+        obj->emplace_back(std::move(tmp));
     }
-    std::cout << "[####### done #######]" << std::endl;
     return ret;
 }
 
