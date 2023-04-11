@@ -5,7 +5,10 @@ cc_library(
         'json_helper.h',
         'unmarshal.h',
     ],
-    deps=['//thirdparty/jsoncpp:jsoncpp'],
+    deps=[
+        '//thirdparty/jsoncpp:jsoncpp',
+        '//thirdparty/boost:boost',
+    ],
     visibility=['PUBLIC'],
 )
 

@@ -23,6 +23,9 @@ $make
 
 # blade
 $blade build logger
+
+# 使用 bear 编译
+$bear -- blade build logger
 ```
 
 测试：

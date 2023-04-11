@@ -1,0 +1,9 @@
+cc_library(
+    name='boost',
+    export_incs=['./include'],
+    hdrs=[
+        'boost/noncopyable.hpp',
+        'boost/preprocessor.hpp',
+    ],
+    visibility=['PUBLIC'],
+)

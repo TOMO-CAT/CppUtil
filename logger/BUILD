@@ -12,6 +12,7 @@ cc_library(
         '//util:util',
         '//util/config_util:config_util',
         '//thirdparty/cpptoml:cpptoml',
+        '//thirdparty/boost:boost',
         '#uuid',
     ],
     visibility=['PUBLIC'],
