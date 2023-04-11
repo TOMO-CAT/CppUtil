@@ -1,8 +1,9 @@
 #pragma once
 
-#include "sys/epoll.h"
-#include <string>
 #include <boost/noncopyable.hpp>
+#include <string>
+
+#include "sys/epoll.h"
 
 namespace httpserver {
 
@@ -27,6 +28,9 @@ struct EpollEventContext {
 };
 
 class EpollEventHandler : boost::noncopyable {
+ public:
+    virtual ~EpollEventHandler() = default;
+
  public:
     virtual int OnAccept(EpollEventContext* ctx) = 0;
     virtual ReadStatus OnReadable(EpollEventContext* ctx, char* read_buffer, int buffer_size, int read_size) = 0;

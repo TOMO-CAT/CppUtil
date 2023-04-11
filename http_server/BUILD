@@ -1,0 +1,24 @@
+cc_library(
+    name='http_server',
+    srcs=[
+        'epoll_socket.cpp',
+        'http_epoll_event_handler.cpp',
+        'http_request.cpp',
+        'http_response.cpp',
+        'http_server.cpp',
+    ],
+    hdrs=[
+        'epoll_event_handler.h',
+        'epoll_socket.h',
+        'http_epoll_event_handler.h',
+        'http_request.h',
+        'http_response.h',
+        'http_server.h',
+    ],
+    deps=[
+        '//util/string_util:string_util',
+        '//util:util',
+        '//logger:logger',
+    ],
+    visibility=['PUBLIC'],
+)

@@ -1,0 +1,11 @@
+cc_binary(
+    name='http_server_test',
+    srcs=[
+        'http_server_test.cpp',
+    ],
+    deps=[
+        '//http_server:http_server',
+        '//logger:logger',
+        '//thirdparty/jsoncpp:jsoncpp',
+    ],
+)

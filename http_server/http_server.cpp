@@ -1,8 +1,10 @@
 #include <sys/socket.h>
+
 #include <cstring>
-#include "util/macro_util.h"
-#include "http_server.h"
+
 #include "epoll_socket.h"
+#include "http_server.h"
+#include "util/macro_util.h"
 
 namespace httpserver {
 
@@ -24,6 +26,7 @@ HttpServer::~HttpServer() {
 
 int HttpServer::Start() {
     epoll_socket_->Start();
+    return 0;
 }
 
 void HttpServer::RegisterHandler(std::string path, HttpHandler handler) {

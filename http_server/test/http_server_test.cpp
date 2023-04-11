@@ -1,6 +1,6 @@
-#include "http_server.h"
-#include "logger.h"
-#include "jsoncpp/json.h"
+#include "http_server/http_server.h"
+#include "json/json.h"
+#include "logger/logger.h"
 
 void echo(httpserver::HttpRequest& req, httpserver::HttpResponse& resp) {
     std::string name = req.url_params["name"];
@@ -22,4 +22,3 @@ int main() {
     http_server.Start();
     return 0;
 }
-

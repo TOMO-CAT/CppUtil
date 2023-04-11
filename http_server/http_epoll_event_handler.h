@@ -1,10 +1,11 @@
 #pragma once
 
-#include <string>
 #include <map>
+#include <string>
+
+#include "epoll_event_handler.h"
 #include "http_request.h"
 #include "http_response.h"
-#include "epoll_event_handler.h"
 
 namespace httpserver {
 
@@ -21,6 +22,9 @@ struct HttpContext {
 };
 
 class HttpEpollEventHandler : public EpollEventHandler {
+ public:
+    virtual ~HttpEpollEventHandler() = default;
+
  public:
     int OnAccept(EpollEventContext* ctx) override;
     ReadStatus OnReadable(EpollEventContext* ctx, char* read_buffer, int buffer_size, int read_size) override;

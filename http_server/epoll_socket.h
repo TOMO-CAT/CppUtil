@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include <boost/noncopyable.hpp>
+#include <string>
+
 #include "epoll_event_handler.h"
 
 namespace httpserver {
@@ -11,8 +12,8 @@ const int EPOLL_SOCKET_WRITE_BUFFER_SIZE = 4096;
 
 class EpollSocket : boost::noncopyable {
  public:
-    EpollSocket(int port, int backlog, int max_events, EpollEventHandler* handler) :
-        port_(port), backlog_(backlog), max_events_(max_events), event_handler_(handler) {}
+    EpollSocket(int port, int backlog, int max_events, EpollEventHandler* handler)
+        : port_(port), backlog_(backlog), max_events_(max_events), event_handler_(handler) {}
     int Start();
 
  private:

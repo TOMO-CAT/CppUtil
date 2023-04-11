@@ -1,0 +1,12 @@
+cc_library(
+    name='string_util',
+    srcs=[
+        'string_util.cpp',
+    ],
+    hdrs=[
+        'string_util.h',
+    ],
+    deps=[
+    ],
+    visibility=['PUBLIC'],
+)

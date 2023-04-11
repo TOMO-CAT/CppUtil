@@ -1,7 +1,8 @@
 #include <cstring>
 #include <utility>
+
 #include "http_request.h"
-#include "logger.h"
+#include "logger/logger.h"
 #include "util/string_util/string_util.h"
 
 namespace httpserver {
@@ -50,7 +51,7 @@ ReadStatus HttpRequest::OnReadable(const char* read_buffer, int read_size) {
                 return ReadStatus::READ_ERROR;
             }
             log_info("parse http request line successfully! method:%s url:%s http_version:%s params_cnt:%d",
-                method.c_str(), url.c_str(), http_version.c_str(), url_params.size());
+                     method.c_str(), url.c_str(), http_version.c_str(), url_params.size());
             if (method != "POST" && method != "GET") {
                 log_error("unsupported method %s", method.c_str());
                 return ReadStatus::READ_ERROR;
@@ -80,8 +81,8 @@ ReadStatus HttpRequest::OnReadable(const char* read_buffer, int read_size) {
     }
 
     if (parse_part != PARSE_REQ_OVER) {
-        log_error("parse http request incompletely, url:%s method:%s version:%s",
-            url.c_str(), method.c_str(), http_version.c_str());
+        log_error("parse http request incompletely, url:%s method:%s version:%s", url.c_str(), method.c_str(),
+                  http_version.c_str());
         return ReadStatus::READ_CONTINUE;
     }
 

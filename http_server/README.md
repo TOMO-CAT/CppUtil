@@ -15,7 +15,7 @@
 
 代码：
 
-> https://github.com/TOMO-CAT/CppUtil/tree/main/httpserver
+> <https://github.com/TOMO-CAT/CppUtil/tree/main/httpserver>
 
 编译后生成头文件和动态库：
 
@@ -54,7 +54,7 @@ int main() {
 
 ## 设计方案
 
-#### 1. EpollSocket: 基于Epoll的服务端Socket
+### 1. EpollSocket: 基于Epoll的服务端Socket
 
 相关细节：
 
@@ -92,7 +92,7 @@ class EpollSocket : boost::noncopyable {
 };
 ```
 
-#### 2. EpollEvent处理接口：EpollEventHandler
+### 2. EpollEvent处理接口：EpollEventHandler
 
 Epoll需要处理三类事件，为了实现各式各样的网络服务端，这里将其实现成接口：
 
@@ -124,7 +124,7 @@ class HttpEpollEventHandler : public EpollEventHandler {
 };
 ```
 
-#### 3. Http请求与返回值
+### 3. Http请求与返回值
 
 简单的Http请求包括四个部分：
 
@@ -197,7 +197,7 @@ struct HttpResponse {
 };
 ```
 
-#### 4. 最终的Http服务器
+### 4. 最终的Http服务器
 
 提供注册handler的函数和一个阻塞式的Start函数：
 
@@ -237,4 +237,4 @@ class HttpServer {
 
 ## Reference
 
-[1] https://github.com/hongliuliao/ehttp
+[1] <https://github.com/hongliuliao/ehttp>

@@ -3,7 +3,7 @@
 #include <netinet/in.h>
 
 #include "epoll_socket.h"
-#include "logger.h"
+#include "logger/logger.h"
 #include "util/macro_util.h"
 
 namespace httpserver {
@@ -74,6 +74,7 @@ int EpollSocket::create_epoll() {
         return -1;
     }
     log_info("create epoll successfully! epoll fd:%d", epoll_fd_);
+    return 0;
 }
 
 int EpollSocket::add_listen_socket_to_epoll() {
@@ -102,7 +103,7 @@ int EpollSocket::start_epoll_loop() {
             break;
         }
 
-        for (size_t i = 0; i < fd_num; i++) {
+        for (int i = 0; i < fd_num; i++) {
             if (events[i].data.fd == listen_socket_fd_) {
                 handle_accept_event();
             } else if (events[i].events & EPOLLIN) {
@@ -162,14 +163,14 @@ int EpollSocket::handle_readable_event(epoll_event& event) {
     ::memset(read_buffer, 0, EPOLL_SOCKET_READ_BUFFER_SIZE);
 
     int read_size = ::recv(fd, read_buffer, EPOLL_SOCKET_READ_BUFFER_SIZE, 0);
-    ReadStatus ret;
+    ReadStatus ret = ReadStatus::READ_ERROR;
     if (read_size > 0) {
         log_info("fd:%d read size:%d", fd, read_size);
         ret = event_handler_->OnReadable(ctx, read_buffer, EPOLL_SOCKET_READ_BUFFER_SIZE, read_size);
     }
 
     if (read_size <= 0 || ret == ReadStatus::READ_ERROR || ret == ReadStatus::READ_REACH_MAX_SIZE) {
-        log_error("read error, ret:%d", ret);
+        log_error("read error, ret:%d", static_cast<int32_t>(ret));
         close_and_release(event);
         return 0;
     }

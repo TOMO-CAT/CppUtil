@@ -1,7 +1,9 @@
 #include <sys/socket.h>
+
 #include <cstring>
+
 #include "http_epoll_event_handler.h"
-#include "logger.h"
+#include "logger/logger.h"
 
 namespace httpserver {
 
@@ -21,10 +23,13 @@ HttpContext::HttpContext(int fd) : fd(fd) {
     resp = new HttpResponse();
 }
 
-
 void HttpContext::Clear() {
-    if (req) { delete req; }
-    if (resp) { delete resp; }
+    if (req) {
+        delete req;
+    }
+    if (resp) {
+        delete resp;
+    }
     req = new HttpRequest();
     resp = new HttpResponse();
 }
@@ -35,7 +40,8 @@ int HttpEpollEventHandler::OnAccept(EpollEventContext* ctx) {
     return 0;
 }
 
-ReadStatus HttpEpollEventHandler::OnReadable(EpollEventContext* ctx, char* read_buffer, int buffer_size, int read_size) {
+ReadStatus HttpEpollEventHandler::OnReadable(EpollEventContext* ctx, char* read_buffer, int buffer_size,
+                                             int read_size) {
     HttpContext* http_ctx = reinterpret_cast<HttpContext*>(ctx->data_ptr);
     ReadStatus read_ret = http_ctx->req->OnReadable(read_buffer, read_size);
     if (read_ret != ReadStatus::READ_OVER) {
@@ -108,9 +114,9 @@ int HttpEpollEventHandler::handle_http_request(HttpRequest* req, HttpResponse* r
     }
 
     uri2handler[uri](*req, *resp);
-    log_info("handler http request successfully! code:%d msg:%s", resp->status_line.stauts_code, resp->status_line.msg.c_str());
+    log_info("handler http request successfully! code:%d msg:%s", resp->status_line.stauts_code,
+             resp->status_line.msg.c_str());
     return 0;
 }
-
 
 }  // namespace httpserver
