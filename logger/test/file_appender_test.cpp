@@ -1,24 +1,14 @@
-/**
- * @file TestFileAppender.cpp
- * @author tomocat (512676561@qq.com)
- * @brief 
- * @version 0.1
- * @date 2022-04-02
- * 
- * @copyright Copyright (c) 2022
- * 
- */
-
 #include <thread>
 #include <vector>
+
+#include "logger/file_appender.h"
 #include "util/macro_util.h"
 #include "util/time_util/time_util.h"
-#include "file_appender.h"
 
 using logger::FileAppender;
-const int THREAD_NUMBER = 10;   // 线程数
-const int RUNNING_HOURS = 24;   // 运行小时数
-const int RETAIN_HOURS = 6;     // 日志保留小时数
+const int THREAD_NUMBER = 10;  // 线程数
+const int RUNNING_HOURS = 24;  // 运行小时数
+const int RETAIN_HOURS = 6;    // 日志保留小时数
 
 FileAppender g_file_appender("./log", "TestFileAppender.log", RETAIN_HOURS);
 
