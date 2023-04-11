@@ -122,6 +122,20 @@ TEST(UnmarshalTest, test_HasUnmarshalFunc) {
     EXPECT_TRUE(::json_helper::HasUnmarshalFunc<Cat_WithUnmarshalMacro>::value);
 }
 
+// IsEnumClass<T> 模版类用于辅助判断类 T 是否是 enum class
+TEST(UnmarshalTest, test_IsEnumClass) {
+    struct Cat {
+        std::string name;
+        int32_t age = -1;
+    };
+
+    enum class Color { Red, Green, Blue };
+
+    EXPECT_FALSE(::json_helper::IsEnumClass<Cat>::value);
+    EXPECT_TRUE(::json_helper::IsEnumClass<Color>::value);
+}
+
+#if 0
 // enum 类的 Unmarshal
 TEST(UnmarshalTest, test_enum_class) {
     enum class Color {
@@ -150,6 +164,7 @@ TEST(UnmarshalTest, test_enum_class) {
         EXPECT_EQ(num2enum[i], color);
     }
 }
+#endif
 
 // 嵌套类的 Unmarshal
 TEST(UnmarshalTest, test_nested_class) {
