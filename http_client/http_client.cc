@@ -1,9 +1,9 @@
+#include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "curl/curl.h"
 #include "http_client/http_client.h"
-#include "logger.h"
+#include "logger/logger.h"
 
 namespace httpclient {
 

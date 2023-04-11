@@ -1,6 +1,6 @@
 #include <string>
 
-#include "http_client/httpclient.h"
+#include "http_client/http_client.h"
 
 int main() {
     std::string resp;

@@ -72,10 +72,14 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
     va_start(args, fmt);
     if (is_console_output_) {
 // https://stackoverflow.com/questions/36120717/correcting-format-string-is-not-a-string-literal-warning
+#if defined(__has_warning)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
         vprintf((new_fmt + "\n").c_str(), args);
+#if defined(__has_warning)
 #pragma clang diagnostic pop
+#endif
     } else {
         file_appender_->Write(new_fmt.c_str(), args);
     }

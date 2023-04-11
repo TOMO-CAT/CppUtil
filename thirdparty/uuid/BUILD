@@ -1,9 +1,0 @@
-prebuilt_cc_library(
-    name='uuid',
-    export_incs=['include'],
-    libpath_pattern='lib',
-    hdrs=glob("include/**/*.h"),
-    deps=[
-    ],
-    visibility=['PUBLIC'],
-)

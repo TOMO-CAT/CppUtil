@@ -7,7 +7,8 @@ cc_library(
         'http_client.h',
     ],
     deps=[
-        '//thirdparty/curl:curl',
+        '//logger:logger',
+        '#curl',
     ],
     visibility=['PUBLIC'],
 )

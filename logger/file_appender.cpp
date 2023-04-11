@@ -44,10 +44,14 @@ void FileAppender::Write(const char* fmt, va_list args) {
     pthread_mutex_lock(&write_mutex_);
     if (file_stream_.is_open()) {
 // https://stackoverflow.com/questions/36120717/correcting-format-string-is-not-a-string-literal-warning
+#if defined(__has_warning)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
         vsnprintf(buffer_, sizeof(buffer_), fmt, args);
+#if defined(__has_warning)
 #pragma clang diagnostic pop
+#endif
         file_stream_ << buffer_ << "\n";
         file_stream_.flush();
     }

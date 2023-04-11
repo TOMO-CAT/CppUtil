@@ -1,8 +1,20 @@
 # Http Client
 
-## 簡介
+## 简介
 
 简易Http客戶端。
+
+## 依赖
+
+```bash
+# curl
+$wget https://curl.se/download/archeology/curl-7.29.0.tar.gz --no-check-certificate
+$tar xvf curl-7.29.0.tar.gz
+$cd curl-7.29.0
+$./configure
+$make
+$make install
+```
 
 ## 特性
 

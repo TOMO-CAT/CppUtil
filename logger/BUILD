@@ -11,8 +11,8 @@ cc_library(
     deps=[
         '//util:util',
         '//util/config_util:config_util',
-        '//thirdparty/uuid:uuid',
         '//thirdparty/cpptoml:cpptoml',
+        '#uuid',
     ],
     visibility=['PUBLIC'],
 )
