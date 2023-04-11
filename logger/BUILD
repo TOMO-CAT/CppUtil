@@ -1,0 +1,18 @@
+cc_library(
+    name='logger',
+    srcs=[
+        'file_appender.cpp',
+        'logger.cpp',
+    ],
+    hdrs=[
+        'file_appender.h',
+        'logger.h',
+    ],
+    deps=[
+        '//util:util',
+        '//util/config_util:config_util',
+        '//thirdparty/uuid:uuid',
+        '//thirdparty/cpptoml:cpptoml',
+    ],
+    visibility=['PUBLIC'],
+)

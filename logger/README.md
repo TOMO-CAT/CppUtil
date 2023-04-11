@@ -17,12 +17,18 @@
 编译：
 
 ```bash
+# makefile
+$cd logger
 $make
+
+# blade
+$blade build logger
 ```
 
 测试：
 
 ```bash
+$cd logger
 $make test
 $./output/bin/TestLogger 
 [2022-04-17 17:21:28.885058][3271:c4e0d7b4e734cac][INFO ][../util/config_util/toml_helper.h:23][ParseTomlValue]parse toml succ, key:Level value:1

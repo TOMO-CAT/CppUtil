@@ -1,9 +1,11 @@
-#include <uuid/uuid.h>
 #include <sys/time.h>
-#include <memory>
+#include <uuid/uuid.h>
+
 #include <cstdarg>
-#include "logger.h"
+#include <memory>
+
 #include "cpptoml.h"
+#include "logger/logger.h"
 #include "util/config_util/toml_helper.h"
 
 namespace logger {
@@ -82,9 +84,9 @@ std::string Logger::gen_timestamp_prefix() {
     struct tm tm_now;
     ::localtime_r(&now.tv_sec, &tm_now);
     char time_str[100];
-    snprintf(time_str, sizeof(time_str), "[%04d-%02d-%02d %02d:%02d:%02d.%06ld][%d:%lx]",
-        tm_now.tm_year + 1900, tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, now.tv_usec,
-        pid_, trace_id_);
+    snprintf(time_str, sizeof(time_str), "[%04d-%02d-%02d %02d:%02d:%02d.%06ld][%d:%lx]", tm_now.tm_year + 1900,
+             tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, now.tv_usec, pid_,
+             trace_id_);
     return time_str;
 }
 

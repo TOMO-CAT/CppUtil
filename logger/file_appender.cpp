@@ -1,22 +1,24 @@
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <errno.h>
-#include <cstring>
-#include <cstdio>
+
 #include <cstdarg>
-#include "file_appender.h"
+#include <cstdio>
+#include <cstring>
+
+#include "logger/file_appender.h"
 #include "util/macro_util.h"
 
 namespace logger {
 
 __thread char FileAppender::buffer_[FILE_APPENDER_BUFF_SIZE];
 
-FileAppender::FileAppender(std::string dir, std::string file_name, int retain_hours) :
-    file_dir_(dir), file_name_(file_name), retain_hours_(retain_hours) {
-        if (file_dir_.empty()) {
-            file_dir_ = ".";
-        }
-        file_path_ = file_dir_ + "/" + file_name_;
+FileAppender::FileAppender(std::string dir, std::string file_name, int retain_hours)
+    : file_dir_(dir), file_name_(file_name), retain_hours_(retain_hours) {
+    if (file_dir_.empty()) {
+        file_dir_ = ".";
+    }
+    file_path_ = file_dir_ + "/" + file_name_;
 }
 
 FileAppender::~FileAppender() {
@@ -79,15 +81,17 @@ void FileAppender::cut_if_need() {
     if (now_hour_suffix > last_hour_suffix_) {
         pthread_mutex_lock(&write_mutex_);
         if (now_hour_suffix > last_hour_suffix_) {
-            std::string new_file_path = file_path_ + "." + std::to_string(last_hour_suffix_);  // eg: logger.log.yyyymmddhh
+            std::string new_file_path =
+                file_path_ + "." + std::to_string(last_hour_suffix_);  // eg: logger.log.yyyymmddhh
             int ret = rename(file_path_.c_str(), new_file_path.c_str());
             if (ret != 0) {
-                printf2console("rename fail, old_file:%s new_file:%s err:%s", file_path_.c_str(), new_file_path.c_str(), strerror(errno));
+                printf2console("rename fail, old_file:%s new_file:%s err:%s", file_path_.c_str(), new_file_path.c_str(),
+                               strerror(errno));
             }
             file_stream_.close();
             file_stream_.open(file_path_.c_str(), std::fstream::out | std::fstream::app);
-            printf2console("cut file, last hour:%d now hour:%d file_path:%s new_file_path:%s",
-                last_hour_suffix_, now_hour_suffix, file_path_.c_str(), new_file_path.c_str());
+            printf2console("cut file, last hour:%ld now hour:%ld file_path:%s new_file_path:%s", last_hour_suffix_,
+                           now_hour_suffix, file_path_.c_str(), new_file_path.c_str());
             last_hour_suffix_ = now_hour_suffix;
         }
         pthread_mutex_unlock(&write_mutex_);
