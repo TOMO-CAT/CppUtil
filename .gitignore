@@ -5,3 +5,4 @@ build64_release/
 .cache/
 compile_commands.json
 logs
+logger/log

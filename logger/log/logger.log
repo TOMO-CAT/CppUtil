@@ -1,5 +1,0 @@
-[2023-04-11 11:39:32.878292][25985:7049b6a79d0f2ea4][INFO ][test/TestLogger.cpp:8][main]info message
-[2023-04-11 11:39:32.878380][25985:7049b6a79d0f2ea4][INFO ][test/TestLogger.cpp:10][main]name:tomocat age:26 weight:56.2
-[2023-04-11 11:39:32.878407][25985:7049b6a79d0f2ea4][WARN ][test/TestLogger.cpp:11][main]warn message
-[2023-04-11 11:39:32.878420][25985:7049b6a79d0f2ea4][ERROR][test/TestLogger.cpp:12][main]error message
-[2023-04-11 11:39:32.878430][25985:7049b6a79d0f2ea4][ERROR][test/TestLogger.cpp:13][main][tag=err_tag]error message with tag, type:pencil length:17
