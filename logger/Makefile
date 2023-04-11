@@ -2,7 +2,7 @@
 
 CXX := g++
 CXXFLAG := -g -std=c++11 
-LDFLAGS := -lpthread -L../thirdpkg/lib/uuid -luuid
+LDFLAGS := -lpthread -L../thirdpkg/lib/uuid -luuid -Wl,-rpath=../thirdpkg/lib/uuid
 INCLUDE = -I ./ \
           -I ./src \
 		  -I ../thirdpkg/include \

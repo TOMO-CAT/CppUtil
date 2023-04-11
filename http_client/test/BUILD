@@ -1,0 +1,10 @@
+cc_binary(
+    name='httpclient_test',
+    srcs=[
+        'test.cc',
+    ],
+    deps=[
+        ':json_helper',
+        '//thirdparty/jsoncpp:jsoncpp'
+    ],
+)

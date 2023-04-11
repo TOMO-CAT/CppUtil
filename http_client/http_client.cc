@@ -1,7 +1,8 @@
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "curl/curl.h"
-#include "httpclient.h"
+#include "http_client/http_client.h"
 #include "logger.h"
 
 namespace httpclient {
@@ -32,7 +33,8 @@ size_t write_callback_func(void* buffer, size_t size, size_t nmemb, void* p_data
     return nmemb;
 }
 
-int Post(const std::string& url, const std::string& post_params, int timeout_ms, int conn_timeout_ms, std::string& resp, const char* ca_path) {
+int Post(const std::string& url, const std::string& post_params, int timeout_ms, int conn_timeout_ms, std::string& resp,
+         const char* ca_path) {
     CURLcode res;
     CURL* curl = curl_easy_init();
     if (nullptr == curl) {

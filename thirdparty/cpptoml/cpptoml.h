@@ -1,3 +1,9 @@
+/**
+ * @file cpptoml.h
+ * @author Chase Geigle
+ * @date May 2013
+ */
+
 #ifndef CPPTOML_H
 #define CPPTOML_H
 

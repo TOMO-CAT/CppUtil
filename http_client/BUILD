@@ -1,0 +1,13 @@
+cc_library(
+    name='http_client',
+    srcs=[
+        'http_client.cc',
+    ],
+    hdrs=[
+        'http_client.h',
+    ],
+    deps=[
+        '//thirdparty/curl:curl',
+    ],
+    visibility=['PUBLIC'],
+)

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <boost/noncopyable.hpp>
+#include <string>
+#include <vector>
 
 /**
  * 是否输出debug日志
@@ -10,6 +10,7 @@
 #ifndef _HTTP_CLIENT_DEBUG
 #define _HTTP_CLIENT_DEBUG false
 #endif
+
 namespace httpclient {
 
 /** 
@@ -21,8 +22,9 @@ namespace httpclient {
 * @param resp 输出参数,返回的内容 
 * @param ca_path 输入参数,为CA证书的路径.如果输入为NULL,则不验证服务器端证书的有效性. 
 * @return 返回是否Post成功 
-*/  
-int Post(const std::string& url, const std::string& post_params, int timeout_ms, int conn_timeout_ms, std::string& resp, const char* ca_path = nullptr);
+*/
+int Post(const std::string& url, const std::string& post_params, int timeout_ms, int conn_timeout_ms, std::string& resp,
+         const char* ca_path = nullptr);
 
 /** 
 * @brief HTTPS GET请求
@@ -32,7 +34,7 @@ int Post(const std::string& url, const std::string& post_params, int timeout_ms,
 * @param resp 输出参数,返回的内容 
 * @param ca_path 输入参数,为CA证书的路径.如果输入为NULL,则不验证服务器端证书的有效性. 
 * @return 返回是否Post成功 
-*/  
+*/
 int Get(const std::string& url, int timeout_ms, int conn_timeout_ms, std::string& resp, const char* ca_path = nullptr);
 
 }  // namespace httpclient

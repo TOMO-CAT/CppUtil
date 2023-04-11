@@ -13,7 +13,7 @@ static unsigned int seed = 123;
  * @param max 
  * @return int 
  */
-int rand_int(int min, int max) {
+inline int rand_int(int min, int max) {
     return min + rand_r(&seed) % (max - min);
 }
 
@@ -23,7 +23,7 @@ int rand_int(int min, int max) {
  * @param max 
  * @return int 
  */
-int rand_int(int max) {
+inline int rand_int(int max) {
     return rand_r(&seed) % max;
 }
 

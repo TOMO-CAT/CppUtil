@@ -1,8 +1,10 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
+
 #include "cpptoml.h"
+#include "logger/logger.h"
 
 namespace util {
 
