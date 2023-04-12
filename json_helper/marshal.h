@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/preprocessor.hpp>               // BOOST_PP_VARIADIC_TO_SEQ
+#include <boost/preprocessor/seq/for_each.hpp>  // BOOST_PP_SEQ_FOR_EACH
+#include <boost/preprocessor/stringize.hpp>     // BOOST_PP_STRINGIZE
 #include <iostream>
 #include <map>
 #include <set>
@@ -62,13 +65,13 @@ bool Marshal(const std::set<T>& obj, Json::Value* const root);
 template <typename T>
 bool Marshal(const std::unordered_set<T>& obj, Json::Value* const root);
 
-#define __JSON_HELPER_MARSHAL_SINGLE_FIELD__(_1, _2, field)               \
-    if (!json_helper::Marshal(root[BOOST_PP_STRINGIZE(field)], &field)) { \
-        ret = false;                                                      \
+#define __JSON_HELPER_MARSHAL_SINGLE_FIELD__(_1, _2, field)                    \
+    if (!json_helper::Marshal(field, &((*root)[BOOST_PP_STRINGIZE(field)]))) { \
+        ret = false;                                                           \
     }
 
 #define JSON_HELPER_MARSHAL_MEMBER_FUNCTION(...)                                                               \
-    bool Marshal(const Json::Value& root) {                                                                    \
+    bool Marshal(Json::Value* root) {                                                                          \
         bool ret = true;                                                                                       \
         BOOST_PP_SEQ_FOR_EACH(__JSON_HELPER_MARSHAL_SINGLE_FIELD__, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
         return ret;                                                                                            \

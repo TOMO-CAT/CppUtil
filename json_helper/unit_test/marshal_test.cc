@@ -1,3 +1,4 @@
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -139,6 +140,43 @@ TEST(MarshalTest, marshal_unordered_set_string) {
         }
         ASSERT_TRUE(exist);
     }
+}
+
+TEST(MarshalTest, marshal_plain_class) {
+    class Cat {
+     private:
+        std::string name = "cc";
+        int age = -10;
+        double birthday = 3.1;
+        std::vector<int> favorite_nums = {5, 7, 9};
+
+     public:
+        JSON_HELPER_MARSHAL_MEMBER_FUNCTION(name, age, birthday, favorite_nums);
+    };
+
+    Json::Value root;
+    Cat cat;
+    cat.Marshal(&root);
+
+    Json::FastWriter writer;
+    std::string expected_str = R"({"age":-10,"birthday":3.1000000000000001,"favorite_nums":[5,7,9],"name":"cc"})";
+    std::string actual_str = writer.write(root);
+    EXPECT_EQ(expected_str + "\n", actual_str);
+}
+
+TEST(MarshalTest, marshal_uncaptured_types) {
+    Json::Value root;
+
+    // 1. class without marshal member function
+    struct Dog {
+        std::string name;
+    };
+    Dog dog;
+    ASSERT_FALSE(::json_helper::Marshal(dog, &root));
+
+    // 2. std::mutex
+    std::mutex mutex;
+    ASSERT_FALSE(::json_helper::Marshal(mutex, &root));
 }
 
 }  // namespace json_helper
