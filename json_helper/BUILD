@@ -5,6 +5,7 @@ cc_library(
     hdrs=[
         'json_helper.h',
         'unmarshal.h',
+        'marshal.h',
     ],
     deps=[
         '//thirdparty/jsoncpp:jsoncpp',

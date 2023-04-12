@@ -15,10 +15,6 @@
 #include "json/json.h"
 #include "json_helper/util.h"
 
-#ifndef _JSON_HELPER_DEBUG
-#define _JSON_HELPER_DEBUG false
-#endif
-
 namespace json_helper {
 
 // return false for uncaptured types
@@ -88,7 +84,6 @@ bool Unmarshal(const Json::Value& root, std::unordered_set<T>* const obj);
     }
 
 #define JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(...)                                                               \
- public:                                                                                                         \
     bool Unmarshal(const Json::Value& root) {                                                                    \
         bool ret = true;                                                                                         \
         BOOST_PP_SEQ_FOR_EACH(__JSON_HELPER_UNMARSHAL_SINGLE_FIELD__, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
@@ -101,7 +96,8 @@ template <typename T>
 typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
     const Json::Value& root, T* const obj) {
     if (_JSON_HELPER_DEBUG) {
-        std::cout << "[JsonHelper][Warning] fallback to uncaptured types: " << typeid(obj).name() << std::endl;
+        std::cout << "[JsonHelper][Unmarshal][Warning] fallback to uncaptured types: " << typeid(obj).name()
+                  << std::endl;
     }
     return false;
 }

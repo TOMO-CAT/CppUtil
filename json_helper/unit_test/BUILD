@@ -21,3 +21,16 @@ cc_test(
     ],
     defs=['_JSON_HELPER_DEBUG=true'],
 )
+
+
+cc_test(
+    name='marshal_test',
+    srcs=[
+        'marshal_test.cc',
+    ],
+    deps=[
+        '//json_helper:json_helper',
+        '//thirdparty/gtest:gtest',
+    ],
+    defs=['_JSON_HELPER_DEBUG=true'],
+)
