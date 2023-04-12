@@ -6,5 +6,6 @@ cc_test(
     deps=[
         '//json_helper:json_helper',
         '//thirdparty/gtest:gtest',
-    ]
+    ],
+    defs=['_JSON_HELPER_DEBUG=true'],
 )

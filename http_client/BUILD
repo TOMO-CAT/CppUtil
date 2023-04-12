@@ -9,6 +9,7 @@ cc_library(
     deps=[
         '//logger:logger',
         '#curl',
+        # '//thirdparty/curl:curl',
     ],
     visibility=['PUBLIC'],
 )

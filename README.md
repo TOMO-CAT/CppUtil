@@ -1,7 +1,15 @@
 # CppUtil
 
 ## 简介
+
 C++常用库。
+
+## docker
+
+```bash
+$bash docker_build.sh
+$bash docker_run.sh
+```
 
 ## 文件夹信息
 

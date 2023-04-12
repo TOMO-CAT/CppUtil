@@ -219,10 +219,135 @@ TEST(UnmarshalTest, test_unmarshal_vector) {
     std::vector<std::string> res;
     ASSERT_TRUE(::json_helper::Unmarshal(root, &res));
 
-    // ASSERT_EQ(3u, res.size());
-    // EXPECT_EQ("a", res[0]);
-    // EXPECT_EQ("b", res[1]);
-    // EXPECT_EQ("c", res[2]);
+    ASSERT_EQ(3u, res.size());
+    EXPECT_EQ("a", res[0]);
+    EXPECT_EQ("b", res[1]);
+    EXPECT_EQ("c", res[2]);
+}
+
+TEST(UnmarshalTest, test_unmarshal_map_string_key) {
+    std::string m = R"(
+        {
+            "cat": 10,
+            "dog": 1107,
+            "mouse": 2133
+        }
+    )";
+
+    Json::Value root;
+    Json::Reader reader;
+    ASSERT_TRUE(reader.parse(m, root));
+    ASSERT_TRUE(root.isObject());
+
+    std::map<std::string, int32_t> res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &res));
+
+    ASSERT_EQ(3u, res.size());
+    EXPECT_EQ(10, res["cat"]);
+    EXPECT_EQ(1107, res["dog"]);
+    EXPECT_EQ(2133, res["mouse"]);
+}
+
+TEST(UnmarshalTest, test_unmarshal_map_int_key) {
+    std::string m = R"(
+        {
+            "1": 10,
+            "2": 1107,
+            "3": 2133
+        }
+    )";
+
+    Json::Value root;
+    Json::Reader reader;
+    ASSERT_TRUE(reader.parse(m, root));
+    ASSERT_TRUE(root.isObject());
+
+    // int32_t
+    std::map<int32_t, int32_t> int32_key_res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &int32_key_res));
+
+    ASSERT_EQ(3u, int32_key_res.size());
+    EXPECT_EQ(10, int32_key_res[1]);
+    EXPECT_EQ(1107, int32_key_res[2]);
+    EXPECT_EQ(2133, int32_key_res[3]);
+
+    // int64_t
+    std::map<int64_t, int32_t> int64_key_res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &int64_key_res));
+
+    ASSERT_EQ(3u, int64_key_res.size());
+    EXPECT_EQ(10, int64_key_res[1]);
+    EXPECT_EQ(1107, int64_key_res[2]);
+    EXPECT_EQ(2133, int64_key_res[3]);
+
+    // uint32_t
+    std::map<int64_t, int32_t> uint32_key_res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &uint32_key_res));
+
+    ASSERT_EQ(3u, uint32_key_res.size());
+    EXPECT_EQ(10, uint32_key_res[1]);
+    EXPECT_EQ(1107, uint32_key_res[2]);
+    EXPECT_EQ(2133, uint32_key_res[3]);
+
+    // uint64_t
+    std::map<int64_t, int32_t> uint64_key_res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &uint64_key_res));
+
+    ASSERT_EQ(3u, uint64_key_res.size());
+    EXPECT_EQ(10, uint64_key_res[1]);
+    EXPECT_EQ(1107, uint64_key_res[2]);
+    EXPECT_EQ(2133, uint64_key_res[3]);
+}
+
+TEST(UnmarshalTest, test_unmarshal_unordered_map_int_key) {
+    std::string m = R"(
+        {
+            "1": 115,
+            "2": 107,
+            "3": 233
+        }
+    )";
+
+    Json::Value root;
+    Json::Reader reader;
+    ASSERT_TRUE(reader.parse(m, root));
+    ASSERT_TRUE(root.isObject());
+
+    // int32_t
+    std::unordered_map<int32_t, int32_t> int32_key_res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &int32_key_res));
+
+    ASSERT_EQ(3u, int32_key_res.size());
+    EXPECT_EQ(115, int32_key_res[1]);
+    EXPECT_EQ(107, int32_key_res[2]);
+    EXPECT_EQ(233, int32_key_res[3]);
+
+    // int64_t
+    std::unordered_map<int64_t, int32_t> int64_key_res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &int64_key_res));
+
+    ASSERT_EQ(3u, int64_key_res.size());
+    EXPECT_EQ(115, int64_key_res[1]);
+    EXPECT_EQ(107, int64_key_res[2]);
+    EXPECT_EQ(233, int64_key_res[3]);
+
+    // uint32_t
+    std::unordered_map<int64_t, int32_t> uint32_key_res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &uint32_key_res));
+
+    ASSERT_EQ(3u, uint32_key_res.size());
+    EXPECT_EQ(115, uint32_key_res[1]);
+    EXPECT_EQ(107, uint32_key_res[2]);
+    EXPECT_EQ(233, uint32_key_res[3]);
+
+    // uint64_t
+    std::unordered_map<int64_t, int32_t> uint64_key_res;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &uint64_key_res));
+
+    ASSERT_EQ(3u, uint64_key_res.size());
+    EXPECT_EQ(115, uint64_key_res[1]);
+    EXPECT_EQ(107, uint64_key_res[2]);
+    EXPECT_EQ(233, uint64_key_res[3]);
 }
 
 }  // namespace json_helper

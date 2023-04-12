@@ -12,6 +12,10 @@
 
 #include "json/json.h"
 
+#ifndef _JSON_HELPER_DEBUG
+#define _JSON_HELPER_DEBUG false
+#endif
+
 namespace json_helper {
 
 // 辅助类: 用于判断 class 是否包含 Unmarshal 成员函数
@@ -32,7 +36,9 @@ struct IsEnumClass<T, typename std::enable_if<std::is_enum<T>::value && !std::is
 template <typename T>
 inline typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
     const Json::Value& root, T* const obj) {
-    std::cout << "[JsonHelper][Warning] fallback to uncaptured types" << std::endl;
+    if (_JSON_HELPER_DEBUG) {
+        std::cout << "[JsonHelper][Warning] fallback to uncaptured types" << std::endl;
+    }
     return false;
 }
 
@@ -180,8 +186,9 @@ bool Unmarshal(const Json::Value& root, std::map<std::string, T>* const obj) {
     obj->clear();
     const auto& mems = root.getMemberNames();
     bool ret = true;
+
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[*iter])) {
+        if (!Unmarshal(root[*iter], &((*obj)[*iter]))) {
             ret = false;
         }
     }
@@ -197,7 +204,7 @@ bool Unmarshal(const Json::Value& root, std::map<int32_t, T>* const obj) {
     const auto& mems = root.getMemberNames();
     bool ret = true;
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[std::stoi(*iter)])) {
+        if (!Unmarshal(root[*iter], &((*obj)[std::stoi(*iter)]))) {
             ret = false;
         }
     }
@@ -213,7 +220,7 @@ bool Unmarshal(const Json::Value& root, std::map<uint32_t, T>* const obj) {
     const auto& mems = root.getMemberNames();
     bool ret = true;
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[std::stoul(*iter)])) {
+        if (!Unmarshal(root[*iter], &((&obj)[std::stoul(*iter)]))) {
             ret = false;
         }
     }
@@ -229,7 +236,7 @@ bool Unmarshal(const Json::Value& root, std::map<int64_t, T>* const obj) {
     const auto& mems = root.getMemberNames();
     bool ret = true;
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[std::stoll(*iter)])) {
+        if (!Unmarshal(root[*iter], &((*obj)[std::stoll(*iter)]))) {
             ret = false;
         }
     }
@@ -245,7 +252,7 @@ bool Unmarshal(const Json::Value& root, std::map<uint64_t, T>* const obj) {
     const auto& mems = root.getMemberNames();
     bool ret = true;
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[std::stoull(*iter)])) {
+        if (!Unmarshal(root[*iter], &((*obj)[std::stoull(*iter)]))) {
             ret = false;
         }
     }
@@ -261,7 +268,7 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<int32_t, T>* const ob
     const auto& mems = root.getMemberNames();
     bool ret = true;
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[std::stoi(*iter)])) {
+        if (!Unmarshal(root[*iter], &((*obj)[std::stoi(*iter)]))) {
             ret = false;
         }
     }
@@ -277,7 +284,7 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<uint32_t, T>* const o
     const auto& mems = root.getMemberNames();
     bool ret = true;
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[std::stoul(*iter)])) {
+        if (!Unmarshal(root[*iter], &((*obj)[std::stoul(*iter)]))) {
             ret = false;
         }
     }
@@ -293,7 +300,7 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<int64_t, T>* const ob
     const auto& mems = root.getMemberNames();
     bool ret = true;
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[std::stoll(*iter)])) {
+        if (!Unmarshal(root[*iter], &((*obj)[std::stoll(*iter)]))) {
             ret = false;
         }
     }
@@ -309,19 +316,16 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<uint64_t, T>* const o
     const auto& mems = root.getMemberNames();
     bool ret = true;
     for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
-        if (!Unmarshal(root[*iter], obj[std::stoull(*iter)])) {
+        if (!Unmarshal(root[*iter], &((*obj)[std::stoull(*iter)]))) {
             ret = false;
         }
     }
     return ret;
 }
 
-#define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)                                                                  \
-    if (!json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) {                                                    \
-        /*std::cout << "[json_helper][debug] parse " BOOST_PP_STRINGIZE(field) " fail" << std::endl; */                        \
-        ret = false;                                                                                                           \
-    } else {                                                                                                                   \
-        /*std::cout << "[json_helper][debug] parse " BOOST_PP_STRINGIZE(field) " successfully, val: " << field << std::endl;*/ \
+#define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)               \
+    if (!json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) { \
+        ret = false;                                                        \
     }
 
 #define JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(...)                                                               \

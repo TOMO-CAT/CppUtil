@@ -15,6 +15,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
     # && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python2.7 /usr/bin/python
 
+
 # 安装 blade
 RUN git clone https://github.com/chen3feng/blade-build.git --branch v2.0 --single-branch --depth=1 /blade-build && \
     cd /blade-build && \
