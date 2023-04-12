@@ -350,4 +350,35 @@ TEST(UnmarshalTest, test_unmarshal_unordered_map_int_key) {
     EXPECT_EQ(233, uint64_key_res[3]);
 }
 
+TEST(UnmarshalTest, test_unmarshal_set_and_unordered_set) {
+    std::string m = R"(
+        [
+            "cat",
+            "dog",
+            "mouse"
+        ]
+    )";
+
+    Json::Value root;
+    Json::Reader reader;
+    ASSERT_TRUE(reader.parse(m, root));
+    ASSERT_TRUE(root.isArray());
+
+    // set
+    std::set<std::string> s;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &s));
+    ASSERT_EQ(3u, s.size());
+    EXPECT_EQ(1u, s.count("cat"));
+    EXPECT_EQ(1u, s.count("dog"));
+    EXPECT_EQ(1u, s.count("mouse"));
+
+    // unordered_set
+    std::unordered_set<std::string> us;
+    ASSERT_TRUE(::json_helper::Unmarshal(root, &us));
+    ASSERT_EQ(3u, us.size());
+    EXPECT_EQ(1u, us.count("cat"));
+    EXPECT_EQ(1u, us.count("dog"));
+    EXPECT_EQ(1u, us.count("mouse"));
+}
+
 }  // namespace json_helper
