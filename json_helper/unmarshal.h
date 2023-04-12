@@ -37,7 +37,7 @@ template <typename T>
 inline typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
     const Json::Value& root, T* const obj) {
     if (_JSON_HELPER_DEBUG) {
-        std::cout << "[JsonHelper][Warning] fallback to uncaptured types" << std::endl;
+        std::cout << "[JsonHelper][Warning] fallback to uncaptured types: " << typeid(obj).name() << std::endl;
     }
     return false;
 }
