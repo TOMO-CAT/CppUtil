@@ -16,6 +16,8 @@ class Foo {
     struct SubClass {
         std::string name = "sub_class";
         float pi = 3.1415;
+
+        JSON_HELPER(name, pi);
     };
 
  private:

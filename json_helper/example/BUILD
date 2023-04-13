@@ -4,4 +4,5 @@ cc_binary(
     deps=[
         '//json_helper:json_helper',
     ],
+    defs=['_JSON_HELPER_DEBUG=true'],
 )

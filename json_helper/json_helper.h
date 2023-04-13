@@ -27,10 +27,13 @@ bool Unmarshal(const char* str, T* const obj) {
 template <typename T>
 bool Marshal(const T& obj, std::string* const json_str, bool with_style = false) {
     Json::Value root;
-    if (!Marshal(obj, &root)) {
-        *json_str = "";
-        return false;
-    }
+
+    // 允许部分字段序列化失败
+    bool ret = Marshal(obj, &root);
+    // if (!Marshal(obj, &root)) {
+    //     *json_str = "";
+    //     return false;
+    // }
 
     if (with_style) {
         Json::StyledWriter writer;
@@ -40,7 +43,7 @@ bool Marshal(const T& obj, std::string* const json_str, bool with_style = false)
         *json_str = writer.write(root);
     }
 
-    return true;
+    return ret;
 }
 
 #define JSON_HELPER(...) \
