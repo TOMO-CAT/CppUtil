@@ -7,7 +7,6 @@
                 "${workspaceRoot}/**",
                 "/usr/local/include",
                 "/usr/include",
-                "${workspaceRoot}/logger/include",
                 "${workspaceRoot}/thirdpkg/include"
             ],
             "compilerPath": "/usr/bin/gcc",

@@ -91,11 +91,7 @@
     "cpplint.lineLength": 200,
     "cpplint.filters": [
         "-legal/copyright",
-        "-runtime/references",
         "-whitespace/ending_newline",
-        "-build/include_subdir",
-        "-build/c++11",
-        "-build/include_order"
     ],
     // clang-format file path
     "clang-format.assumeFilename": "./clang-format",

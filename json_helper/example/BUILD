@@ -1,10 +1,7 @@
 cc_binary(
-    name='example',
-    srcs=[
-        'test.cc',
-    ],
+    name='marshal',
+    srcs=['marshal.cc'],
     deps=[
         '//json_helper:json_helper',
-        '//thirdparty/jsoncpp:jsoncpp'
     ],
 )
