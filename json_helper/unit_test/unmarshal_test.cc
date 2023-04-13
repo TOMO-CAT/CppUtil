@@ -381,4 +381,47 @@ TEST(UnmarshalTest, test_unmarshal_set_and_unordered_set) {
     EXPECT_EQ(1u, us.count("mouse"));
 }
 
+TEST(UnmarshalTest, unmarshal_pointer) {
+    Json::Value root;
+    root = Json::Int(40);
+
+    // 反序列化到普通的 int 类型
+    {
+        int i = 0;
+        ASSERT_TRUE(::json_helper::Unmarshal(root, &i));
+        EXPECT_EQ(40, i);
+    }
+
+    // 反序列化到 int 类型: 使用指针
+    {
+        int i = 0;
+        int* pi = &i;
+        ASSERT_TRUE(::json_helper::Unmarshal(root, pi));
+        EXPECT_EQ(40, i);
+    }
+
+    // 反序列化到 int 类型: nullptr
+    {
+        int* pi = nullptr;
+        EXPECT_DEATH(::json_helper::Unmarshal(root, pi), "");
+        EXPECT_EQ(nullptr, pi);
+    }
+
+    // 反序列化到 int* 类型
+    {
+        // 非 nullptr
+        {
+            int i = 0;
+            int* pi = &i;
+            ASSERT_TRUE(::json_helper::Unmarshal(root, &pi));
+            EXPECT_EQ(40, i);
+        }
+        // nullptr
+        {
+            int* pi = nullptr;
+            EXPECT_FALSE(::json_helper::Unmarshal(root, &pi));
+        }
+    }
+}
+
 }  // namespace json_helper
