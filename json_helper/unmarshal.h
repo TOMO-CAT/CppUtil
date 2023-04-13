@@ -19,18 +19,23 @@ namespace json_helper {
 
 // return false for uncaptured types
 template <typename T>
-typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
-    const Json::Value& root, T* const obj);
+typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value && !std::is_pointer<T>::value, bool>::type
+Unmarshal(const Json::Value& root, T* const obj);
 
 // class with Unmarshal function
+// template <typename T>
+// typename std::enable_if<HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
+//     const Json::Value& root, T* const obj);
 template <typename T>
-typename std::enable_if<HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
-    const Json::Value& root, T* const obj);
+typename std::enable_if<HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root, T* const obj);
 
 // enum class
 template <typename T>
-typename std::enable_if<IsEnumClass<T>::value && !HasUnmarshalFunc<T>::value, bool>::type Unmarshal(
-    const Json::Value& root, T* const obj);
+typename std::enable_if<IsEnumClass<T>::value, bool>::type Unmarshal(const Json::Value& root, T* const obj);
+
+// pointer
+template <typename T>
+typename std::enable_if<std::is_pointer<T>::value, bool>::type Unmarshal(const Json::Value& root, T* const obj);
 
 // basic types
 bool Unmarshal(const Json::Value& root, int32_t* const obj);
@@ -78,6 +83,16 @@ bool Unmarshal(const Json::Value& root, std::set<T>* const obj);
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::unordered_set<T>* const obj);
 
+/*
+#define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)                        \
+    if (std::is_pointer<decltype(field)>::value &&                                   \
+        !::json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], field)) {         \
+        ret = false;                                                                 \
+    } else if (!::json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) { \
+        ret = false;                                                                 \
+    }
+*/
+
 #define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)                 \
     if (!::json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) { \
         ret = false;                                                          \
@@ -93,8 +108,8 @@ bool Unmarshal(const Json::Value& root, std::unordered_set<T>* const obj);
 // ==============================================  Implementation ==============================================
 // uncaptured types
 template <typename T>
-typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
-    const Json::Value& root, T* const obj) {
+typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value && !std::is_pointer<T>::value, bool>::type
+Unmarshal(const Json::Value& root, T* const obj) {
     if (_JSON_HELPER_DEBUG) {
         std::cout << "[JsonHelper][Unmarshal][Warning] fallback to uncaptured types: " << typeid(obj).name()
                   << std::endl;
@@ -104,15 +119,14 @@ typename std::enable_if<!HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, b
 
 // class with Unmarshal function
 template <typename T>
-inline typename std::enable_if<HasUnmarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Unmarshal(
-    const Json::Value& root, T* const obj) {
+inline typename std::enable_if<HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root,
+                                                                                 T* const obj) {
     return obj->Unmarshal(root);
 }
 
 // enum class
 template <typename T>
-inline typename std::enable_if<IsEnumClass<T>::value && !HasUnmarshalFunc<T>::value, bool>::type Unmarshal(
-    const Json::Value& root, T* const obj) {
+inline typename std::enable_if<IsEnumClass<T>::value, bool>::type Unmarshal(const Json::Value& root, T* const obj) {
     if (!root.isIntegral()) {
         return false;
     }
