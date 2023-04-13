@@ -1,6 +1,7 @@
 #pragma once
 
 #include "json/json.h"
+#include "json_helper/marshal.h"
 #include "json_helper/unmarshal.h"
 
 namespace json_helper {
@@ -23,6 +24,26 @@ bool Unmarshal(const char* str, T* const obj) {
     return Unmarshal(std::string(str), obj);
 }
 
-#define JSON_HELPER(...) JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(__VA_ARGS__)
+template <typename T>
+bool Marshal(const T& obj, std::string* const json_str, bool with_style = false) {
+    Json::Value root;
+    if (!Marshal(obj, &root)) {
+        *json_str = "";
+        return false;
+    }
+
+    if (with_style) {
+        Json::StyledWriter writer;
+        *json_str = writer.write(root);
+    } else {
+        Json::FastWriter writer;
+        *json_str = writer.write(root);
+    }
+
+    return true;
+}
+
+#define JSON_HELPER(...) \
+    JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(__VA_ARGS__) JSON_HELPER_MARSHAL_MEMBER_FUNCTION(__VA_ARGS__)
 
 }  // namespace json_helper
