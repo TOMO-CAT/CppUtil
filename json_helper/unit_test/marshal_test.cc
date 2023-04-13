@@ -110,7 +110,7 @@ TEST(MarshalTest, marshal_unordered_map) {
     root.clear();
 }
 
-TEST(MarshaTest, marshal_set_int32) {
+TEST(MarshalTest, marshal_set_int32) {
     Json::Value root;
     std::set<int32_t> s = {1, -5, 20, 100, 7};
     ASSERT_TRUE(::json_helper::Marshal(s, &root));
@@ -177,6 +177,73 @@ TEST(MarshalTest, marshal_uncaptured_types) {
     // 2. std::mutex
     std::mutex mutex;
     ASSERT_FALSE(::json_helper::Marshal(mutex, &root));
+}
+
+TEST(MarshalTest, test_has_marshal_func) {
+    struct Class_WithMarshalMemberFunction {
+        bool Marshal(Json::Value* const root) {
+            return true;
+        }
+    };
+
+    EXPECT_TRUE(::json_helper::HasMarshalFunc<Class_WithMarshalMemberFunction>::value);
+
+    struct Class_WithoutMarshalMemberFunction {};
+    EXPECT_FALSE(::json_helper::HasMarshalFunc<Class_WithoutMarshalMemberFunction>::value);
+
+    struct Cat_WithMarshalMacro {
+        std::string name;
+        int32_t age;
+        double birthday;
+
+        JSON_HELPER_MARSHAL_MEMBER_FUNCTION(name, age, birthday);
+    };
+    EXPECT_TRUE(::json_helper::HasMarshalFunc<Cat_WithMarshalMacro>::value);
+}
+
+TEST(MarshalTest, marshal_enum_calss) {
+    enum class Color {
+        kUnknown = 0,
+        kRead = 1,
+        kBlue = 2,
+        kBlack = 3,
+    };
+
+    Json::Value root;
+
+    for (int i = 0; i < 4; ++i) {
+        Color color = static_cast<Color>(i);
+        ASSERT_TRUE(::json_helper::Marshal(color, &root));
+        EXPECT_EQ(i, root.asInt());
+    }
+}
+
+TEST(MarshalTest, marshal_nested_class) {
+    class Vehicle {
+     public:
+        class Wheel {
+         public:
+            int temp = 10;
+            double pressure = 3.2;
+            std::string factory = "Audi";
+
+            JSON_HELPER_MARSHAL_MEMBER_FUNCTION(temp, pressure, factory);
+        };
+
+        Wheel wheel;
+        std::string color = "blue";
+
+        JSON_HELPER_MARSHAL_MEMBER_FUNCTION(wheel, color);
+    };
+
+    Json::Value root;
+    Vehicle vehicle;
+    ASSERT_TRUE(vehicle.Marshal(&root));
+
+    Json::FastWriter writer;
+    std::string expected_str = R"({"color":"blue","wheel":{"factory":"Audi","pressure":3.2000000000000002,"temp":10}})";
+    std::string actual_str = writer.write(root);
+    EXPECT_EQ(expected_str + "\n", actual_str);
 }
 
 }  // namespace json_helper

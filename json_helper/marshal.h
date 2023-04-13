@@ -65,13 +65,13 @@ bool Marshal(const std::set<T>& obj, Json::Value* const root);
 template <typename T>
 bool Marshal(const std::unordered_set<T>& obj, Json::Value* const root);
 
-#define __JSON_HELPER_MARSHAL_SINGLE_FIELD__(_1, _2, field)                    \
-    if (!json_helper::Marshal(field, &((*root)[BOOST_PP_STRINGIZE(field)]))) { \
-        ret = false;                                                           \
+#define __JSON_HELPER_MARSHAL_SINGLE_FIELD__(_1, _2, field)                      \
+    if (!::json_helper::Marshal(field, &((*root)[BOOST_PP_STRINGIZE(field)]))) { \
+        ret = false;                                                             \
     }
 
 #define JSON_HELPER_MARSHAL_MEMBER_FUNCTION(...)                                                               \
-    bool Marshal(Json::Value* root) {                                                                          \
+    bool Marshal(Json::Value* root) const {                                                                    \
         bool ret = true;                                                                                       \
         BOOST_PP_SEQ_FOR_EACH(__JSON_HELPER_MARSHAL_SINGLE_FIELD__, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__)); \
         return ret;                                                                                            \

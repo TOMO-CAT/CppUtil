@@ -78,9 +78,9 @@ bool Unmarshal(const Json::Value& root, std::set<T>* const obj);
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::unordered_set<T>* const obj);
 
-#define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)               \
-    if (!json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) { \
-        ret = false;                                                        \
+#define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)                 \
+    if (!::json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) { \
+        ret = false;                                                          \
     }
 
 #define JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(...)                                                               \
