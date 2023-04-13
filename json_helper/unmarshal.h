@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "json/json.h"
-#include "json_helper/util.h"
+#include "json_helper/common.h"
 
 namespace json_helper {
 
@@ -124,6 +124,10 @@ inline typename std::enable_if<IsEnumClass<T>::value, bool>::type Unmarshal(cons
 // pointer
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value, bool>::type Unmarshal(const Json::Value& root, T* const obj) {
+    if (root.isString() && root.asString() == kNullptrJsonStr) {
+        *obj = nullptr;
+        return true;
+    }
     if (*obj == nullptr) {
         if (_JSON_HELPER_DEBUG) {
             std::cout << "[JsonHelper][Unmarshal][Warning] unmarshal json to a nullptr" << std::endl;

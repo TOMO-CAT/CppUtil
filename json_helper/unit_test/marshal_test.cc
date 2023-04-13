@@ -246,4 +246,20 @@ TEST(MarshalTest, marshal_nested_class) {
     EXPECT_EQ(expected_str + "\n", actual_str);
 }
 
+TEST(MarshalTest, marshal_pointer) {
+    Json::Value root;
+
+    {
+        int* pi = nullptr;
+        ASSERT_TRUE(::json_helper::Marshal(pi, &root));
+        EXPECT_EQ("nullptr", root.asString());
+    }
+    {
+        int i = 10;
+        int* pi = &i;
+        ASSERT_TRUE(::json_helper::Marshal(pi, &root));
+        EXPECT_EQ(10, root.asInt());
+    }
+}
+
 }  // namespace json_helper

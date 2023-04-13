@@ -12,24 +12,26 @@
 
 #include "json/config.h"
 #include "json/json.h"
-#include "json_helper/util.h"
+#include "json_helper/common.h"
 
 namespace json_helper {
 
 // return false for uncaptured types
 template <typename T>
-typename std::enable_if<!HasMarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Marshal(
-    const T& obj, Json::Value* const root);
+typename std::enable_if<!HasMarshalFunc<T>::value && !IsEnumClass<T>::value && !std::is_pointer<T>::value, bool>::type
+Marshal(const T& obj, Json::Value* const root);
 
 // class with Marshal function
 template <typename T>
-typename std::enable_if<HasMarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Marshal(
-    const T& obj, Json::Value* const root);
+typename std::enable_if<HasMarshalFunc<T>::value, bool>::type Marshal(const T& obj, Json::Value* const root);
 
 // enum class
 template <typename T>
-typename std::enable_if<IsEnumClass<T>::value && !HasMarshalFunc<T>::value, bool>::type Marshal(
-    const T& obj, Json::Value* const root);
+typename std::enable_if<IsEnumClass<T>::value, bool>::type Marshal(const T& obj, Json::Value* const root);
+
+// pointer
+template <typename T>
+typename std::enable_if<std::is_pointer<T>::value, bool>::type Marshal(const T& obj, Json::Value* const root);
 
 // basic types
 bool Marshal(const int32_t obj, Json::Value* const root);
@@ -80,8 +82,8 @@ bool Marshal(const std::unordered_set<T>& obj, Json::Value* const root);
 // ==============================================  Implementation ==============================================
 // uncaptured types
 template <typename T>
-typename std::enable_if<!HasMarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Marshal(
-    const T& obj, Json::Value* const root) {
+typename std::enable_if<!HasMarshalFunc<T>::value && !IsEnumClass<T>::value && !std::is_pointer<T>::value, bool>::type
+Marshal(const T& obj, Json::Value* const root) {
     if (_JSON_HELPER_DEBUG) {
         std::cout << "[JsonHelper][Marshal][Warning] fallback to uncaptured types: " << typeid(obj).name() << std::endl;
     }
@@ -90,17 +92,25 @@ typename std::enable_if<!HasMarshalFunc<T>::value && !IsEnumClass<T>::value, boo
 
 // class with Marshal function
 template <typename T>
-typename std::enable_if<HasMarshalFunc<T>::value && !IsEnumClass<T>::value, bool>::type Marshal(
-    const T& obj, Json::Value* const root) {
+typename std::enable_if<HasMarshalFunc<T>::value, bool>::type Marshal(const T& obj, Json::Value* const root) {
     return obj.Marshal(root);
 }
 
 // enum class
 template <typename T>
-typename std::enable_if<IsEnumClass<T>::value && !HasMarshalFunc<T>::value, bool>::type Marshal(
-    const T& obj, Json::Value* const root) {
+typename std::enable_if<IsEnumClass<T>::value, bool>::type Marshal(const T& obj, Json::Value* const root) {
     *root = Json::Int(static_cast<int>(obj));
     return true;
+}
+
+// pointer
+template <typename T>
+typename std::enable_if<std::is_pointer<T>::value, bool>::type Marshal(const T& obj, Json::Value* const root) {
+    if (obj == nullptr) {
+        *root = kNullptrJsonStr;
+        return true;
+    }
+    return Marshal(*obj, root);
 }
 
 // int32_t
