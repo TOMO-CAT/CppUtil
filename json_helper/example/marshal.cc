@@ -20,6 +20,19 @@ class Foo {
         JSON_HELPER(name, pi);
     };
 
+    enum Color {
+        kUnknown = 0,
+        kBlue = 1,
+        kRead = 2,
+        kBlack = 3,
+    };
+
+    enum class Gender {
+        kUnknown = 0,
+        kMale = 1,
+        kFemale = 2,
+    };
+
  private:
     // basic type
     int32_t money = -1;
@@ -35,6 +48,12 @@ class Foo {
         {"mouse", true},
         {"dog", false},
     };
+
+    // enum
+    Color color = kBlue;
+
+    // enum class
+    Gender gender = Gender::kMale;
 
     // nested class
     SubClass sub_class;
@@ -54,14 +73,18 @@ class Foo {
     std::mutex mtx_;
 
  public:
-    JSON_HELPER(money, uid, age, birthday, name, list, set, sub_class, map, pi, ps, p_sub_class, id);
+    JSON_HELPER(money, uid, age, birthday, name, list, set, color, gender, sub_class, map, pi, ps, p_sub_class, id);
 };
 
 int main() {
     Foo foo;
     std::string json_str;
     ::json_helper::Marshal(foo, &json_str, true);
+    std::cout << "============ with style ============" << std::endl;
     std::cout << json_str << std::endl;
 
+    std::cout << "=========== without style ==========" << std::endl;
+    ::json_helper::Marshal(foo, &json_str);
+    std::cout << json_str << std::endl;
     return 0;
 }

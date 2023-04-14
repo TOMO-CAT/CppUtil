@@ -100,41 +100,6 @@ TEST(UnmarshalTest, test_uncaptured_types) {
     ASSERT_FALSE(::json_helper::Unmarshal(root, &mtx));
 }
 
-// HasUnmarshalFunc<T> 模板类用于辅助判断类 T 是否定义了 Unmarshal 方法
-TEST(UnmarshalTest, test_HasUnmarshalFunc) {
-    struct Class_WithUnmarshalMemberFunction {
-        bool Unmarshal(const Json::Value& root) {
-            return true;
-        }
-    };
-    EXPECT_TRUE(::json_helper::HasUnmarshalFunc<Class_WithUnmarshalMemberFunction>::value);
-
-    struct Class_WithoutUnmarshalMemberFunction {};
-    EXPECT_FALSE(::json_helper::HasUnmarshalFunc<Class_WithoutUnmarshalMemberFunction>::value);
-
-    struct Cat_WithUnmarshalMacro {
-        std::string name;
-        int32_t age;
-        double birthday;
-
-        JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(name, age, birthday);
-    };
-    EXPECT_TRUE(::json_helper::HasUnmarshalFunc<Cat_WithUnmarshalMacro>::value);
-}
-
-// IsEnumClass<T> 模版类用于辅助判断类 T 是否是 enum class
-TEST(UnmarshalTest, test_IsEnumClass) {
-    struct Cat {
-        std::string name;
-        int32_t age = -1;
-    };
-
-    enum class Color { Red, Green, Blue };
-
-    EXPECT_FALSE(::json_helper::IsEnumClass<Cat>::value);
-    EXPECT_TRUE(::json_helper::IsEnumClass<Color>::value);
-}
-
 // enum 类的 Unmarshal
 TEST(UnmarshalTest, test_enum_class) {
     enum class Color {

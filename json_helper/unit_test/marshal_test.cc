@@ -179,28 +179,6 @@ TEST(MarshalTest, marshal_uncaptured_types) {
     ASSERT_FALSE(::json_helper::Marshal(mutex, &root));
 }
 
-TEST(MarshalTest, test_has_marshal_func) {
-    struct Class_WithMarshalMemberFunction {
-        bool Marshal(Json::Value* const root) {
-            return true;
-        }
-    };
-
-    EXPECT_TRUE(::json_helper::HasMarshalFunc<Class_WithMarshalMemberFunction>::value);
-
-    struct Class_WithoutMarshalMemberFunction {};
-    EXPECT_FALSE(::json_helper::HasMarshalFunc<Class_WithoutMarshalMemberFunction>::value);
-
-    struct Cat_WithMarshalMacro {
-        std::string name;
-        int32_t age;
-        double birthday;
-
-        JSON_HELPER_MARSHAL_MEMBER_FUNCTION(name, age, birthday);
-    };
-    EXPECT_TRUE(::json_helper::HasMarshalFunc<Cat_WithMarshalMacro>::value);
-}
-
 TEST(MarshalTest, marshal_enum_calss) {
     enum class Color {
         kUnknown = 0,

@@ -1,6 +1,15 @@
 # JsonHelper
 
-## Reference
+## 编译
 
-[1] <https://www.zhihu.com/question/406663736/answer/1338173622>
-[2] <https://www.zhihu.com/question/28849277/answer/1748011324>
+```bash
+# 编译 json helper
+blade build json_helper
+
+# 单测
+blade test json_helper/unit_test
+
+# example
+blade build json_helper/example
+./build64_release/json_helper/example/marshal
+```
