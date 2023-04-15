@@ -17,24 +17,31 @@
 
 > <https://github.com/TOMO-CAT/CppUtil/tree/main/httpserver>
 
-编译后生成头文件和动态库：
+编译：
 
 ```bash
-$make
+# 编译源码和测试文件
+blade build http_server/...
+
+# 测试
+# 1. 执行测试文件
+./build64_release/http_server/example/example
+# 2. 另起一个终端发送 curl 命令
+curl "127.0.0.1:8888/echo?name=tomocat"
 ```
 
 简单使用：
 
 ```c++
-#include "http_server.h"
-#include "logger.h"
-#include "jsoncpp/json.h"
+#include "http_server/http_server.h"
+#include "json/json.h"
+#include "logger/logger.h"
 
-void echo(httpserver::HttpRequest& req, httpserver::HttpResponse& resp) {
-    std::string name = req.url_params["name"];
-    Json::Value root;
-    root["name"] = name;
-    resp.body = root.toStyledString();
+void echo(httpserver::HttpRequest* const req, httpserver::HttpResponse* const resp) {
+  std::string name = req->url_params["name"];
+  Json::Value root;
+  root["name"] = name;
+  resp->body = root.toStyledString();
 }
 
 /**
@@ -44,11 +51,11 @@ $curl "127.0.0.1:8888/echo?name=tomocat"
 }
  */
 int main() {
-    httpserver::HttpServer http_server(8888);
-    http_server.RegisterHandler("/echo", echo);
+  httpserver::HttpServer http_server(8888);
+  http_server.RegisterHandler("/echo", echo);
 
-    http_server.Start();
-    return 0;
+  http_server.Start();
+  return 0;
 }
 ```
 
