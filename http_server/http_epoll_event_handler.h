@@ -9,7 +9,7 @@
 
 namespace httpserver {
 
-typedef void (*HttpHandler)(HttpRequest& request, HttpResponse& response);
+typedef void (*HttpHandler)(HttpRequest* const request, HttpResponse* const response);
 
 struct HttpContext {
   HttpRequest* req;

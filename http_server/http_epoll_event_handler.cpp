@@ -69,7 +69,7 @@ WriteStatus HttpEpollEventHandler::OnWriteable(EpollEventContext* ctx) {
   ::bzero(buffer, EPOLL_SOCKET_WRITE_BUFFER_SIZE);
   int write_size = 0;
 
-  WriteStatus write_ret = resp->OnWriteable(is_keepalive, buffer, EPOLL_SOCKET_WRITE_BUFFER_SIZE, write_size);
+  WriteStatus write_ret = resp->OnWriteable(is_keepalive, buffer, EPOLL_SOCKET_WRITE_BUFFER_SIZE, &write_size);
   int n_write = ::send(socket_fd, buffer, write_size, 0);
   if (n_write < 0) {
     log_error("send fail, content:%s", buffer);
@@ -114,7 +114,7 @@ int HttpEpollEventHandler::handle_http_request(HttpRequest* req, HttpResponse* r
     log_warn("not allowed method, method:%s", req->method.c_str());
   }
 
-  uri2handler[uri](*req, *resp);
+  uri2handler[uri](req, resp);
   log_info("handler http request successfully! code:%d msg:%s", resp->status_line.stauts_code,
            resp->status_line.msg.c_str());
   return 0;

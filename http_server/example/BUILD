@@ -1,7 +1,7 @@
 cc_binary(
-    name='http_server_test',
+    name='example',
     srcs=[
-        'http_server_test.cpp',
+        'example.cpp',
     ],
     deps=[
         '//http_server:http_server',

@@ -22,10 +22,10 @@ class EpollSocket {
   int add_listen_socket_to_epoll();
   int start_epoll_loop();
   int handle_accept_event();
-  int handle_readable_event(epoll_event& event);
-  int handle_writeable_event(epoll_event& event);
-  int close_and_release(epoll_event& event);
-  int accept_socket(int socket_fd, std::string& client_ip);
+  int handle_readable_event(epoll_event* const event);
+  int handle_writeable_event(epoll_event* const event);
+  int close_and_release(epoll_event* const event);
+  int accept_socket(int socket_fd, std::string* const client_ip);
   static int set_nonblocking(int fd);
 
  private:

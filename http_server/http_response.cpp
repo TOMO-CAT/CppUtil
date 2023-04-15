@@ -6,9 +6,9 @@
 
 namespace httpserver {
 
-WriteStatus HttpResponse::OnWriteable(bool is_keepalive, char* buffer, int buffer_size, int& write_size) {
+WriteStatus HttpResponse::OnWriteable(bool is_keepalive, char* buffer, int buffer_size, int* const write_size) {
   resp_buff_.read(buffer, buffer_size);
-  write_size = resp_buff_.gcount();
+  *write_size = resp_buff_.gcount();
   if (!resp_buff_.eof()) {
     return WriteStatus::WRITE_CONTINUE;
   }

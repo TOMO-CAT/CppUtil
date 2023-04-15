@@ -27,7 +27,7 @@ struct HttpResponse {
  public:
   HttpResponse() : status_line(STATUS_OK), is_writted(false) {
   }
-  WriteStatus OnWriteable(bool is_keepalive, char* buffer, int buffer_size, int& write_size);
+  WriteStatus OnWriteable(bool is_keepalive, char* buffer, int buffer_size, int* const write_size);
   int ExportBuffer2Response(const std::string& http_version, bool is_keepalive);
   int Rollback(int size);
 

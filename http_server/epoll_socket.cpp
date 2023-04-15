@@ -1,8 +1,9 @@
+#include "http_server/epoll_socket.h"
+
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 
-#include "http_server/epoll_socket.h"
 #include "logger/logger.h"
 #include "util/macro_util.h"
 
@@ -17,7 +18,7 @@ int EpollSocket::set_nonblocking(int fd) {
   return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-int EpollSocket::accept_socket(int socket_fd, std::string& client_ip) {
+int EpollSocket::accept_socket(int socket_fd, std::string* const client_ip) {
   struct sockaddr_in client_addr;
   socklen_t client_addr_size = sizeof(struct sockaddr_in);
   int conn_fd = accept(socket_fd, (struct sockaddr*)&client_addr, &client_addr_size);
@@ -25,7 +26,7 @@ int EpollSocket::accept_socket(int socket_fd, std::string& client_ip) {
     perror2console("accept");
     return -1;
   }
-  client_ip = inet_ntoa(client_addr.sin_addr);
+  *client_ip = inet_ntoa(client_addr.sin_addr);
   return conn_fd;
 }
 
@@ -107,9 +108,9 @@ int EpollSocket::start_epoll_loop() {
       if (events[i].data.fd == listen_socket_fd_) {
         handle_accept_event();
       } else if (events[i].events & EPOLLIN) {
-        handle_readable_event(events[i]);
+        handle_readable_event(&(events[i]));
       } else if (events[i].events & EPOLLOUT) {
-        handle_writeable_event(events[i]);
+        handle_writeable_event(&(events[i]));
       } else {
         log_error("unknown events: %d", events[i].events);
       }
@@ -126,7 +127,7 @@ int EpollSocket::start_epoll_loop() {
 
 int EpollSocket::handle_accept_event() {
   std::string client_ip;
-  int conn_socket = accept_socket(listen_socket_fd_, client_ip);
+  int conn_socket = accept_socket(listen_socket_fd_, &client_ip);
   if (conn_socket == -1) {
     log_error("accept socket fail, client_ip:%s socket_fd:%d conn_socket:%d", client_ip.c_str(), listen_socket_fd_,
               conn_socket);
@@ -149,15 +150,15 @@ int EpollSocket::handle_accept_event() {
 
   if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, conn_socket, &conn_socket_event) == -1) {
     log_error("epoll_ctl() err:%s", strerror(errno));
-    close_and_release(conn_socket_event);
+    close_and_release(&conn_socket_event);
     return -1;
   }
 
   return 0;
 }
 
-int EpollSocket::handle_readable_event(epoll_event& event) {
-  EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event.data.ptr);
+int EpollSocket::handle_readable_event(epoll_event* const event) {
+  EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event->data.ptr);
   int fd = ctx->fd;
   char read_buffer[EPOLL_SOCKET_READ_BUFFER_SIZE];
   ::memset(read_buffer, 0, EPOLL_SOCKET_READ_BUFFER_SIZE);
@@ -176,16 +177,16 @@ int EpollSocket::handle_readable_event(epoll_event& event) {
   }
 
   if (ret == ReadStatus::READ_CONTINUE) {
-    event.events = EPOLLIN | EPOLLET;
+    event->events = EPOLLIN | EPOLLET;
   } else {
-    event.events = EPOLLOUT | EPOLLET;
+    event->events = EPOLLOUT | EPOLLET;
   }
-  epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
+  epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, event);
   return 0;
 }
 
-int EpollSocket::handle_writeable_event(epoll_event& event) {
-  EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event.data.ptr);
+int EpollSocket::handle_writeable_event(epoll_event* const event) {
+  EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event->data.ptr);
   int fd = ctx->fd;
 
   WriteStatus ret = event_handler_->OnWriteable(ctx);
@@ -195,30 +196,30 @@ int EpollSocket::handle_writeable_event(epoll_event& event) {
   }
 
   if (ret == WriteStatus::WRITE_CONTINUE) {
-    event.events = EPOLLOUT | EPOLLET;
+    event->events = EPOLLOUT | EPOLLET;
   } else {
-    event.events = EPOLLIN | EPOLLET;
+    event->events = EPOLLIN | EPOLLET;
   }
-  epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &event);
+  epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, event);
   return 0;
 }
 
-int EpollSocket::close_and_release(epoll_event& event) {
+int EpollSocket::close_and_release(epoll_event* const event) {
   int ret = 0;
 
-  if (event.data.ptr == nullptr) {
+  if (event->data.ptr == nullptr) {
     return ret;
   }
 
-  EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event.data.ptr);
+  EpollEventContext* ctx = reinterpret_cast<EpollEventContext*>(event->data.ptr);
   event_handler_->OnClose(ctx);
 
   int fd = ctx->fd;
-  event.events = EPOLLIN | EPOLLOUT | EPOLLET;
-  epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, &event);
+  event->events = EPOLLIN | EPOLLOUT | EPOLLET;
+  epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, event);
 
   delete ctx;
-  event.data.ptr = nullptr;
+  event->data.ptr = nullptr;
 
   if (fd > 0) {
     ret = close(fd);
