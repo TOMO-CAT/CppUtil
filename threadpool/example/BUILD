@@ -1,0 +1,9 @@
+cc_binary(
+    name='example',
+    srcs=[
+        'threadpool_example.cpp',
+    ],
+    deps=[
+        '//threadpool:threadpool'
+    ]
+)
