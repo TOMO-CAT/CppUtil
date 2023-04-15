@@ -1,0 +1,9 @@
+cc_test(
+    name='redis_proxy_test',
+    srcs=[
+        'redis_proxy_test.cpp',
+    ],
+    deps=[
+        '//redis_proxy:redis_proxy',
+    ]
+)

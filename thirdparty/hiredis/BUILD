@@ -1,0 +1,9 @@
+prebuilt_cc_library(
+    name='hiredis',
+    export_incs=['include'],
+    libpath_pattern='lib',
+    hdrs=[],
+    deps=[
+    ],
+    visibility=['PUBLIC'],
+)

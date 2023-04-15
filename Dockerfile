@@ -11,6 +11,10 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
     bear \
     wget \
     uuid-dev \
+    # libuv1-dev \
+    # libglib2.0-dev \
+    # libsystemd-dev \
+    # libev-dev \
     # 如果需要在 docker 中使用 apt 的话需要注掉这一行
     # && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python2.7 /usr/bin/python

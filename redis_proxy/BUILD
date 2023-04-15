@@ -1,0 +1,14 @@
+cc_library(
+    name='redis_proxy',
+    srcs=[
+        'redis_proxy.cpp',
+    ],
+    hdrs=[
+        'redis_proxy.h',
+    ],
+    deps=[
+        '//logger:logger',
+        '//thirdparty/hiredis:hiredis',
+    ],
+    visibility=['PUBLIC'],
+)

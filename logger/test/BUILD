@@ -11,6 +11,18 @@ cc_binary(
     visibility=['PUBLIC'],
 )
 
+gen_rule(
+    name='logger_test_gen',
+    srcs=[
+        'conf/logger.conf',
+    ],
+    outs=[
+        'conf/logger.conf',
+    ],
+    # 在 BLADE_ROOT 目录执行
+    cmd='cp logger/test/conf/logger.conf $FIRST_OUT',
+)
+
 cc_binary(
     name='logger_test',
     srcs=[
@@ -18,18 +30,7 @@ cc_binary(
     ],
     deps=[
         '//logger:logger',
-    ],
-    visibility=['PUBLIC'],
-)
-
-
-cc_library(
-    name='test',
-    hdrs=[],
-    srcs=[],
-    deps=[
-        ':file_appender_test',
-        ':logger_test',
+        ':logger_test_gen',
     ],
     visibility=['PUBLIC'],
 )

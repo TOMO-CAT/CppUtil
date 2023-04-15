@@ -92,6 +92,7 @@
     "cpplint.filters": [
         "-legal/copyright",
         "-whitespace/ending_newline",
+        "-build/c++11",
     ],
     // clang-foramt bin path
     "clang-format.executable": "/usr/bin/clang-format",
