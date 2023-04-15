@@ -1,10 +1,16 @@
+---
 BasedOnStyle: Google
-IndentWidth: 4
+---
+Language: Cpp
+Cpp11BracedListStyle: true
+Standard: Cpp11
+AllowShortFunctionsOnASingleLine: None
+AllowShortLambdasOnASingleLine: None
+DerivePointerAlignment: false
+PointerAlignment: Left
+CommentPragmas: '^ NOLINT'
 ColumnLimit: 120
-ReflowComments: false
-AccessModifierOffset: -3
-FixNamespaceComments: true
-AllowShortCaseLabelsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Empty
-SpacesBeforeTrailingComments: 2
-AllowShortLoopsOnASingleLine: false
+---
+Language: Proto
+ColumnLimit: 100
+---

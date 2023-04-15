@@ -93,8 +93,6 @@
         "-legal/copyright",
         "-whitespace/ending_newline",
     ],
-    // clang-format file path
-    "clang-format.assumeFilename": "./clang-format",
     // clang-foramt bin path
     "clang-format.executable": "/usr/bin/clang-format",
     // format on save

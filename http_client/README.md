@@ -16,6 +16,22 @@ $make
 $make install
 ```
 
+## 编译
+
+```bash
+# 编译源码和测试文件
+blade build http_client/...
+
+# 只编译源码
+blade build http_client
+
+# 只编译测试文件
+blade build http_client/example
+
+# 运行测试文件
+./build64_release/http_client/example/example
+```
+
 ## 特性
 
 * 支持设置连接超时和传输超时

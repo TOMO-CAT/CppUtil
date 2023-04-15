@@ -1,0 +1,9 @@
+cc_binary(
+    name='example',
+    srcs=[
+        'example.cpp',
+    ],
+    deps=[
+        '//http_client:http_client',
+    ],
+)

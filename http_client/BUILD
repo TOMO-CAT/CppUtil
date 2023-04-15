@@ -12,4 +12,6 @@ cc_library(
         # '//thirdparty/curl:curl',
     ],
     visibility=['PUBLIC'],
+    # 定义宏
+    defs=['_HTTP_CLIENT_DEBUG=true'],
 )
