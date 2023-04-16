@@ -110,7 +110,7 @@ class RedisProxy {
   std::shared_ptr<Response> ExecuteArgv(T cmd, Args... args) {
     RedisCommand rc;
     rc.append(cmd, args...);
-    return execute(rc);
+    return execute(&rc);
   }
   /**
    * 执行单个完整的redis命令, 支持格式控制符
@@ -123,7 +123,7 @@ class RedisProxy {
   /**
    * 执行管道Redis命令, 只有返回true才能使用resps
    */
-  bool PipeExecute(std::vector<RedisCommand>& cmds, std::vector<std::shared_ptr<Response>>& resps);
+  bool PipeExecute(std::vector<RedisCommand>* const cmds, std::vector<std::shared_ptr<Response>>* const resps);
 
   // ===============================================管道redis命令的实现===============================================
   /**
@@ -134,7 +134,7 @@ class RedisProxy {
   /**
    * 管道Get方法
    */
-  bool PipeGet(const std::vector<std::string>& keys, std::vector<std::pair<bool, std::string>>& values);
+  bool PipeGet(const std::vector<std::string>& keys, std::vector<std::pair<bool, std::string>>* const values);
 
   // ===============================================常用redis命令的实现===============================================
   /**
@@ -144,7 +144,7 @@ class RedisProxy {
   /**
    * Get方法
    */
-  bool Get(const std::string& key, std::string& value);
+  bool Get(const std::string& key, std::string* const value);
 
  private:
   bool connect();
@@ -152,8 +152,8 @@ class RedisProxy {
   std::string get_err_msg() const {
     return ctx_ == nullptr ? "ctx is null" : ctx_->errstr;
   }
-  std::shared_ptr<Response> execute(RedisCommand& redis_cmd);
-  std::shared_ptr<Response> parse_redis_reply(const redisReply* reply, const std::string& cmd);
+  std::shared_ptr<Response> execute(RedisCommand* const redis_cmd);
+  std::shared_ptr<Response> parse_redis_reply(const redisReply* const reply, const std::string& cmd);
 
  private:
   std::string ip_;

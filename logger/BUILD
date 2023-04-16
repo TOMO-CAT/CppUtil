@@ -1,11 +1,16 @@
 cc_library(
     name='logger',
     srcs=[
-        'file_appender.cpp',
-        'logger.cpp',
+        'file_appender.cc',
+        'log_capture.cc',
+        'log_kv.cc',
+        'logger.cc',
     ],
     hdrs=[
         'file_appender.h',
+        'log_capture.h',
+        'log.h',
+        'log_kv.h',
         'logger.h',
     ],
     deps=[
@@ -14,6 +19,7 @@ cc_library(
         '//thirdparty/cpptoml:cpptoml',
         '//thirdparty/boost:boost',
         '#uuid',
+        '#pthread',
     ],
     visibility=['PUBLIC'],
 )

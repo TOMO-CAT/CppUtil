@@ -1,9 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <sstream>
 #include <string>
 
-#include "cpptoml.h"
+#include "cpptoml/cpptoml.h"
 
 namespace util {
 
@@ -11,13 +12,13 @@ namespace util {
  * 获取TOML配置中的值, 失败返回false
  * */
 template <typename T>
-bool ParseTomlValue(std::shared_ptr<cpptoml::table> g, const std::string& key, T& value) {
+bool ParseTomlValue(std::shared_ptr<cpptoml::table> g, const std::string& key, T* value) {
   auto val = g->get_qualified_as<T>(key);
   if (!val) {
     // log_error("parse key fail, key: %s", key.c_str());
     return false;
   }
-  value = *val;
+  *value = *val;
 
   std::ostringstream oss;
   oss << value;

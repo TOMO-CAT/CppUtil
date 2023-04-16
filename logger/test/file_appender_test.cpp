@@ -1,5 +1,6 @@
 #include "logger/file_appender.h"
 
+#include <chrono>
 #include <thread>
 #include <vector>
 
@@ -21,7 +22,7 @@ void ThreadRoutine(int idx) {
       break;
     }
     g_file_appender.Write("[idx:%d]wroking...", idx);
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   g_file_appender.Write("[idx:%d]done!", idx);
 }

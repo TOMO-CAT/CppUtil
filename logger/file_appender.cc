@@ -12,7 +12,7 @@
 
 namespace logger {
 
-__thread char FileAppender::buffer_[FILE_APPENDER_BUFF_SIZE];
+__thread char FileAppender::buffer_[kFileAppenderBuffSize];
 
 FileAppender::FileAppender(std::string dir, std::string file_name, int retain_hours)
     : file_dir_(dir), file_name_(file_name), retain_hours_(retain_hours) {
@@ -35,13 +35,13 @@ bool FileAppender::Init() {
     return false;
   }
   file_stream_.open(file_path_.c_str(), std::fstream::out | std::fstream::app);
-  last_hour_suffix_ = gen_now_hour_suffix();
+  last_hour_suffix_ = GenNowHourSuffix();
   pthread_mutex_init(&write_mutex_, nullptr);
   return true;
 }
 
 void FileAppender::Write(const char* fmt, va_list args) {
-  cut_if_need();
+  CutIfNeed();
   pthread_mutex_lock(&write_mutex_);
   if (file_stream_.is_open()) {
 // https://stackoverflow.com/questions/36120717/correcting-format-string-is-not-a-string-literal-warning
@@ -67,26 +67,26 @@ void FileAppender::Write(const char* fmt, ...) {
 }
 
 /**
- * 生成当前小时的文件suffix, 格式yyyymmddhh
+ * 生成当前小时的文件 suffix, 格式 yyyymmddhh
  * eg: 2022040214
  */
-int64_t FileAppender::gen_now_hour_suffix() {
+int64_t FileAppender::GenNowHourSuffix() {
   struct timeval now;
   ::gettimeofday(&now, nullptr);
-  return gen_hour_suffix(&now);
+  return GenHourSuffix(&now);
 }
 
-int64_t FileAppender::gen_hour_suffix(const struct timeval* tv) {
+int64_t FileAppender::GenHourSuffix(const struct timeval* tv) {
   struct tm tm_val;
   ::localtime_r(&tv->tv_sec, &tm_val);
   return tm_val.tm_hour + tm_val.tm_mday * 100 + (tm_val.tm_mon + 1) * 10000 + (tm_val.tm_year + 1900) * 1000000;
 }
 
-void FileAppender::cut_if_need() {
+void FileAppender::CutIfNeed() {
   struct timeval now;
   ::gettimeofday(&now, nullptr);
 
-  int64_t now_hour_suffix = gen_hour_suffix(&now);
+  int64_t now_hour_suffix = GenHourSuffix(&now);
   if (now_hour_suffix > last_hour_suffix_) {
     pthread_mutex_lock(&write_mutex_);
     if (now_hour_suffix > last_hour_suffix_) {
@@ -103,11 +103,11 @@ void FileAppender::cut_if_need() {
       last_hour_suffix_ = now_hour_suffix;
     }
     pthread_mutex_unlock(&write_mutex_);
-    delete_overdue_file(&now);
+    DeleteOverdueFile(&now);
   }
 }
 
-void FileAppender::delete_overdue_file(const struct timeval* tv) {
+void FileAppender::DeleteOverdueFile(const struct timeval* tv) {
   if (retain_hours_ <= 0) {
     return;
   }
@@ -115,7 +115,7 @@ void FileAppender::delete_overdue_file(const struct timeval* tv) {
   old_tv.tv_sec = tv->tv_sec - retain_hours_ * 3600;
   old_tv.tv_usec = tv->tv_usec;
 
-  int64_t old_hour_suffix = gen_hour_suffix(&old_tv);
+  int64_t old_hour_suffix = GenHourSuffix(&old_tv);
   std::string old_file_path = file_path_ + "." + std::to_string(old_hour_suffix);
   remove(old_file_path.c_str());
   printf2console("delete old file, file_path:%s", old_file_path.c_str());

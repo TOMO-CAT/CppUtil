@@ -1,0 +1,9 @@
+[2023-04-16 22:12:37.846072][0:184d7fcc7e785728][INFO ] [logger/test/logger_test.cpp:22][main]info message
+[2023-04-16 22:12:37.846087][0:184d7fcc7e785728][INFO ] [logger/test/logger_test.cpp:24][main]name:tomocat age:26 weight:56.2
+[2023-04-16 22:12:37.846094][0:184d7fcc7e785728][WARN ] [logger/test/logger_test.cpp:25][main]warn message
+[2023-04-16 22:12:37.846096][0:184d7fcc7e785728][ERROR] [logger/test/logger_test.cpp:26][main]error message
+[2023-04-16 22:12:37.846098][0:184d7fcc7e785728][ERROR] [logger/test/logger_test.cpp:27][main][tag=err_tag]error message with tag, type:pencil length:17
+[2023-04-16 22:12:37.846104][0:184d7fcc7e785728][INFO ] [logger/test/logger_test.cpp:30][main] double: 3.14, int64_t:-801
+[2023-04-16 22:12:37.846107][0:184d7fcc7e785728][WARN ] [logger/test/logger_test.cpp:31][main] warn message
+[2023-04-16 22:12:37.846110][0:184d7fcc7e785728][ERROR] [logger/test/logger_test.cpp:32][main] error message
+[2023-04-16 22:12:37.846114][0:184d7fcc7e785728][INFO ] [logger/test/logger_test.cpp:36][main] example_prefix||int32_data=-10||uint64_data=1234||double_data=3.14159||bool_data=1||string_data=cat||char_data=dog||float_format_data=%.2f=3.14159

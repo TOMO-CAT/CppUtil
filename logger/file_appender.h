@@ -3,13 +3,11 @@
 #include <fstream>
 #include <string>
 
-#include "boost/noncopyable.hpp"
-
-#define FILE_APPENDER_BUFF_SIZE 4096
+#include "util/macro_util.h"
 
 namespace logger {
 
-class FileAppender : boost::noncopyable {
+class FileAppender {
  public:
   /**
    * @brief Construct a new File Appender object
@@ -25,7 +23,7 @@ class FileAppender : boost::noncopyable {
   /**
    * @brief 必要的初始化
    *
-   * @return RetCode 返回RetCode::OK表示成功, 其他均表示失败
+   * @return 返回 RetCode::OK 表示成功, 其他均表示失败
    */
   bool Init();
   /**
@@ -38,10 +36,13 @@ class FileAppender : boost::noncopyable {
   void Write(const char* fmt, ...);
 
  private:
-  static int64_t gen_now_hour_suffix();
-  static int64_t gen_hour_suffix(const struct timeval* tv);
-  void cut_if_need();
-  void delete_overdue_file(const struct timeval* tv);
+  static int64_t GenNowHourSuffix();
+  static int64_t GenHourSuffix(const struct timeval* tv);
+  void CutIfNeed();
+  void DeleteOverdueFile(const struct timeval* tv);
+
+ private:
+  static constexpr uint32_t kFileAppenderBuffSize = 4096;
 
  private:
   std::fstream file_stream_;
@@ -51,7 +52,9 @@ class FileAppender : boost::noncopyable {
   int retain_hours_;
   int64_t last_hour_suffix_;
   pthread_mutex_t write_mutex_;
-  static __thread char buffer_[FILE_APPENDER_BUFF_SIZE];
+  static __thread char buffer_[kFileAppenderBuffSize];
+
+  DISALLOW_COPY_AND_ASSIGN(FileAppender);
 };
 
 }  // namespace logger

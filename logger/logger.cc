@@ -5,11 +5,21 @@
 
 #include <cstdarg>
 #include <memory>
+#include <string>
+#include <unordered_map>
 
-#include "cpptoml.h"
+#include "cpptoml/cpptoml.h"
+#include "logger/log.h"
 #include "util/config_util/toml_helper.h"
-
 namespace logger {
+
+namespace {
+const std::unordered_map<Logger::Level, std::string> kLevel2Description = {
+    {Logger::Level::DEBUG_LEVEL, "[DEBUG]"}, {Logger::Level::INFO_LEVEL, "[INFO ]"},
+    {Logger::Level::WARN_LEVEL, "[WARN ]"},  {Logger::Level::ERROR_LEVEL, "[ERROR]"},
+    {Logger::Level::FATAL_LEVEL, "[FATAL]"},
+};
+}
 
 Logger* Logger::instance_ = new Logger();
 __thread uint64_t Logger::trace_id_ = 0;
@@ -25,14 +35,14 @@ Logger::~Logger() {
 }
 
 bool Logger::Init(const std::string& conf_path) {
-  set_pid(getpid());
+  set_pid(pid());
   set_trace_id();
 
   std::shared_ptr<cpptoml::table> g;
   try {
     g = cpptoml::parse_file(conf_path);
   } catch (const cpptoml::parse_exception& e) {
-    log_error("parse logger conf fail, path:%s err:%s", conf_path.c_str(), e.what());
+    LogError("parse logger conf fail, path:%s err:%s", conf_path.c_str(), e.what());
     return false;
   }
 
@@ -40,19 +50,19 @@ bool Logger::Init(const std::string& conf_path) {
   std::string dir;
   std::string file_name;
   int retain_hours;
-  if (util::ParseTomlValue(g, "Level", level)) {
+  if (util::ParseTomlValue(g, "Level", &level)) {
     if (level >= static_cast<int>(Level::DEBUG_LEVEL) && level <= static_cast<int>(Level::ERROR_LEVEL)) {
       priority_ = Level(level);
     }
   }
-  if (!util::ParseTomlValue(g, "Directory", dir)) {
+  if (!util::ParseTomlValue(g, "Directory", &dir)) {
     dir = ".";
   }
-  if (!util::ParseTomlValue(g, "FileName", file_name)) {
-    log_warn("parse FileName config fail, print to console");
+  if (!util::ParseTomlValue(g, "FileName", &file_name)) {
+    LogWarn("parse FileName config fail, print to console");
     return false;
   }
-  if (!util::ParseTomlValue(g, "RetainHours", retain_hours)) {
+  if (!util::ParseTomlValue(g, "RetainHours", &retain_hours)) {
     retain_hours = 0;  // don't delete overdue log file
   }
   file_appender_ = new FileAppender(dir, file_name, retain_hours);
@@ -68,7 +78,7 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
     return;
   }
 
-  std::string new_fmt = gen_timestamp_prefix() + fmt;
+  std::string new_fmt = GenLogPrefix() + kLevel2Description.at(log_level) + " " + fmt;
 
   va_list args;
   va_start(args, fmt);
@@ -88,7 +98,7 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
   va_end(args);
 }
 
-std::string Logger::gen_timestamp_prefix() {
+std::string Logger::GenLogPrefix() {
   struct timeval now;
   ::gettimeofday(&now, nullptr);
   struct tm tm_now;
@@ -104,7 +114,7 @@ void Logger::set_pid(int pid) {
   pid_ = pid;
 }
 
-int Logger::get_pid() {
+int Logger::pid() {
   return pid_;
 }
 
@@ -112,7 +122,7 @@ void Logger::set_trace_id(uint64_t trace_id) {
   if (trace_id == 0) {
     uuid_t uuid;
     uuid_generate(uuid);
-    // 将uuid解析成uint64_t数组并取第一个元素作为trace_id
+    // 将 uuid 解析成 uint64_t 数组并取第一个元素作为 trace_id
     uint64_t* trace_id_list = reinterpret_cast<uint64_t*>(uuid);
     trace_id_ = trace_id_list[0];
   } else {
@@ -120,7 +130,7 @@ void Logger::set_trace_id(uint64_t trace_id) {
   }
 }
 
-uint64_t Logger::get_trace_id() {
+uint64_t Logger::trace_id() {
   return trace_id_;
 }
 
