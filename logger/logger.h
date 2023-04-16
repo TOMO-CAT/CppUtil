@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <string>
 
 #include "logger/file_appender.h"
@@ -45,12 +46,16 @@ class Logger {
   static std::string GenLogPrefix();
 
  private:
+  void Backtrace(const uint32_t skip_frames = 1);
+
+ private:
   static Logger* instance_;
   bool is_console_output_;
   FileAppender* file_appender_;
   Level priority_;
   static __thread uint64_t trace_id_;
   static __thread int pid_;
+  std::atomic<bool> receive_fatal_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(Logger);
 };

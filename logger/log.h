@@ -7,15 +7,15 @@
 namespace logger {
 
 // ==================================================== 辅助宏定义 ====================================================
-#define __LOGGER_LOG__(log_level, fmt, args...)                                                                \
-  do {                                                                                                         \
-    ::logger::Logger::Instance()->Log(log_level, "[%s:%d][%s]" fmt, __FILE__, __LINE__, __FUNCTION__, ##args); \
+#define __LOGGER_LOG__(log_level, fmt, args...)                                                                 \
+  do {                                                                                                          \
+    ::logger::Logger::Instance()->Log(log_level, "[%s:%d][%s] " fmt, __FILE__, __LINE__, __FUNCTION__, ##args); \
   } while (0)
 
-#define __LOGGER_LOG_WITH_TAG__(log_level, tag, fmt, args...)                                                      \
-  do {                                                                                                             \
-    ::logger::Logger::Instance()->Log(log_level, "[%s:%d][%s][tag=%s]" fmt, __FILE__, __LINE__, __FUNCTION__, tag, \
-                                      ##args);                                                                     \
+#define __LOGGER_LOG_WITH_TAG__(log_level, tag, fmt, args...)                                                       \
+  do {                                                                                                              \
+    ::logger::Logger::Instance()->Log(log_level, "[%s:%d][%s][tag=%s] " fmt, __FILE__, __LINE__, __FUNCTION__, tag, \
+                                      ##args);                                                                      \
   } while (0)
 
 #define __LOGGER_LOG_CAPTURE__(log_level) ::logger::LogCapture(log_level, __FILE__, __LINE__, __FUNCTION__).stream()

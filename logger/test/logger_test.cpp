@@ -41,4 +41,9 @@ int main() {
       .LogKV("string_data", foo.str)
       .LogKV("char_data", foo.ch)
       .LogKV("float_format_data=%.2f", foo.db);
+
+  // Fatal 日志
+  LogFatal("x must be larger than 0!");
+
+  LOG_INFO << "info message";
 }

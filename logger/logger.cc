@@ -1,8 +1,10 @@
 #include "logger/logger.h"
 
+#include <execinfo.h>
 #include <sys/time.h>
 #include <uuid/uuid.h>
 
+#include <array>
 #include <cstdarg>
 #include <memory>
 #include <string>
@@ -78,7 +80,12 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
     return;
   }
 
-  std::string new_fmt = GenLogPrefix() + kLevel2Description.at(log_level) + " " + fmt;
+  std::string new_fmt;
+  if (log_level != Level::FATAL_LEVEL) {
+    new_fmt = GenLogPrefix() + kLevel2Description.at(log_level) + " " + fmt;
+  } else {
+    new_fmt = std::string("Exiting due to FATAL message:\n") + fmt + "\n\nCall Stack:";
+  }
 
   va_list args;
   va_start(args, fmt);
@@ -96,6 +103,31 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
     file_appender_->Write(new_fmt.c_str(), args);
   }
   va_end(args);
+
+  if (log_level == Level::FATAL_LEVEL) {
+    // 不可重入, 防止打印多个 FATAL 日志
+    if (!receive_fatal_.exchange(true)) {
+      Backtrace();
+      std::abort();
+    }
+  }
+}
+
+void Logger::Backtrace(const uint32_t skip_frames) {
+  constexpr uint32_t kMaxFrames = 128;
+  std::array<void*, kMaxFrames> call_stacks;
+
+  int32_t frame_size = ::backtrace(call_stacks.data(), kMaxFrames);
+  std::shared_ptr<char*> symbols(::backtrace_symbols(call_stacks.data(), frame_size), std::free);
+  if (symbols) {
+    for (int i = skip_frames; i < frame_size; ++i) {
+      file_appender_->Write(symbols.get()[i]);
+    }
+  }
+  if (frame_size == kMaxFrames) {
+    file_appender_->Write("[truncated]");
+  }
+  file_appender_->Write("\n\n");
 }
 
 std::string Logger::GenLogPrefix() {
