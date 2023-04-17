@@ -20,8 +20,8 @@ namespace logger {
 
 #define __LOGGER_LOG_CAPTURE__(log_level) ::logger::LogCapture(log_level, __FILE__, __LINE__, __FUNCTION__).stream()
 
-#define __LOGGER_LOG_CAPTURE_CHECK__(log_level, fatal_msg) \
-  ::logger::LogCapture(log_level, __FILE__, __LINE__, __FUNCTION__).stream()
+#define __LOGGER_LOG_CAPTURE_CHECK__(log_level, check_expression) \
+  ::logger::LogCapture(log_level, __FILE__, __LINE__, __FUNCTION__, check_expression).stream()
 
 #define __LOGGER_LOG_KV__(log_level, prefix) ::logger::LoggerKV(log_level, __FILE__, __LINE__, __FUNCTION__, prefix)
 
@@ -67,12 +67,35 @@ namespace logger {
 
 // 断言
 #define CHECK(expression) \
-  if ((expression) == false) __LOGGER_LOG_CAPTURE__(::logger::Logger::Level::FATAL_LEVEL)
+  if ((expression) == false) __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #expression)
 
 #define CHECK_NOTNULL(expression) \
-  if ((expression) == nullptr) __LOGGER_LOG_CAPTURE__(::logger::Logger::Level::FATAL_LEVEL)
+  if ((expression) == nullptr)    \
+  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #expression + std::string(" == nullptr"))
 
-#define CHECK_LT(left, right) if (left >= right)
+#define CHECK_LT(left, right) \
+  if (left >= right)          \
+  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #left + std::string(" < ") + #right)
+
+#define CHECK_LE(left, right) \
+  if (left > right)           \
+  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #left + std::string(" <= ") + #right)
+
+#define CHECK_GT(left, right) \
+  if (left <= right)          \
+  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #left + std::string(" > ") + #right)
+
+#define CHECK_GE(left, right) \
+  if (left < right)           \
+  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #left + std::string(" >= ") + #right)
+
+#define CHECK_EQ(left, right) \
+  if (left != right)          \
+  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #left + std::string(" == ") + #right)
+
+#define CHECK_NE(left, right) \
+  if (left == right)          \
+  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #left + std::string(" != ") + #right)
 
 /*
 #define LogInfo(fmt, args...)                                                                                 \

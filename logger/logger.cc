@@ -80,7 +80,7 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
     return;
   }
 
-  std::string new_fmt = GenLogPrefix() + kLevel2Description.at(log_level) + " " + fmt;
+  std::string new_fmt = GenLogPrefix() + kLevel2Description.at(log_level) + fmt;
   if (log_level == Level::FATAL_LEVEL) {
     new_fmt += "\n\tExiting due to FATAL log";
     new_fmt += "\n\tCall Stack:";
@@ -109,7 +109,11 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
     // 不可重入, 防止打印多个 FATAL 日志
     if (!receive_fatal_.exchange(true)) {
       Backtrace();
+
+// DEBUG 模式下不触发 abort
+#ifdef NDEBUG
       std::abort();
+#endif
     }
   }
 }

@@ -22,7 +22,10 @@ $cd logger
 $make
 
 # blade
+# 1. release 模式
 $blade build logger
+# 2. debug 模式
+$blade build -pdebug logger
 
 # 使用 bear 编译
 $bear -- blade build logger

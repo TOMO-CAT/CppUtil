@@ -2,6 +2,7 @@ output
 blade-bin
 blade-bin/
 build64_release/
+build64_debug/
 .cache/
 compile_commands.json
 logs/
