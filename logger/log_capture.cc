@@ -14,20 +14,14 @@ std::ostringstream& LogCapture::stream() {
 }
 
 LogCapture::~LogCapture() {
-  std::string to_print;
-
   if (level_ == Logger::Level::FATAL_LEVEL) {
-    std::ostringstream oss;
     if (!check_expression_.empty()) {
-      oss << "\n\tCHECK(" + check_expression_ + ") fail.";
+      sstream_ << "\n\tCHECK(" + check_expression_ + ") fail.";
     }
-    oss << "\n\tFatal Message: \"" << sstream_.str() << "\"";
-    to_print = oss.str();
-  } else {
-    to_print = sstream_.str();
+    sstream_ << "\n\tExiting...";
   }
 
-  Logger::Instance()->Log(level_, "[%s:%d][%s] %s", file_.c_str(), line_, function_.c_str(), to_print.c_str());
+  Logger::Instance()->Log(level_, "[%s:%d][%s] %s", file_.c_str(), line_, function_.c_str(), sstream_.str().c_str());
 }
 
 }  // namespace logger

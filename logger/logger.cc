@@ -80,16 +80,17 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
     return;
   }
 
-  std::string new_fmt;
-  if (log_level != Level::FATAL_LEVEL) {
-    new_fmt = GenLogPrefix() + kLevel2Description.at(log_level) + " " + fmt;
-  } else {
-    new_fmt = std::string("Exiting due to FATAL message:\n") + fmt + "\n\nCall Stack:";
+  std::string new_fmt = GenLogPrefix() + kLevel2Description.at(log_level) + " " + fmt;
+  if (log_level == Level::FATAL_LEVEL) {
+    new_fmt += "\n\tExiting due to FATAL log";
+    new_fmt += "\n\tCall Stack:";
   }
 
   va_list args;
   va_start(args, fmt);
-  if (is_console_output_) {
+
+  // ERROR 及 FATAL 日志输出到控制台
+  if (is_console_output_ || log_level >= Level::ERROR_LEVEL) {
 // https://stackoverflow.com/questions/36120717/correcting-format-string-is-not-a-string-literal-warning
 #if defined(__has_warning)
 #pragma clang diagnostic push
@@ -121,11 +122,13 @@ void Logger::Backtrace(const uint32_t skip_frames) {
   std::shared_ptr<char*> symbols(::backtrace_symbols(call_stacks.data(), frame_size), std::free);
   if (symbols) {
     for (int i = skip_frames; i < frame_size; ++i) {
-      file_appender_->Write(symbols.get()[i]);
+      printf("%s\n", (std::string("\t\t") + symbols.get()[i]).c_str());
+      file_appender_->Write((std::string("\t\t") + symbols.get()[i]).c_str());
     }
   }
   if (frame_size == kMaxFrames) {
-    file_appender_->Write("[truncated]");
+    printf("\t\t[truncated]\n");
+    file_appender_->Write("\t\t[truncated]");
   }
   file_appender_->Write("\n\n");
 }
