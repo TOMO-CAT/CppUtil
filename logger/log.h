@@ -20,7 +20,18 @@ namespace logger {
 
 #define __LOGGER_LOG_CAPTURE__(log_level) ::logger::LogCapture(log_level, __FILE__, __LINE__, __FUNCTION__).stream()
 
+#define __LOGGER_LOG_CAPTURE_CHECK__(log_level, fatal_msg) \
+  ::logger::LogCapture(log_level, __FILE__, __LINE__, __FUNCTION__).stream()
+
 #define __LOGGER_LOG_KV__(log_level, prefix) ::logger::LoggerKV(log_level, __FILE__, __LINE__, __FUNCTION__, prefix)
+
+#define __LOG_EVERY_N__(log_level, N)   \
+  static std::atomic<uint32_t> cnt = 0; \
+  ++cnt;                                \
+  if (cnt > N) {                        \
+    cnt -= N;                           \
+  }                                     \
+  if (cnt == 1) __LOGGER_LOG_CAPTURE__(log_level)
 
 // ===================================================== 对外接口 =====================================================
 
@@ -47,6 +58,21 @@ namespace logger {
 #define LogWarnKV(prefix) __LOGGER_LOG_KV__(::logger::Logger::Level::WARN_LEVEL, prefix)
 #define LogErrorKV(prefix) __LOGGER_LOG_KV__(::logger::Logger::Level::ERROR_LEVEL, prefix)
 #define LogFatalKV(prefix) __LOGGER_LOG_KV__(::logger::Logger::Level::FATAL_LEVEL, prefix)
+
+// 每 N 次打印一条日志
+#define LOG_DEBUG_EVERY(N) __LOG_EVERY_N__(::logger::Logger::Level::DEBUG_LEVEL, N)
+#define LOG_INFO_EVERY(N) __LOG_EVERY_N__(::logger::Logger::Level::INFO_LEVEL, N)
+#define LOG_WARN_EVERY(N) __LOG_EVERY_N__(::logger::Logger::Level::WARN_LEVEL, N)
+#define LOG_ERROR_EVERY(N) __LOG_EVERY_N__(::logger::Logger::Level::ERROR_LEVEL, N)
+
+// 断言
+#define CHECK(expression) \
+  if ((expression) == false) __LOGGER_LOG_CAPTURE__(::logger::Logger::Level::FATAL_LEVEL)
+
+#define CHECK_NOTNULL(expression) \
+  if ((expression) == nullptr) __LOGGER_LOG_CAPTURE__(::logger::Logger::Level::FATAL_LEVEL)
+
+#define CHECK_LT(left, right) if (left >= right)
 
 /*
 #define LogInfo(fmt, args...)                                                                                 \
