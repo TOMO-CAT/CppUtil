@@ -1,8 +1,8 @@
-#include "http_server/http_response.h"
+#include "http/http_server/http_response.h"
 
 #include <string>
 
-#include "logger/logger.h"
+#include "logger/log.h"
 
 namespace httpserver {
 
@@ -39,7 +39,7 @@ int HttpResponse::ExportBuffer2Response(const std::string& http_version, bool is
   }
   resp_buff_ << "\r\n";
   resp_buff_ << body;
-  log_info("export buffer to response: %s", resp_buff_.str().c_str());
+  LogInfo("export buffer to response: %s", resp_buff_.str().c_str());
   return 0;
 }
 

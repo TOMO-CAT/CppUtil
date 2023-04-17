@@ -4,6 +4,6 @@ cc_binary(
         'example.cpp',
     ],
     deps=[
-        '//http_client:http_client',
+        '//http/http_client:http_client',
     ],
 )

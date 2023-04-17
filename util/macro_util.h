@@ -25,7 +25,7 @@
  */
 #define perror2console(str)                                                        \
   do {                                                                             \
-    char buff[50];                                                                 \
+    char buff[200];                                                                \
     snprintf(buff, sizeof(buff), "[%s:%d][%s]", __FILE__, __LINE__, __FUNCTION__); \
     std::string new_str = std::string(buff) + str;                                 \
     perror(new_str.c_str());                                                       \

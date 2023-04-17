@@ -1,10 +1,11 @@
-#include "http_server/epoll_socket.h"
+#include "http/http_server/epoll_socket.h"
 
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <unistd.h>
 
-#include "logger/logger.h"
+#include "logger/log.h"
 #include "util/macro_util.h"
 
 namespace httpserver {
@@ -33,7 +34,7 @@ int EpollSocket::accept_socket(int socket_fd, std::string* const client_ip) {
 int EpollSocket::listen_on() {
   listen_socket_fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
   if (listen_socket_fd_ == -1) {
-    log_error("socket() err:%s", strerror(errno));
+    LogError("socket() err:%s", strerror(errno));
     return -1;
   }
   // 一般而言端口释放2分钟后才能被复用, SO_REUSEADDR 可以让端口释放后就立刻被再次使用
@@ -47,7 +48,7 @@ int EpollSocket::listen_on() {
   my_addr.sin_addr.s_addr = INADDR_ANY;
 
   if (::bind(listen_socket_fd_, (struct sockaddr*)&my_addr, sizeof(struct sockaddr)) == -1) {
-    log_error("bind() err:%s", strerror(errno));
+    LogError("bind() err:%s", strerror(errno));
     return -1;
   }
 
@@ -57,11 +58,11 @@ int EpollSocket::listen_on() {
   // 后者大小由backlog参数决定
   // 当已完成队列满了时, 如果再收到TCP第三次握手的ACK包, 那么Linux协议栈就会忽略这个包
   if (::listen(listen_socket_fd_, backlog_) == -1) {
-    log_error("listen() err:%s", strerror(errno));
+    LogError("listen() err:%s", strerror(errno));
     return -1;
   }
 
-  log_info("start listening on port: %d", port_);
+  LogInfo("start listening on port: %d", port_);
   return 0;
 }
 
@@ -71,10 +72,10 @@ int EpollSocket::create_epoll() {
   // 但该参数必须 >0 以兼容旧版本的linux内核
   epoll_fd_ = ::epoll_create(1024);
   if (epoll_fd_ == -1) {
-    log_error("epoll_create() err:%s", strerror(errno));
+    LogError("epoll_create() err:%s", strerror(errno));
     return -1;
   }
-  log_info("create epoll successfully! epoll fd:%d", epoll_fd_);
+  LogInfo("create epoll successfully! epoll fd:%d", epoll_fd_);
   return 0;
 }
 
@@ -85,7 +86,7 @@ int EpollSocket::add_listen_socket_to_epoll() {
   ev.data.fd = listen_socket_fd_;
   // epoll_ctl 用于控制某个文件描述符上的事件, EPOLL_CTL_ADD表示注册事件
   if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, listen_socket_fd_, &ev) == -1) {
-    log_error("epoll_ctl() err:%s", strerror(errno));
+    LogError("epoll_ctl() err:%s", strerror(errno));
     return -1;
   }
   return 0;
@@ -99,7 +100,7 @@ int EpollSocket::start_epoll_loop() {
     // -1 表示不设置超时时间
     int fd_num = epoll_wait(epoll_fd_, events, max_events_, -1);
     if (fd_num == -1) {
-      log_error("epoll_wait() err:%s", strerror(errno));
+      LogError("epoll_wait() err:%s", strerror(errno));
       ret = -1;
       break;
     }
@@ -112,7 +113,7 @@ int EpollSocket::start_epoll_loop() {
       } else if (events[i].events & EPOLLOUT) {
         handle_writeable_event(&(events[i]));
       } else {
-        log_error("unknown events: %d", events[i].events);
+        LogError("unknown events: %d", events[i].events);
       }
     }
   }
@@ -129,8 +130,8 @@ int EpollSocket::handle_accept_event() {
   std::string client_ip;
   int conn_socket = accept_socket(listen_socket_fd_, &client_ip);
   if (conn_socket == -1) {
-    log_error("accept socket fail, client_ip:%s socket_fd:%d conn_socket:%d", client_ip.c_str(), listen_socket_fd_,
-              conn_socket);
+    LogError("accept socket fail, client_ip:%s socket_fd:%d conn_socket:%d", client_ip.c_str(), listen_socket_fd_,
+             conn_socket);
     return -1;
   }
 
@@ -149,7 +150,7 @@ int EpollSocket::handle_accept_event() {
   conn_socket_event.data.ptr = ctx;
 
   if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, conn_socket, &conn_socket_event) == -1) {
-    log_error("epoll_ctl() err:%s", strerror(errno));
+    LogError("epoll_ctl() err:%s", strerror(errno));
     close_and_release(&conn_socket_event);
     return -1;
   }
@@ -166,12 +167,12 @@ int EpollSocket::handle_readable_event(epoll_event* const event) {
   int read_size = ::recv(fd, read_buffer, EPOLL_SOCKET_READ_BUFFER_SIZE, 0);
   ReadStatus ret = ReadStatus::READ_ERROR;
   if (read_size > 0) {
-    log_info("fd:%d read size:%d", fd, read_size);
+    LogInfo("fd:%d read size:%d", fd, read_size);
     ret = event_handler_->OnReadable(ctx, read_buffer, EPOLL_SOCKET_READ_BUFFER_SIZE, read_size);
   }
 
   if (read_size <= 0 || ret == ReadStatus::READ_ERROR || ret == ReadStatus::READ_REACH_MAX_SIZE) {
-    log_error("read error, ret:%d", static_cast<int32_t>(ret));
+    LogError("read error, ret:%d", static_cast<int32_t>(ret));
     close_and_release(event);
     return 0;
   }
@@ -224,7 +225,7 @@ int EpollSocket::close_and_release(epoll_event* const event) {
   if (fd > 0) {
     ret = close(fd);
   }
-  log_info("close connection, fd:%d ret:%d", fd, ret);
+  LogInfo("close connection, fd:%d ret:%d", fd, ret);
   return ret;
 }
 

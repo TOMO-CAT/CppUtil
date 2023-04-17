@@ -1,10 +1,10 @@
-#include "http_server/http_epoll_event_handler.h"
+#include "http/http_server/http_epoll_event_handler.h"
 
 #include <sys/socket.h>
 
 #include <cstring>
 
-#include "logger/logger.h"
+#include "logger/log.h"
 
 namespace httpserver {
 
@@ -72,15 +72,15 @@ WriteStatus HttpEpollEventHandler::OnWriteable(EpollEventContext* ctx) {
   WriteStatus write_ret = resp->OnWriteable(is_keepalive, buffer, EPOLL_SOCKET_WRITE_BUFFER_SIZE, &write_size);
   int n_write = ::send(socket_fd, buffer, write_size, 0);
   if (n_write < 0) {
-    log_error("send fail, content:%s", buffer);
+    LogError("send fail, content:%s", buffer);
     return WriteStatus::WRITE_ERROR;
   }
   // if we don't write all buffer successfully, we will rollback the write buffer index
   if (n_write < write_size) {
     resp->Rollback(write_size - n_write);
-    log_warn("partial sending failed, n_write:%d write_size:%d content:%s", n_write, write_size, buffer);
+    LogWarn("partial sending failed, n_write:%d write_size:%d content:%s", n_write, write_size, buffer);
   }
-  log_info("send successfully! content: %s", buffer);
+  LogInfo("send successfully! content: %s", buffer);
 
   if (write_ret == WriteStatus::WRITE_ALIVE && n_write > 0) {
     http_ctx->Clear();
@@ -104,19 +104,19 @@ int HttpEpollEventHandler::handle_http_request(HttpRequest* req, HttpResponse* r
   if (uri2handler.find(uri) == uri2handler.end()) {
     resp->status_line = STATUS_NOT_FOUND;
     resp->body = STATUS_NOT_FOUND.msg;
-    log_warn("page not found, uri:%s", uri.c_str());
+    LogWarn("page not found, uri:%s", uri.c_str());
     return 0;
   }
 
   if (req->method != "POST" && req->method != "GET") {
     resp->status_line = STATUS_METHOD_NOT_ALLOWED;
     resp->body = STATUS_METHOD_NOT_ALLOWED.msg;
-    log_warn("not allowed method, method:%s", req->method.c_str());
+    LogWarn("not allowed method, method:%s", req->method.c_str());
   }
 
   uri2handler[uri](req, resp);
-  log_info("handler http request successfully! code:%d msg:%s", resp->status_line.stauts_code,
-           resp->status_line.msg.c_str());
+  LogInfo("handler http request successfully! code:%d msg:%s", resp->status_line.stauts_code,
+          resp->status_line.msg.c_str());
   return 0;
 }
 

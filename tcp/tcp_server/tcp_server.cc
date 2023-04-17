@@ -31,7 +31,8 @@ TcpServer::~TcpServer() {
   }
 }
 
-TcpServer::TcpServer() = default;
+TcpServer::TcpServer(const std::string& delim) : delim_(delim) {
+}
 
 bool TcpServer::Start(int32_t port) {
   port_ = port;

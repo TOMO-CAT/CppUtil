@@ -1,23 +1,24 @@
+#include "http/http_client/http_client.h"
+
 #include <cstdlib>
 #include <cstring>
 
 #include "curl/curl.h"
-#include "http_client/http_client.h"
-#include "logger/logger.h"
+#include "logger/log.h"
 
 namespace httpclient {
 
 int debug_func(CURL*, curl_infotype itype, char* p_data, size_t size, void*) {
   if (itype == CURLINFO_TEXT) {
-    log_info("[TEXT]%s", p_data);
+    LogInfo("[TEXT]%s", p_data);
   } else if (itype == CURLINFO_HEADER_IN) {
-    log_info("[HEADER_IN]%s", p_data);
+    LogInfo("[HEADER_IN]%s", p_data);
   } else if (itype == CURLINFO_HEADER_OUT) {
-    log_info("[HEADER_OUT]%s", p_data);
+    LogInfo("[HEADER_OUT]%s", p_data);
   } else if (itype == CURLINFO_DATA_IN) {
-    log_info("[DATA_IN]%s", p_data);
+    LogInfo("[DATA_IN]%s", p_data);
   } else if (itype == CURLINFO_DATA_OUT) {
-    log_info("[DATA_OUT]%s", p_data);
+    LogInfo("[DATA_OUT]%s", p_data);
   }
   return 0;
 }
@@ -38,7 +39,7 @@ int Post(const std::string& url, const std::string& post_params, int timeout_ms,
   CURLcode res;
   CURL* curl = curl_easy_init();
   if (nullptr == curl) {
-    log_error("curl_easy_init fail");
+    LogError("curl_easy_init fail");
     return CURLE_FAILED_INIT;
   }
   if (_HTTP_CLIENT_DEBUG) {
@@ -68,7 +69,7 @@ int Post(const std::string& url, const std::string& post_params, int timeout_ms,
   curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, conn_timeout_ms);
   res = curl_easy_perform(curl);
   if (res != CURLE_OK) {
-    log_error("curl_easy_perform fail, err:%s url:%s", curl_easy_strerror(res), url.c_str());
+    LogError("curl_easy_perform fail, err:%s url:%s", curl_easy_strerror(res), url.c_str());
   }
   curl_easy_cleanup(curl);
   return res;
@@ -103,7 +104,7 @@ int Get(const std::string& url, int timeout_ms, int conn_timeout_ms, std::string
   curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT_MS, conn_timeout_ms);
   res = curl_easy_perform(curl);
   if (res != CURLE_OK) {
-    log_error("curl_easy_perform fail, err:%s url:%s", curl_easy_strerror(res), url.c_str());
+    LogError("curl_easy_perform fail, err:%s url:%s", curl_easy_strerror(res), url.c_str());
   }
   curl_easy_cleanup(curl);
   return res;

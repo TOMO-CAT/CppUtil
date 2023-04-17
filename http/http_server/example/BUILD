@@ -4,7 +4,7 @@ cc_binary(
         'example.cpp',
     ],
     deps=[
-        '//http_server:http_server',
+        '//http/http_server:http_server',
         '//logger:logger',
         '//thirdparty/jsoncpp:jsoncpp',
     ],

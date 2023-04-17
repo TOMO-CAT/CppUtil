@@ -3,9 +3,9 @@
 #include <map>
 #include <string>
 
-#include "http_server/epoll_event_handler.h"
-#include "http_server/http_request.h"
-#include "http_server/http_response.h"
+#include "http/http_server/epoll_event_handler.h"
+#include "http/http_server/http_request.h"
+#include "http/http_server/http_response.h"
 
 namespace httpserver {
 
