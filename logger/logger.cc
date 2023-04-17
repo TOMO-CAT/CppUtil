@@ -100,21 +100,26 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
 #if defined(__has_warning)
 #pragma clang diagnostic pop
 #endif
-  } else {
+  }
+  va_end(args);
+
+  va_start(args, fmt);
+  if (!is_console_output_) {
     file_appender_->Write(new_fmt.c_str(), args);
   }
   va_end(args);
 
   if (log_level == Level::FATAL_LEVEL) {
-    // 不可重入, 防止打印多个 FATAL 日志
+#ifdef NDEBUG
+    // RELEASE 模式下不可重入, 防止打印多个 FATAL 日志
     if (!receive_fatal_.exchange(true)) {
       Backtrace();
-
-// DEBUG 模式下不触发 abort
-#ifdef NDEBUG
       std::abort();
-#endif
     }
+#else
+    // DEBUG 模式下不触发 abort, 可以打印多个 FATAL 堆栈
+    Backtrace();
+#endif
   }
 }
 

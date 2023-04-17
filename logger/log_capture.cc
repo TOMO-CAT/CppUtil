@@ -18,7 +18,6 @@ LogCapture::~LogCapture() {
     if (!check_expression_.empty()) {
       sstream_ << "\n\tCHECK(" + check_expression_ + ") fail.";
     }
-    sstream_ << "\n\tExiting...";
   }
 
   Logger::Instance()->Log(level_, "[%s:%d][%s] %s", file_.c_str(), line_, function_.c_str(), sstream_.str().c_str());

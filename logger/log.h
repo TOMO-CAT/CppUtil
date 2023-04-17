@@ -71,7 +71,7 @@ namespace logger {
 
 #define CHECK_NOTNULL(expression) \
   if ((expression) == nullptr)    \
-  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #expression + std::string(" == nullptr"))
+  __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #expression + std::string(" != nullptr"))
 
 #define CHECK_LT(left, right) \
   if (left >= right)          \

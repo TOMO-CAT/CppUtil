@@ -45,5 +45,8 @@ int main() {
   // Fatal 日志
   LogFatal("x must be larger than 0!");
 
-  LOG_INFO << "info message";
+  // 断言
+  CHECK(1 > 2);
+  CHECK_EQ(3, 4);
+  CHECK_NOTNULL(nullptr);
 }
