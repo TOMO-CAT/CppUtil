@@ -13,7 +13,7 @@
 
 #include "logger/log.h"
 
-namespace tcp_chat {
+namespace tcp {
 
 namespace {
 
@@ -130,4 +130,4 @@ void TcpClient::Send(const Buffer& buffer) {
   }
 }
 
-}  // namespace tcp_chat
+}  // namespace tcp
