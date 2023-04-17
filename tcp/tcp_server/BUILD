@@ -1,0 +1,14 @@
+cc_library(
+    name='tcp_server',
+    srcs=[
+        'tcp_server.cc',
+    ],
+    hdrs=[
+        'tcp_server.h',
+    ],
+    deps=[
+        '//logger:logger',
+        '#pthread',
+    ],
+    visibility=['PUBLIC'],
+)

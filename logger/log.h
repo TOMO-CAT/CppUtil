@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "logger/log_capture.h"
 #include "logger/log_kv.h"
 #include "logger/logger.h"
