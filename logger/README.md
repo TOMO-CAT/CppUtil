@@ -2,17 +2,23 @@
 
 ## 简介
 
-线程安全的C++日志库。
+线程安全的 C++ 同步日志库。
 
 ## 特性
 
 * 默认输出到控制台
 * 支持配置日志保存路径和文件
 * 每小时自动切割日志
-* 支持DEBUG、INFO、WARN和ERROR四种级别日志输出
 * 支持设置日志最大保存时长，自动清理过期日志
+* 支持 DEBUG、INFO、WARN、ERROR 和 FATAL 五种级别日志输出，FATAL 日志触发时打印堆栈并退出程序
+* 支持多种日志形式
+  * 格式化控制符：`LogInfo("%s is %d years old.", "Lili", 8);`
+  * 流式：`LOG_INFO << "Lily is " << 8 << " years old.";`
+  * KV 日志：`LogInfoKV("student info").LogKV("name", "lily").LogKV("age", 8);`
+* 日志信息丰富，包括时间、线程号、UUID、日志级别、文件、行号、函数名
+* 支持断言，断言失败时打印堆栈并退出程序
 
-## 使用方法
+## 具体使用方法
 
 编译：
 
@@ -78,3 +84,9 @@ FileName="logger.log"
 # 保存小时数, 不设置则不会进行日志切割
 RetainHours=4
 ```
+
+## TODO
+
+* 作为配置项支持异步写入日志
+* 性能测试
+* 支持自定义日志格式
