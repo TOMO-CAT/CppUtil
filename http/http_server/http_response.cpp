@@ -4,7 +4,7 @@
 
 #include "logger/log.h"
 
-namespace httpserver {
+namespace http_server {
 
 WriteStatus HttpResponse::OnWriteable(bool is_keepalive, char* buffer, int buffer_size, int* const write_size) {
   resp_buff_.read(buffer, buffer_size);
@@ -20,7 +20,7 @@ WriteStatus HttpResponse::OnWriteable(bool is_keepalive, char* buffer, int buffe
 
 int HttpResponse::ExportBuffer2Response(const std::string& http_version, bool is_keepalive) {
   resp_buff_ << http_version << " " << status_line.stauts_code << " " << status_line.msg << "\r\n";
-  resp_buff_ << "Server: httpserver/0.1"
+  resp_buff_ << "Server: http_server/0.1"
              << "\r\n";
   if (headers.find("Content-Type") == headers.end()) {
     resp_buff_ << "Content-Type: application/json; charset=UTF-8"
@@ -52,4 +52,4 @@ int HttpResponse::Rollback(int size) {
   return resp_buff_.good() ? 0 : -1;
 }
 
-}  // namespace httpserver
+}  // namespace http_server

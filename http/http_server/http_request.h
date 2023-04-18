@@ -8,7 +8,7 @@
 #include "http/http_server/epoll_socket.h"
 #include "util/macro_util.h"
 
-namespace httpserver {
+namespace http_server {
 
 struct HttpRequest {
  public:
@@ -50,4 +50,4 @@ struct HttpRequest {
   DISALLOW_COPY_AND_ASSIGN(HttpRequest)
 };
 
-}  // namespace httpserver
+}  // namespace http_server

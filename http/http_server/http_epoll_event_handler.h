@@ -7,7 +7,7 @@
 #include "http/http_server/http_request.h"
 #include "http/http_server/http_response.h"
 
-namespace httpserver {
+namespace http_server {
 
 typedef void (*HttpHandler)(HttpRequest* const request, HttpResponse* const response);
 
@@ -38,4 +38,4 @@ class HttpEpollEventHandler : public EpollEventHandler {
   int handle_http_request(HttpRequest* req, HttpResponse* resp);
 };
 
-}  // namespace httpserver
+}  // namespace http_server

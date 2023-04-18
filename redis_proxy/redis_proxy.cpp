@@ -8,7 +8,7 @@ namespace {
 const char ERR_LOG_TAG[] = "RedisClientErr";
 }
 
-namespace iowrapper {
+namespace io_wrapper {
 
 std::string PrintRedisResponse(const redisReply* reply) {
   if (!reply) {
@@ -27,7 +27,7 @@ std::string PrintRedisResponse(const redisReply* reply) {
   return buff;
 }
 
-std::string PrintRedisResponse(const std::shared_ptr<iowrapper::RedisProxy::Response>& resp) {
+std::string PrintRedisResponse(const std::shared_ptr<io_wrapper::RedisProxy::Response>& resp) {
   if (!resp) {
     return "";
   }
@@ -299,4 +299,4 @@ bool RedisProxy::PipeGet(const std::vector<std::string>& keys,
   return true;
 }
 
-}  // namespace iowrapper
+}  // namespace io_wrapper

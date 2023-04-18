@@ -5,7 +5,7 @@
 #include "sys/epoll.h"
 #include "util/macro_util.h"
 
-namespace httpserver {
+namespace http_server {
 
 enum class ReadStatus {
   READ_ERROR = -1,
@@ -41,4 +41,4 @@ class EpollEventHandler {
   DISALLOW_COPY_AND_ASSIGN(EpollEventHandler)
 };
 
-}  // namespace httpserver
+}  // namespace http_server

@@ -11,7 +11,7 @@
 #include "hiredis/hiredis.h"
 #include "util/macro_util.h"
 
-namespace iowrapper {
+namespace io_wrapper {
 
 struct RedisCommand {
  public:
@@ -172,6 +172,6 @@ std::string PrintRedisResponse(const redisReply* reply);
 /**
  * 打印RedisProxy::Response内容
  */
-std::string PrintRedisResponse(const std::shared_ptr<iowrapper::RedisProxy::Response>& resp);
+std::string PrintRedisResponse(const std::shared_ptr<io_wrapper::RedisProxy::Response>& resp);
 
-}  // namespace iowrapper
+}  // namespace io_wrapper

@@ -6,7 +6,7 @@
 #include "curl/curl.h"
 #include "logger/log.h"
 
-namespace httpclient {
+namespace http_client {
 
 int debug_func(CURL*, curl_infotype itype, char* p_data, size_t size, void*) {
   if (itype == CURLINFO_TEXT) {
@@ -110,4 +110,4 @@ int Get(const std::string& url, int timeout_ms, int conn_timeout_ms, std::string
   return res;
 }
 
-}  // namespace httpclient
+}  // namespace http_client

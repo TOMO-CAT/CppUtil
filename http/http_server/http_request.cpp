@@ -6,7 +6,7 @@
 #include "logger/log.h"
 #include "util/string_util/string_util.h"
 
-namespace httpserver {
+namespace http_server {
 
 ReadStatus HttpRequest::OnReadable(const char* read_buffer, int read_size) {
   // Http请求报文包含如下几个部分
@@ -169,4 +169,4 @@ int HttpRequest::parse_body(const std::string& body) {
   return 0;
 }
 
-}  // namespace httpserver
+}  // namespace http_server

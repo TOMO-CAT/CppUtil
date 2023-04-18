@@ -6,7 +6,7 @@
 
 #include "logger/log.h"
 
-namespace httpserver {
+namespace http_server {
 
 HttpContext::~HttpContext() {
   if (req) {
@@ -120,4 +120,4 @@ int HttpEpollEventHandler::handle_http_request(HttpRequest* req, HttpResponse* r
   return 0;
 }
 
-}  // namespace httpserver
+}  // namespace http_server

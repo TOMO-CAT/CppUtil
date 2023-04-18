@@ -10,7 +10,7 @@
 #define _HTTP_CLIENT_DEBUG false
 #endif
 
-namespace httpclient {
+namespace http_client {
 
 /**
  * @brief HTTPS POST请求
@@ -36,4 +36,4 @@ int Post(const std::string& url, const std::string& post_params, int timeout_ms,
  */
 int Get(const std::string& url, int timeout_ms, int conn_timeout_ms, std::string* resp, const char* ca_path = nullptr);
 
-}  // namespace httpclient
+}  // namespace http_client

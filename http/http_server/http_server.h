@@ -6,7 +6,7 @@
 #include "http/http_server/epoll_socket.h"
 #include "http/http_server/http_epoll_event_handler.h"
 
-namespace httpserver {
+namespace http_server {
 
 class HttpServer {
  public:
@@ -40,4 +40,4 @@ class HttpServer {
   EpollSocket* epoll_socket_;
 };
 
-}  // namespace httpserver
+}  // namespace http_server

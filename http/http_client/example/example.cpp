@@ -4,6 +4,6 @@
 
 int main() {
   std::string resp;
-  httpclient::Get("www.baidu.com", 400, 200, &resp);
+  http_client::Get("www.baidu.com", 400, 200, &resp);
   printf("%s\n", resp.c_str());
 }

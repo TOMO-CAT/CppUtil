@@ -6,7 +6,7 @@
 
 #include "http/http_server/epoll_socket.h"
 
-namespace httpserver {
+namespace http_server {
 
 HttpServer::HttpServer(int port, int backlog, int max_events) {
   epoll_event_handler_ = new HttpEpollEventHandler();
@@ -33,4 +33,4 @@ void HttpServer::RegisterHandler(std::string path, HttpHandler handler) {
   epoll_event_handler_->uri2handler[path] = handler;
 }
 
-}  // namespace httpserver
+}  // namespace http_server

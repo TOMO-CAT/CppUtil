@@ -2,7 +2,7 @@
 
 #include "threadpool/threadpool.h"
 
-void mytask(int i) {
+void my_task(int i) {
   printf("Info: thread %ld is working on task %d\n", (u_int64_t)pthread_self(), i);
   sleep(1);
   return;
@@ -11,7 +11,7 @@ void mytask(int i) {
 int main() {
   ThreadPool threadpool(20);
   for (int i = 0; i < 100; ++i) {
-    threadpool.Enqueue(mytask, i);
+    threadpool.Enqueue(my_task, i);
   }
   return 0;
 }

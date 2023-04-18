@@ -6,7 +6,7 @@
 
 #include "http/http_server/epoll_socket.h"
 
-namespace httpserver {
+namespace http_server {
 
 struct StatusLine {
   int stauts_code;
@@ -35,4 +35,4 @@ struct HttpResponse {
   std::stringstream resp_buff_;
 };
 
-}  // namespace httpserver
+}  // namespace http_server

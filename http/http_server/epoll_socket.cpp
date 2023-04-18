@@ -8,7 +8,7 @@
 #include "logger/log.h"
 #include "util/macro_util.h"
 
-namespace httpserver {
+namespace http_server {
 
 // 设置fd对应的文件为非阻塞
 int EpollSocket::set_nonblocking(int fd) {
@@ -244,4 +244,4 @@ int EpollSocket::Start() {
   return start_epoll_loop();
 }
 
-}  // namespace httpserver
+}  // namespace http_server

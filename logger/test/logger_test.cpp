@@ -46,7 +46,7 @@ int main() {
   LogFatal("x must be larger than 0!");
 
   // 断言
-  CHECK(1 > 2);
+  CHECK(false);
   CHECK_EQ(3, 4);
   CHECK_NOTNULL(nullptr);
 }

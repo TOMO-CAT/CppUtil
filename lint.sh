@@ -32,8 +32,8 @@ function lint_single_directory() {
 }
 
 CPPLINT_DIRECTORY_LIST="
-./http_client
-./http_server
+./http
+./tcp
 ./json_helper
 ./logger
 ./redis_proxy

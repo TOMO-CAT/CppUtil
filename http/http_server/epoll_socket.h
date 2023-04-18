@@ -4,7 +4,7 @@
 
 #include "http/http_server/epoll_event_handler.h"
 
-namespace httpserver {
+namespace http_server {
 
 const int EPOLL_SOCKET_READ_BUFFER_SIZE = 4096;
 const int EPOLL_SOCKET_WRITE_BUFFER_SIZE = 4096;
@@ -39,4 +39,4 @@ class EpollSocket {
   DISALLOW_COPY_AND_ASSIGN(EpollSocket)
 };
 
-}  // namespace httpserver
+}  // namespace http_server

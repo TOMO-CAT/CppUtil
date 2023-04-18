@@ -42,11 +42,11 @@ blade build http_client/example
 ## 例子
 
 ```c++
-#include "httpclient.h"
+#include "http_client.h"
 
 int main() {
     std::string resp;
-    httpclient::Get("www.baidu.com", 400, 200, resp);
+    http_client::Get("www.baidu.com", 400, 200, resp);
     printf("%s", resp.c_str());
 }
 ```

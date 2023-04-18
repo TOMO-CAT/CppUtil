@@ -12,8 +12,8 @@ const int PORT = 6379;
 const int CONNECTION_TIMEOUT_MS = 100;
 const int RW_TIMEOUT_MS = 200;
 
-using iowrapper::PrintRedisResponse;
-using iowrapper::RedisProxy;
+using io_wrapper::PrintRedisResponse;
+using io_wrapper::RedisProxy;
 
 // =========================================ExecuteArgv=========================================
 // ./bin/match.test --gtest_filter=TestCase.TestExecuteArgvString
@@ -23,7 +23,7 @@ TEST(TestCase, TestExecuteArgvString) {
 
   resp = rp.ExecuteArgv("SET", "foo", 10);
   ASSERT_TRUE(resp != nullptr);
-  EXPECT_EQ(RedisProxy::ReturnCode::REPLY_STATUS, resp->ret_code) << iowrapper::PrintRedisResponse(resp);
+  EXPECT_EQ(RedisProxy::ReturnCode::REPLY_STATUS, resp->ret_code) << io_wrapper::PrintRedisResponse(resp);
   EXPECT_EQ("OK", resp->str) << PrintRedisResponse(resp);
 
   resp = rp.ExecuteArgv("GET", "foo");
