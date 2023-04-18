@@ -74,7 +74,7 @@ TEST(UnmarshalTest, unmarshal_plain_class) {
 }
 
 // 对于未特例化的类型调用 Unmarshal 方法返回 false
-TEST(UnmarshalTest, test_uncaptured_types) {
+TEST(UnmarshalTest, test_uncaught_types) {
   // 1. class without Unmarshal member function
   struct Dog {
     std::string name;
@@ -170,6 +170,48 @@ TEST(UnmarshalTest, test_nested_class) {
   EXPECT_EQ(45, vehicle.wheel.temp);
   EXPECT_DOUBLE_EQ(85.5, vehicle.wheel.pressure);
   EXPECT_EQ("Audi", vehicle.wheel.factory);
+}
+
+// 反序列化没有 JSON_HELPER 宏的类(不方便侵入), 只能反序列化可见的字段
+class ClassWithoutJsonHelperMacro {
+ public:
+  std::string name;
+  uint32_t age = 0;
+  double birthday = 0.0;
+
+ private:
+  // 不支持反序列化的字段
+  std::string private_str_;
+};
+
+// 需要自定义 Unmarshal 方法
+bool Unmarshal(const Json::Value& root, ClassWithoutJsonHelperMacro* const obj) {
+  obj->name = root["name"].asString();
+  obj->age = root["age"].asUInt();
+  obj->birthday = root["birthday"].asDouble();
+  return true;
+}
+
+TEST(UnmarshalTest, test_class_without_json_helper_macro) {
+  ClassWithoutJsonHelperMacro target;
+  std::string str = R"(
+    {
+      "name": "cat",
+      "age": 10,
+      "birthday": 3.14
+    }
+  )";
+
+  Json::Value root;
+  Json::Reader reader;
+  ASSERT_TRUE(reader.parse(str, root));
+  ASSERT_TRUE(root.isObject());
+
+  ASSERT_TRUE(::json_helper::Unmarshal(root, &target));
+
+  EXPECT_EQ("cat", target.name);
+  EXPECT_EQ(10u, target.age);
+  EXPECT_DOUBLE_EQ(3.14, target.birthday);
 }
 
 TEST(UnmarshalTest, test_unmarshal_vector) {

@@ -17,7 +17,7 @@
 
 namespace json_helper {
 
-// return false for uncaptured types
+// return false for uncaught types
 template <typename T>
 typename std::enable_if<!HasMarshalFunc<T>::value && !std::is_enum<T>::value && !std::is_pointer<T>::value, bool>::type
 Marshal(const T& obj, Json::Value* const root);
@@ -81,12 +81,12 @@ bool Marshal(const std::unordered_set<T>& obj, Json::Value* const root);
   }
 
 // ==============================================  Implementation ==============================================
-// uncaptured types
+// uncaught  types
 template <typename T>
 typename std::enable_if<!HasMarshalFunc<T>::value && !std::is_enum<T>::value && !std::is_pointer<T>::value, bool>::type
 Marshal(const T& obj, Json::Value* const root) {
   if (_JSON_HELPER_DEBUG) {
-    std::cout << "[JsonHelper][Marshal][Warning] fallback to uncaptured types: " << typeid(obj).name() << std::endl;
+    std::cout << "[JsonHelper][Marshal][Warning] fallback to uncaught  types: " << typeid(obj).name() << std::endl;
   }
   return false;
 }

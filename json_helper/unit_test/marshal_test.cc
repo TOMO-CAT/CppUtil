@@ -165,7 +165,7 @@ TEST(MarshalTest, marshal_plain_class) {
   EXPECT_EQ(expected_str + "\n", actual_str);
 }
 
-TEST(MarshalTest, marshal_uncaptured_types) {
+TEST(MarshalTest, marshal_uncaught_types) {
   Json::Value root;
 
   // 1. class without marshal member function
@@ -180,7 +180,7 @@ TEST(MarshalTest, marshal_uncaptured_types) {
   ASSERT_FALSE(::json_helper::Marshal(mutex, &root));
 }
 
-TEST(MarshalTest, marshal_enum_calss) {
+TEST(MarshalTest, marshal_enum_class) {
   enum class Color {
     kUnknown = 0,
     kRead = 1,

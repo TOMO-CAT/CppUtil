@@ -18,7 +18,7 @@
 
 namespace json_helper {
 
-// return false for uncaptured types
+// return false for uncaught types
 template <typename T>
 typename std::enable_if<!HasUnmarshalFunc<T>::value && !std::is_enum<T>::value && !std::is_pointer<T>::value,
                         bool>::type
@@ -95,13 +95,13 @@ bool Unmarshal(const Json::Value& root, std::unordered_set<T>* const obj);
   }
 
 // ==============================================  Implementation ==============================================
-// uncaptured types
+// uncaught types
 template <typename T>
 typename std::enable_if<!HasUnmarshalFunc<T>::value && !std::is_enum<T>::value && !std::is_pointer<T>::value,
                         bool>::type
 Unmarshal(const Json::Value& root, T* const obj) {
   if (_JSON_HELPER_DEBUG) {
-    std::cout << "[JsonHelper][Unmarshal][Warning] fallback to uncaptured types: " << typeid(obj).name() << std::endl;
+    std::cout << "[JsonHelper][Unmarshal][Warning] fallback to uncaught types: " << typeid(obj).name() << std::endl;
   }
   return false;
 }

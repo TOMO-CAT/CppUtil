@@ -48,6 +48,15 @@ bool Marshal(const T& obj, std::string* const json_str, bool with_style = false)
   return ret;
 }
 
+template <typename T>
+std::string ToString(const T& obj) {
+  std::string res;
+  if (!Marshal(obj, &res, false)) {
+    return "";
+  }
+  return res;
+}
+
 #define JSON_HELPER(...) \
   JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(__VA_ARGS__) JSON_HELPER_MARSHAL_MEMBER_FUNCTION(__VA_ARGS__)
 
