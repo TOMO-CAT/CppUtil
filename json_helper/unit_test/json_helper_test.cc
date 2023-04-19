@@ -6,7 +6,7 @@
 
 namespace json_helper {
 
-TEST(JsonHelperTest, test_basic_type) {
+TEST(JsonHelperTest, unmarshal_test_basic_type) {
   int32_t i32 = {};
   int64_t i64 = {};
   uint32_t ui32 = {};
@@ -29,6 +29,26 @@ TEST(JsonHelperTest, test_basic_type) {
   EXPECT_FLOAT_EQ(3.14, fl);
   ASSERT_TRUE(::json_helper::Unmarshal("9.666", &db));
   EXPECT_DOUBLE_EQ(9.666, db);
+}
+
+TEST(JsonHelperTest, to_string) {
+  {
+    // plain class
+    class Cat {
+     private:
+      std::string name = "cc";
+      int age = -10;
+      double birthday = 3.1;
+      std::vector<int> favorite_nums = {5, 7, 9};
+
+     public:
+      JSON_HELPER_MARSHAL_MEMBER_FUNCTION(name, age, birthday, favorite_nums);
+    };
+
+    Cat cat;
+    std::string expected_str = R"({"age":-10,"birthday":3.1000000000000001,"favorite_nums":[5,7,9],"name":"cc"})";
+    EXPECT_EQ(expected_str + "\n", ::json_helper::ToString(cat));
+  }
 }
 
 }  // namespace json_helper

@@ -165,6 +165,33 @@ TEST(MarshalTest, marshal_plain_class) {
   EXPECT_EQ(expected_str + "\n", actual_str);
 }
 
+class ClassWithoutMarshalMemberFunction {
+ public:
+  std::string name = "cc";
+  int age = -10;
+  double birthday = 3.1;
+  std::vector<int> favorite_nums = {5, 7, 9};
+};
+
+bool Marshal(const ClassWithoutMarshalMemberFunction& obj, Json::Value* const root) {
+  (*root)["name"] = obj.name;
+  (*root)["age"] = Json::Int(obj.age);
+  (*root)["birthday"] = obj.birthday;
+  return Marshal(obj.favorite_nums, &((*root)["favorite_nums"]));
+}
+
+TEST(MarshalTest, marshal_class_without_marshal_member_function) {
+  std::string str;
+  Json::Value root;
+  ClassWithoutMarshalMemberFunction obj;
+
+  ASSERT_TRUE(Marshal(obj, &root));
+  Json::FastWriter writer;
+  std::string expected_str = R"({"age":-10,"birthday":3.1000000000000001,"favorite_nums":[5,7,9],"name":"cc"})";
+  std::string actual_str = writer.write(root);
+  EXPECT_EQ(expected_str + "\n", actual_str);
+}
+
 TEST(MarshalTest, marshal_uncaught_types) {
   Json::Value root;
 

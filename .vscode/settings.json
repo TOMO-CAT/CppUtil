@@ -91,7 +91,6 @@
     "cpplint.lineLength": 200,
     "cpplint.filters": [
         "-legal/copyright",
-        "-whitespace/ending_newline",
         "-build/c++11",
     ],
     // clang-foramt bin path

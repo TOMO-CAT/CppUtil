@@ -172,8 +172,8 @@ TEST(UnmarshalTest, test_nested_class) {
   EXPECT_EQ("Audi", vehicle.wheel.factory);
 }
 
-// 反序列化没有 JSON_HELPER 宏的类(不方便侵入), 只能反序列化可见的字段
-class ClassWithoutJsonHelperMacro {
+// 反序列化没有 Unmarshal 成员函数的类(不方便侵入), 只能反序列化可见的字段
+class ClassWithoutUnmarshalFunction {
  public:
   std::string name;
   uint32_t age = 0;
@@ -185,15 +185,15 @@ class ClassWithoutJsonHelperMacro {
 };
 
 // 需要自定义 Unmarshal 方法
-bool Unmarshal(const Json::Value& root, ClassWithoutJsonHelperMacro* const obj) {
+bool Unmarshal(const Json::Value& root, ClassWithoutUnmarshalFunction* const obj) {
   obj->name = root["name"].asString();
   obj->age = root["age"].asUInt();
   obj->birthday = root["birthday"].asDouble();
   return true;
 }
 
-TEST(UnmarshalTest, test_class_without_json_helper_macro) {
-  ClassWithoutJsonHelperMacro target;
+TEST(UnmarshalTest, test_class_without_unmarshal_member_function) {
+  ClassWithoutUnmarshalFunction target;
   std::string str = R"(
     {
       "name": "cat",
