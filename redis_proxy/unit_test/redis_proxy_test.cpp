@@ -256,7 +256,7 @@ TEST(TestCase, TestSetAndGet) {
   ASSERT_TRUE(is_succ);
 
   std::string value;
-  is_succ = rp.Get(key, value);
+  is_succ = rp.Get(key, &value);
   ASSERT_TRUE(is_succ);
   EXPECT_EQ("foo", value);
 }
@@ -281,7 +281,7 @@ TEST(TestCase, TestPipeSetAndGet) {
   ASSERT_TRUE(is_succ);
 
   std::vector<std::pair<bool, std::string>> values_recv;
-  is_succ = rp.PipeGet(keys, values_recv);
+  is_succ = rp.PipeGet(keys, &values_recv);
   ASSERT_TRUE(is_succ);
   EXPECT_EQ(100u, values_recv.size());
   for (size_t i = 0; i < 100; i++) {

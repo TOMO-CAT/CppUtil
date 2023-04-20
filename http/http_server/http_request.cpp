@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "logger/log.h"
-#include "util/string_util/string_util.h"
+#include "util/string/string_util.h"
 
 namespace http_server {
 
@@ -64,7 +64,7 @@ ReadStatus HttpRequest::OnReadable(const char* read_buffer, int read_size) {
     if (parse_part == PARSE_REQ_HEAD && !line.empty()) {
       LogInfo("parse http request header: %s", line.c_str());
       std::vector<std::string> parts;
-      util::string_split(line, ':', parts);
+      util::string_split(line, ':', &parts);
       if (parts.size() < 2) {
         LogError("invalid http request headers: %s", line.c_str());
         continue;

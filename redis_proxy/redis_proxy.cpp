@@ -2,7 +2,7 @@
 
 #include <unistd.h>
 
-#include "logger/logger.h"
+#include "logger/log.h"
 
 namespace {
 const char ERR_LOG_TAG[] = "RedisClientErr";

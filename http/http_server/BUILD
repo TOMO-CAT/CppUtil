@@ -16,7 +16,7 @@ cc_library(
         'http_server.h',
     ],
     deps=[
-        '//util/string_util:string_util',
+        '//util/string:string',
         '//util:util',
         '//logger:logger',
     ],
