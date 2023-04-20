@@ -1,9 +1,8 @@
 cc_library(
-    name='time_util',
+    name='time',
     srcs=[],
     hdrs=[
-        'time_util.h',
+        'timestamp.h',
     ],
-
     visibility=['PUBLIC'],
 )

@@ -1,12 +1,12 @@
 cc_library(
-    name='config_util',
+    name='string',
     srcs=[
+        'string_util.cc',
     ],
     hdrs=[
-        'toml_helper.h',
+        'string_util.h',
     ],
     deps=[
-        '//thirdparty/cpptoml:cpptoml',
     ],
     visibility=['PUBLIC'],
 )

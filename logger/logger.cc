@@ -12,7 +12,7 @@
 
 #include "cpptoml/cpptoml.h"
 #include "logger/log.h"
-#include "util/config_util/toml_helper.h"
+#include "util/config/toml_helper.h"
 namespace logger {
 
 namespace {

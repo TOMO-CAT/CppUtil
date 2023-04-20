@@ -1,0 +1,12 @@
+cc_binary(
+    name='test',
+    deps=[
+        '//util/rcu_ptr:rcu_ptr',
+        '//util/time:time',
+        '//util:util',
+        '//logger:logger',
+    ],
+    srcs=[
+        'test.cc',
+    ]
+)

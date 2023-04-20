@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "util/macro_util.h"
-#include "util/time_util/time_util.h"
+#include "util/time/timestamp.h"
 
 using logger::FileAppender;
 const int THREAD_NUMBER = 10;  // 线程数
@@ -16,12 +16,12 @@ FileAppender g_file_appender("./log", "TestFileAppender.log", RETAIN_HOURS);
 
 void ThreadRoutine(int idx) {
   g_file_appender.Write("[idx:%d]start!", idx);
-  uint64_t t_start = util::timestamp_sec();
+  uint64_t t_start = util::TimestampSec();
   while (true) {
-    if (util::timestamp_sec() - t_start >= RUNNING_HOURS * 3600) {
+    if (util::TimestampSec() - t_start >= RUNNING_HOURS * 3600) {
       break;
     }
-    g_file_appender.Write("[idx:%d]wroking...", idx);
+    g_file_appender.Write("[idx:%d] working...", idx);
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   g_file_appender.Write("[idx:%d]done!", idx);

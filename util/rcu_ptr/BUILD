@@ -1,0 +1,10 @@
+cc_library(
+    name='rcu_ptr',
+    hdrs=[
+        'rcu_ptr.h',
+    ],
+    deps=[
+        '//util/time:time',
+    ],
+    visibility=['PUBLIC'],
+)

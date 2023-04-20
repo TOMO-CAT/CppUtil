@@ -15,7 +15,7 @@ cc_library(
     ],
     deps=[
         '//util:util',
-        '//util/config_util:config_util',
+        '//util/config:config',
         '//thirdparty/cpptoml:cpptoml',
         '//thirdparty/boost:boost',
         '#uuid',

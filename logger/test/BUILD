@@ -5,7 +5,7 @@ cc_binary(
     ],
     deps=[
         '//util:util',
-        '//util/time_util:time_util',
+        '//util/time:time',
         '//logger:logger',
     ],
     visibility=['PUBLIC'],

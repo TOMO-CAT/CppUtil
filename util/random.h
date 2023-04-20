@@ -4,8 +4,6 @@
 
 namespace util {
 
-static unsigned int seed = 123;
-
 /**
  * @brief return random value in the range [min, max]
  *
@@ -13,7 +11,8 @@ static unsigned int seed = 123;
  * @param max
  * @return int
  */
-inline int rand_int(int min, int max) {
+inline int32_t RandInt(int32_t min, int32_t max) {
+  static unsigned int seed = 123;
   return min + rand_r(&seed) % (max - min);
 }
 
@@ -23,7 +22,8 @@ inline int rand_int(int min, int max) {
  * @param max
  * @return int
  */
-inline int rand_int(int max) {
+inline int32_t RandInt(int32_t max) {
+  static unsigned int seed = 123;
   return rand_r(&seed) % max;
 }
 
