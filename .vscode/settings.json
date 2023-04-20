@@ -104,4 +104,7 @@
     "python.linting.flake8Args": [
         "--ignore=F821",
     ],
+    "cSpell.words": [
+        "sptr"
+    ],
 }

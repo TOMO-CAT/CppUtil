@@ -1,0 +1,9 @@
+cc_binary(
+    name='double_buffer_test',
+    deps=[
+        '//double_buffer:double_buffer',
+    ],
+    srcs=[
+        'double_buffer_test.cc',
+    ]
+)
