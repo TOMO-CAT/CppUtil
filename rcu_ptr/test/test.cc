@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "logger/log.h"
+#include "rcu_ptr/rcu_ptr.h"
 #include "util/random.h"
-#include "util/rcu_ptr/rcu_ptr.h"
 #include "util/time/timestamp.h"
 
 // g++ -g test.cpp -o test -pthread -std=c++11
