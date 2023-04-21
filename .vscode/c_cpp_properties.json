@@ -7,7 +7,7 @@
                 "${workspaceRoot}/**",
                 "/usr/local/include",
                 "/usr/include",
-                "${workspaceRoot}/thirdpkg/include"
+                "${workspaceRoot}/thirdparty/**/include"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
