@@ -1,5 +1,8 @@
 cc_config(
     cxxflags=['-std=c++17'],
     optimize='-O2',
-    extra_incs=['thirdparty/cpptoml/include'],
+    extra_incs=[
+        'thirdparty/cpptoml/include',
+        'thirdparty/cpp_free_mock/include'
+    ],
 )
