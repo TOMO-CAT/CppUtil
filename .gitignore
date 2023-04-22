@@ -6,5 +6,5 @@ build64_debug/
 .cache/
 compile_commands.json
 logs/
-logger/log
 log/
+logger/log
