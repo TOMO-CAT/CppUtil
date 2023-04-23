@@ -4,7 +4,7 @@ cc_binary(
     deps=[
         '//json_helper:json_helper',
     ],
-    defs=['_JSON_HELPER_DEBUG=true'],
+    # defs=['_JSON_HELPER_DEBUG=true'],
 )
 
 cc_binary(
@@ -13,6 +13,6 @@ cc_binary(
     deps=[
         '//json_helper:json_helper',
     ],
-    defs=['_JSON_HELPER_DEBUG=true', 'DEBUG'],
+    # defs=['_JSON_HELPER_DEBUG=true'],
     # 调试模式, 支持 assert 宏
 )

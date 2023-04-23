@@ -7,7 +7,7 @@ cc_test(
         '//json_helper:json_helper',
         '//thirdparty/gtest:gtest',
     ],
-    defs=['_JSON_HELPER_DEBUG=true'],
+    # defs=['_JSON_HELPER_DEBUG=true'],
 )
 
 cc_test(
@@ -19,7 +19,7 @@ cc_test(
         '//json_helper:json_helper',
         '//thirdparty/gtest:gtest',
     ],
-    defs=['_JSON_HELPER_DEBUG=true'],
+    # defs=['_JSON_HELPER_DEBUG=true'],
 )
 
 
@@ -32,7 +32,7 @@ cc_test(
         '//json_helper:json_helper',
         '//thirdparty/gtest:gtest',
     ],
-    defs=['_JSON_HELPER_DEBUG=true'],
+    # defs=['_JSON_HELPER_DEBUG=true'],
 )
 
 cc_test(
@@ -44,5 +44,5 @@ cc_test(
         '//json_helper:json_helper',
         '//thirdparty/gtest:gtest',
     ],
-    defs=['_JSON_HELPER_DEBUG=true'],
+    # defs=['_JSON_HELPER_DEBUG=true'],
 )

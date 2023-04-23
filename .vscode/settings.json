@@ -105,6 +105,7 @@
         "--ignore=F821",
     ],
     "cSpell.words": [
+        "itype",
         "sptr"
     ],
 }

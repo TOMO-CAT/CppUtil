@@ -100,9 +100,9 @@ template <typename T>
 typename std::enable_if<!HasUnmarshalFunc<T>::value && !std::is_enum<T>::value && !std::is_pointer<T>::value,
                         bool>::type
 Unmarshal(const Json::Value& root, T* const obj) {
-  if (_JSON_HELPER_DEBUG) {
-    std::cout << "[JsonHelper][Unmarshal][Warning] fallback to uncaught types: " << typeid(obj).name() << std::endl;
-  }
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Warning] fallback to uncaught types: " << typeid(obj).name() << std::endl;
+#endif
   return false;
 }
 
@@ -131,9 +131,9 @@ typename std::enable_if<std::is_pointer<T>::value, bool>::type Unmarshal(const J
     return true;
   }
   if (*obj == nullptr) {
-    if (_JSON_HELPER_DEBUG) {
-      std::cout << "[JsonHelper][Unmarshal][Warning] unmarshal json to a nullptr" << std::endl;
-    }
+#ifndef NDEBUG
+    std::cout << "[JsonHelper][Unmarshal][Warning] unmarshal json to a nullptr" << std::endl;
+#endif
     return false;
   }
   return Unmarshal(root, *obj);
