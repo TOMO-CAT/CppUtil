@@ -5,8 +5,8 @@
 void fail() {
   std::vector<std::string> stacks;
   logger::StackDumper(0).Dump(&stacks);
-  for (auto&& stack : stacks) {
-    std::cout << stack << std::endl;
+  for (auto&& s : stacks) {
+    std::cout << s << std::endl;
   }
 }
 

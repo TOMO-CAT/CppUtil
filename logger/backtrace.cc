@@ -13,6 +13,7 @@ namespace logger {
 namespace {
 
 constexpr uint32_t kDemangleBufferSize = 4096;
+constexpr uint32_t kMaxStackFrames = 128;
 
 struct BacktraceContext {
   StackDumper* sd = nullptr;
@@ -75,6 +76,14 @@ int StackDumper::Backtrace(const char* file, int line, const char* func, uint32_
   if (!file && !func) {
     return 0;
   }
+
+  std::ostringstream oss;
+  if (*count >= kMaxStackFrames) {
+    oss << '#' << (*count) << " [reach max stack frames, truncated]";
+    stacks->emplace_back(oss.str());
+    return -1;
+  }
+
   char* p = nullptr;
   if (func) {
     p = this->Demangle(func);
@@ -83,7 +92,6 @@ int StackDumper::Backtrace(const char* file, int line, const char* func, uint32_
     }
   }
 
-  std::ostringstream oss;
   oss << '#' << (*count) << " [" << (file ? file : "???") << ':' << line << "][" << (func ? func : "???") << ']';
   (*count)++;
   stacks->emplace_back(oss.str());

@@ -7,8 +7,10 @@
 #include <array>
 #include <cstdarg>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "cpptoml/cpptoml.h"
 #include "logger/backtrace.h"
@@ -17,12 +19,16 @@
 namespace logger {
 
 namespace {
+
 const std::unordered_map<Logger::Level, std::string> kLevel2Description = {
     {Logger::Level::DEBUG_LEVEL, "[DEBUG]"}, {Logger::Level::INFO_LEVEL, "[INFO ]"},
     {Logger::Level::WARN_LEVEL, "[WARN ]"},  {Logger::Level::ERROR_LEVEL, "[ERROR]"},
     {Logger::Level::FATAL_LEVEL, "[FATAL]"},
 };
-}
+
+constexpr uint32_t kSkipFrames = 3;
+
+}  // namespace
 
 Logger* Logger::instance_ = new Logger();
 __thread uint64_t Logger::trace_id_ = 0;
@@ -146,6 +152,18 @@ void Logger::Backtrace(const uint32_t skip_frames) {
 #endif
 
 void Logger::Backtrace(const uint32_t skip_frames) {
+  std::vector<std::string> stack_frames;
+  if (!StackDumper(kSkipFrames).Dump(&stack_frames)) {
+    printf("\t\tdump backtrace fail");
+    return;
+  }
+
+  std::ostringstream output;
+  for (auto&& sf : stack_frames) {
+    output << "\t\t" << sf << '\n';
+  }
+  printf("%s", output.str().c_str());
+  file_appender_->Write(output.str().c_str());
 }
 
 std::string Logger::GenLogPrefix() {
