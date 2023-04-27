@@ -43,8 +43,9 @@ int backtrace(const char* file, int line, const char* func, int* const count) {
     }
   }
 
-  std::cout << '#' << ((*count)++) << " in " << (func ? func : "???") << " at " << (file ? file : "???") << ':' << line
+  std::cout << '#' << (*count) << " in " << (func ? func : "???") << " at " << (file ? file : "???") << ':' << line
             << '\n';
+  (*count)++;
   if (p && p != buffer) {
     ::free(p);
   }
@@ -55,12 +56,11 @@ int backtrace_callback(void* data, uintptr_t pc, const char* file, int line, con
   //   std::cout << "## file: " << file << std::endl;
   //   std::cout << "## line: " << line << std::endl;
   //   std::cout << "## func: " << func << std::endl;
-  int count = 0;
+  static int count = 0;
   return backtrace(file, line, func, &count);
-  return 0;
 }
 
-void bar() {
+void dump_stack() {
   // struct backtrace_state* backtrace_create_state(const char* filename, int threaded, void (*error_callback)(void*
   // data, const char* msg, int errnum), void* data);
   //
@@ -73,6 +73,10 @@ void bar() {
   ::backtrace_full(state, skip, backtrace_callback, error_callback, nullptr);
 }
 
+void bar() {
+  dump_stack();
+}
+
 void foo() {
   bar();
 }
@@ -81,10 +85,28 @@ void cat() {
   foo();
 }
 
-// TODO(cat): 当前调用栈是错误的, 需要修复
-// #0 in main at logger/test/backtrace_test.cc:85
-// #0 in __libc_start_call_main at ../sysdeps/nptl/libc_start_call_main.h:58
-// #0 in __libc_start_main_impl at ../csu/libc-start.c:392
+// 如果开启优化选项 -O2, 那么打印的栈不全 (应该是函数过于简单编译器内联化了)
+// #0 in main at logger/test/backtrace_test.cc:91
+// #1 in __libc_start_call_main at ../sysdeps/nptl/libc_start_call_main.h:58
+// #2 in __libc_start_main_impl at ../csu/libc-start.c:392
+//
+// 开启 -O0 的效果
+// #0 in dump_stack() at logger/test/backtrace_test.cc:73
+// #1 in bar() at logger/test/backtrace_test.cc:77
+// #2 in foo() at logger/test/backtrace_test.cc:81
+// #3 in cat() at logger/test/backtrace_test.cc:85
+// #4 in main at logger/test/backtrace_test.cc:111
+// #5 in __libc_start_call_main at ../sysdeps/nptl/libc_start_call_main.h:58
+// #6 in __libc_start_main_impl at ../csu/libc-start.c:392
+//
+// 开启 -O1 的效果
+// # 0 in dump_stack() at logger / test / backtrace_test.cc : 73
+// # 1 in bar() at logger / test / backtrace_test.cc : 77
+// # 2 in foo() at logger / test / backtrace_test.cc : 81
+// # 3 in cat() at logger / test / backtrace_test.cc : 85
+// # 4 in main at logger / test / backtrace_test.cc : 111
+// # 5 in __libc_start_call_main at../ sysdeps / nptl / libc_start_call_main.h : 58
+// # 6 in __libc_start_main_impl at../ csu / libc - start.c : 392
 int main() {
   cat();
 }

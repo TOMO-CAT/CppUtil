@@ -49,4 +49,6 @@ cc_binary(
     # extra_cppflags=[
     #     '-rdynamic', '-g',
     # ],
+    # 打印出完整的调用栈, 防止编译将简单函数内联化
+    optimize=['-O1'],
 )
