@@ -31,7 +31,7 @@ void error_callback(void* data, const char* msg, int errnum) {
   std::cerr << msg << std::endl;
 }
 
-int backtrace(const char* file, int line, const char* func, int& count) {
+int backtrace(const char* file, int line, const char* func, int* const count) {
   if (!file && !func) {
     return 0;
   }
@@ -43,7 +43,7 @@ int backtrace(const char* file, int line, const char* func, int& count) {
     }
   }
 
-  std::cout << '#' << (count++) << " in " << (func ? func : "???") << " at " << (file ? file : "???") << ':' << line
+  std::cout << '#' << ((*count)++) << " in " << (func ? func : "???") << " at " << (file ? file : "???") << ':' << line
             << '\n';
   if (p && p != buffer) {
     ::free(p);
@@ -56,7 +56,7 @@ int backtrace_callback(void* data, uintptr_t pc, const char* file, int line, con
   //   std::cout << "## line: " << line << std::endl;
   //   std::cout << "## func: " << func << std::endl;
   int count = 0;
-  return backtrace(file, line, func, count);
+  return backtrace(file, line, func, &count);
   return 0;
 }
 
@@ -81,6 +81,10 @@ void cat() {
   foo();
 }
 
+// TODO(cat): 当前调用栈是错误的, 需要修复
+// #0 in main at logger/test/backtrace_test.cc:85
+// #0 in __libc_start_call_main at ../sysdeps/nptl/libc_start_call_main.h:58
+// #0 in __libc_start_main_impl at ../csu/libc-start.c:392
 int main() {
   cat();
 }

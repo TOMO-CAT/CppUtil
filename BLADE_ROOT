@@ -3,7 +3,8 @@ cc_config(
     optimize='-O2',
     extra_incs=[
         'thirdparty/cpptoml/include',
-        'thirdparty/cpp_free_mock/include'
+        'thirdparty/cpp_free_mock/include',
+        'thirdparty/backtrace/include',
     ],
     # linkflags=[
     #     '-rdynamic',
