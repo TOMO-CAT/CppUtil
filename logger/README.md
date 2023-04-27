@@ -12,7 +12,7 @@
 * 支持设置日志最大保存时长，自动清理过期日志
 * 支持 DEBUG、INFO、WARN、ERROR 和 FATAL 五种级别日志输出，FATAL 日志触发时打印堆栈并退出程序
 * 支持多种日志形式
-  * 格式化控制符：`LogInfo("%s is %d years old.", "Lili", 8);`
+  * 格式化控制符：`LogInfo("%s is %d years old.", "Lily", 8);`
   * 流式：`LOG_INFO << "Lily is " << 8 << " years old.";`
   * KV 日志：`LogInfoKV("student info").LogKV("name", "lily").LogKV("age", 8);`
 * 日志信息丰富，包括时间、线程号、UUID、日志级别、文件、行号、函数名
@@ -23,30 +23,61 @@
 编译：
 
 ```bash
-# makefile
-$cd logger
-$make
+# release 模式
+$blade build logger/...
 
-# blade
-# 1. release 模式
-$blade build logger
-# 2. debug 模式
-$blade build -pdebug logger
+# debug 模式
+$blade build -pdebug logger/...
 
-# 使用 bear 编译
-$bear -- blade build logger
+# 使用 bear 生成 compile_commands.json 方便调试
+$bear -- blade build logger/...
 ```
 
 测试：
 
 ```bash
-$cd logger
-$make test
-$./output/bin/TestLogger 
-[2022-04-17 17:21:28.885058][3271:c4e0d7b4e734cac][INFO ][../util/config_util/toml_helper.h:23][ParseTomlValue]parse toml succ, key:Level value:1
-[2022-04-17 17:21:28.885121][3271:c4e0d7b4e734cac][INFO ][../util/config_util/toml_helper.h:23][ParseTomlValue]parse toml succ, key:Directory value:./log
-[2022-04-17 17:21:28.885166][3271:c4e0d7b4e734cac][INFO ][../util/config_util/toml_helper.h:23][ParseTomlValue]parse toml succ, key:FileName value:logger.log
-[2022-04-17 17:21:28.885198][3271:c4e0d7b4e734cac][INFO ][../util/config_util/toml_helper.h:23][ParseTomlValue]parse toml succ, key:RetainHours value:4
+$./build64_debug/logger/test/logger_test
+[2023-04-23 10:37:07.963554][0:e24eaba10b72ea75][ERROR][logger/test/logger_test.cpp:26][main] error message
+[2023-04-23 10:37:07.963579][0:e24eaba10b72ea75][ERROR][logger/test/logger_test.cpp:27][main][tag=err_tag] error message with tag, type:pencil length:17
+[2023-04-23 10:37:07.963601][0:e24eaba10b72ea75][ERROR][logger/test/logger_test.cpp:32][main] error message
+[2023-04-23 10:37:07.963610][0:e24eaba10b72ea75][FATAL][logger/test/logger_test.cpp:46][main] x must be larger than 0!
+        Exiting due to FATAL log
+        Call Stack:
+                ./build64_debug/logger/test/logger_test(+0xb5c8) [0x55c12fc235c8]
+                ./build64_debug/logger/test/logger_test(+0x8dd3) [0x55c12fc20dd3]
+                /lib/x86_64-linux-gnu/libc.so.6(+0x29d90) [0x7ffb451fad90]
+                /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80) [0x7ffb451fae40]
+                ./build64_debug/logger/test/logger_test(+0x81e5) [0x55c12fc201e5]
+[2023-04-23 10:37:07.964395][0:e24eaba10b72ea75][FATAL][logger/test/logger_test.cpp:49][main] 
+        CHECK(false) fail.
+        Exiting due to FATAL log
+        Call Stack:
+                ./build64_debug/logger/test/logger_test(+0xb5c8) [0x55c12fc235c8]
+                ./build64_debug/logger/test/logger_test(+0xa70b) [0x55c12fc2270b]
+                ./build64_debug/logger/test/logger_test(+0x8eb2) [0x55c12fc20eb2]
+                /lib/x86_64-linux-gnu/libc.so.6(+0x29d90) [0x7ffb451fad90]
+                /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80) [0x7ffb451fae40]
+                ./build64_debug/logger/test/logger_test(+0x81e5) [0x55c12fc201e5]
+[2023-04-23 10:37:07.964489][0:e24eaba10b72ea75][FATAL][logger/test/logger_test.cpp:50][main] 
+        CHECK(3 == 4) fail.
+        Exiting due to FATAL log
+        Call Stack:
+                ./build64_debug/logger/test/logger_test(+0xb5c8) [0x55c12fc235c8]
+                ./build64_debug/logger/test/logger_test(+0xa70b) [0x55c12fc2270b]
+                ./build64_debug/logger/test/logger_test(+0x902b) [0x55c12fc2102b]
+                /lib/x86_64-linux-gnu/libc.so.6(+0x29d90) [0x7ffb451fad90]
+                /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80) [0x7ffb451fae40]
+                ./build64_debug/logger/test/logger_test(+0x81e5) [0x55c12fc201e5]
+[2023-04-23 10:37:07.964548][0:e24eaba10b72ea75][FATAL][logger/test/logger_test.cpp:51][main] 
+        CHECK(nullptr != nullptr) fail.
+        Exiting due to FATAL log
+        Call Stack:
+                ./build64_debug/logger/test/logger_test(+0xb5c8) [0x55c12fc235c8]
+                ./build64_debug/logger/test/logger_test(+0xa70b) [0x55c12fc2270b]
+                ./build64_debug/logger/test/logger_test(+0x91a2) [0x55c12fc211a2]
+                /lib/x86_64-linux-gnu/libc.so.6(+0x29d90) [0x7ffb451fad90]
+                /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80) [0x7ffb451fae40]
+                ./build64_debug/logger/test/logger_test(+0x81e5) [0x55c12fc201e5]
 ```
 
 测试代码：
@@ -90,3 +121,5 @@ RetainHours=4
 * 作为配置项支持异步写入日志
 * 性能测试
 * 支持自定义日志格式
+* 收到信号时打印堆栈并退出
+* 解除对 util 的依赖并提供 make install 脚本

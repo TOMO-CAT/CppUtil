@@ -5,4 +5,7 @@ cc_config(
         'thirdparty/cpptoml/include',
         'thirdparty/cpp_free_mock/include'
     ],
+    # linkflags=[
+    #     '-rdynamic',
+    # ],
 )

@@ -33,4 +33,20 @@ cc_binary(
         ':logger_test_gen',
     ],
     visibility=['PUBLIC'],
+    extra_cppflags=[
+        '-rdynamic',
+    ],
+)
+
+cc_binary(
+    name='backtrace_test',
+    srcs=[
+        'backtrace_test.cc',
+    ],
+    deps=[
+        '//thirdparty/backtrace:backtrace'
+    ],
+    # extra_cppflags=[
+    #     '-rdynamic', '-g',
+    # ],
 )
