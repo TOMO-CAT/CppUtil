@@ -11,6 +11,7 @@
 #include <unordered_map>
 
 #include "cpptoml/cpptoml.h"
+#include "logger/backtrace.h"
 #include "logger/log.h"
 #include "util/config/toml_helper.h"
 namespace logger {
@@ -123,6 +124,7 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
   }
 }
 
+#if 0
 void Logger::Backtrace(const uint32_t skip_frames) {
   constexpr uint32_t kMaxFrames = 128;
   std::array<void*, kMaxFrames> call_stacks;
@@ -140,6 +142,10 @@ void Logger::Backtrace(const uint32_t skip_frames) {
     file_appender_->Write("\t\t[truncated]");
   }
   file_appender_->Write("\n\n");
+}
+#endif
+
+void Logger::Backtrace(const uint32_t skip_frames) {
 }
 
 std::string Logger::GenLogPrefix() {

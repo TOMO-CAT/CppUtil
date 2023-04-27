@@ -1,6 +1,8 @@
 #pragma once
+
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "util/macro_util.h"
 
@@ -12,11 +14,12 @@ class StackDumper {
   ~StackDumper();
 
  public:
-  std::string Dump();
+  bool Dump(std::vector<std::string>* const stack_frames);
 
  private:
   char* Demangle(const char* name);
-  int Backtrace(const char* file, int line, const char* func, uint32_t* const count);
+  int Backtrace(const char* file, int line, const char* func, uint32_t* const count,
+                std::vector<std::string>* const stacks);
 
  private:
   static void ErrorCallback(void* data, const char* msg, int errnum);
@@ -26,7 +29,7 @@ class StackDumper {
   uint32_t skip_ = 0;
   std::string exec_path_;
   char* demangle_buff_ = nullptr;
-  std::ostringstream stack_;
+  // std::vector<std::string> stack_;
 
   DISALLOW_COPY_AND_ASSIGN(StackDumper);
 };

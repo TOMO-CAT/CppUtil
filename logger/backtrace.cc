@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 namespace logger {
 
@@ -16,6 +17,7 @@ constexpr uint32_t kDemangleBufferSize = 4096;
 struct BacktraceContext {
   StackDumper* sd = nullptr;
   uint32_t frame_depth = 0;
+  std::vector<std::string>* res;
 };
 
 }  // namespace
@@ -37,11 +39,15 @@ StackDumper::~StackDumper() {
   }
 }
 
-std::string StackDumper::Dump() {
-  struct BacktraceContext bc;
+bool StackDumper::Dump(std::vector<std::string>* const stack_frames) {
+  struct BacktraceContext bc = {
+      .sd = this,
+      .frame_depth = 0,
+      .res = stack_frames,
+  };
   struct backtrace_state* state = ::backtrace_create_state(exec_path_.c_str(), 1, this->ErrorCallback, nullptr);
   ::backtrace_full(state, skip_, this->BacktraceCallback, this->ErrorCallback, reinterpret_cast<void*>(&bc));
-  return stack_.str();
+  return true;
 }
 
 void StackDumper::ErrorCallback(void* data, const char* msg, int errnum) {
@@ -50,7 +56,7 @@ void StackDumper::ErrorCallback(void* data, const char* msg, int errnum) {
 
 int StackDumper::BacktraceCallback(void* data, uintptr_t pc, const char* file, int line, const char* func) {
   BacktraceContext* ptr_bc = reinterpret_cast<BacktraceContext*>(data);
-  return ptr_bc->sd->Backtrace(file, line, func, &ptr_bc->frame_depth);
+  return ptr_bc->sd->Backtrace(file, line, func, &ptr_bc->frame_depth, ptr_bc->res);
 }
 
 char* StackDumper::Demangle(const char* name) {
@@ -64,7 +70,8 @@ char* StackDumper::Demangle(const char* name) {
   return p;
 }
 
-int StackDumper::Backtrace(const char* file, int line, const char* func, uint32_t* const count) {
+int StackDumper::Backtrace(const char* file, int line, const char* func, uint32_t* const count,
+                           std::vector<std::string>* const stacks) {
   if (!file && !func) {
     return 0;
   }
@@ -76,8 +83,10 @@ int StackDumper::Backtrace(const char* file, int line, const char* func, uint32_
     }
   }
 
-  stack_ << '#' << count << " [" << (file ? file : "???") << ':' << line << "][" << (func ? func : "???") << "]\n";
+  std::ostringstream oss;
+  oss << '#' << (*count) << " [" << (file ? file : "???") << ':' << line << "][" << (func ? func : "???") << ']';
   (*count)++;
+  stacks->emplace_back(oss.str());
   if (p && p != demangle_buff_) {
     ::free(p);
   }
