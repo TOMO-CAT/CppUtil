@@ -5,6 +5,7 @@ cc_library(
         'log_capture.cc',
         'log_kv.cc',
         'logger.cc',
+        'backtrace.cc',
     ],
     hdrs=[
         'file_appender.h',
@@ -12,14 +13,25 @@ cc_library(
         'log.h',
         'log_kv.h',
         'logger.h',
+        'backtrace.h',
     ],
     deps=[
         '//util:util',
         '//util/config:config',
         '//thirdparty/cpptoml:cpptoml',
-        '//thirdparty/boost:boost',
+        '//thirdparty/backtrace:backtrace',
         '#uuid',
         '#pthread',
     ],
     visibility=['PUBLIC'],
+)
+
+cc_test(
+    name='backtrace_test',
+    srcs=[
+        'backtrace_test.cc',
+    ],
+    deps=[
+        ':logger',
+    ]
 )

@@ -123,3 +123,4 @@ RetainHours=4
 * 支持自定义日志格式
 * 收到信号时打印堆栈并退出
 * 解除对 util 的依赖并提供 make install 脚本
+* CHECK 或者捕获到 Signal 将日志打印到单独的 fatal.log 文件中, 不删除
