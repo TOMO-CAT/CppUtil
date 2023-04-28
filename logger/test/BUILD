@@ -52,3 +52,13 @@ cc_binary(
     # 打印出完整的调用栈, 防止编译将简单函数内联化
     optimize=['-O1'],
 )
+
+cc_binary(
+    name='signal8_test',
+    srcs=[
+        'signal8_test.cc',
+    ],
+    deps=[
+        '//logger:logger',
+    ]
+)

@@ -31,7 +31,9 @@ constexpr uint32_t kSkipFrames = 3;
 
 void HandleSignal() {
   auto handler = [](int signal) {
+    printf("receive signal: %d\n", signal);
     Logger::Instance()->Log(Logger::Level::FATAL_LEVEL, "Exiting due to receive signal: %d", signal);
+    exit(0);
   };
 
   signal(SIGHUP, SIG_IGN);
@@ -56,6 +58,8 @@ __thread uint64_t Logger::trace_id_ = 0;
 __thread int Logger::pid_ = 0;
 
 Logger::Logger() : is_console_output_(true), file_appender_(nullptr), priority_(Level::INFO_LEVEL) {
+  // 注册信号处理函数
+  HandleSignal();
 }
 
 Logger::~Logger() {
@@ -101,9 +105,6 @@ bool Logger::Init(const std::string& conf_path) {
   }
   is_console_output_ = false;
 
-  // 注册信号处理函数
-  HandleSignal();
-
   return true;
 }
 
@@ -146,7 +147,7 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
     // RELEASE 模式下不可重入, 防止打印多个 FATAL 日志
     if (!receive_fatal_.exchange(true)) {
       Backtrace();
-      std::abort();
+      exit(0);
     }
 #else
     // DEBUG 模式下不触发 abort, 可以打印多个 FATAL 堆栈
@@ -188,7 +189,9 @@ void Logger::Backtrace(const uint32_t skip_frames) {
     output << "\t\t" << sf << '\n';
   }
   printf("%s", output.str().c_str());
-  file_appender_->Write(output.str().c_str());
+  if (!is_console_output_) {
+    file_appender_->Write(output.str().c_str());
+  }
 }
 
 std::string Logger::GenLogPrefix() {
