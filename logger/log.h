@@ -35,6 +35,11 @@ namespace logger {
   }                                     \
   if (cnt == 1) __LOGGER_LOG_CAPTURE__(log_level)
 
+#define __LOG_FIRST_N__(log_level, N)   \
+  static std::atomic<uint32_t> cnt = 0; \
+  ++cnt;                                \
+  if (cnt <= N) __LOGGER_LOG_CAPTURE__(log_level)
+
 // ===================================================== 对外接口 =====================================================
 
 // 格式化日志
@@ -67,6 +72,12 @@ namespace logger {
 #define LOG_WARN_EVERY(N) __LOG_EVERY_N__(::logger::Logger::Level::WARN_LEVEL, N)
 #define LOG_ERROR_EVERY(N) __LOG_EVERY_N__(::logger::Logger::Level::ERROR_LEVEL, N)
 
+// 打印前 N 条日志
+#define LOG_DEBUG_FIRST_N(n) __LOG_FIRST_N__(::logger::Logger::Level::DEBUG_LEVEL, N)
+#define LOG_INFO_FIRST_N(n) __LOG_FIRST_N__(::logger::Logger::Level::INFO_LEVEL, N)
+#define LOG_WARN_FIRST_N(N) __LOG_FIRST_N__(::logger::Logger::Level::WARN_LEVEL, N)
+#define LOG_ERROR_FIRST_N(N) __LOG_FIRST_N__(::logger::Logger::Level::ERROR_LEVEL, N)
+
 // 断言
 #define CHECK(expression) \
   if ((expression) == false) __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #expression)
@@ -98,6 +109,18 @@ namespace logger {
 #define CHECK_NE(left, right) \
   if (left == right)          \
   __LOGGER_LOG_CAPTURE_CHECK__(::logger::Logger::Level::FATAL_LEVEL, #left + std::string(" != ") + #right)
+
+// 条件日志
+#define LOG_INFO_IF(cond) \
+  if (cond) LOG_INFO
+#define LOG_DEBUG_IF(cond) \
+  if (cond) LOG_DEBUG
+#define LOG_WARN_IF(cond) \
+  if (cond) LOG_WARN
+#define LOG_ERROR_IF(cond) \
+  if (cond) LOG_ERROR
+#define LOG_FATAL_IF(cond) \
+  if (cond) LOG_FATAL
 
 /*
 #define LogInfo(fmt, args...)                                                                                 \
