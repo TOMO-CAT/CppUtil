@@ -3,10 +3,13 @@
 #include <iostream>
 
 void fail() {
-  std::vector<std::string> stacks;
-  logger::StackDumper(0).Dump(&stacks);
-  for (auto&& s : stacks) {
-    std::cout << s << std::endl;
+  for (int i = 0; i < 10; ++i) {
+    std::cout << "==================== " << i << "====================" << std::endl;
+    std::vector<std::string> stacks;
+    logger::StackDumper(0).Dump(&stacks);
+    for (auto&& s : stacks) {
+      std::cout << s << std::endl;
+    }
   }
 }
 
