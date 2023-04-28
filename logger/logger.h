@@ -31,6 +31,10 @@ class Logger {
    * 根据日志级别打印日志
    */
   void Log(Level log_level, const char* fmt, ...);
+  /**
+   * 信号处理
+   */
+  void HandleSignal(int signal);
 
  public:
   static void set_pid(int pid);

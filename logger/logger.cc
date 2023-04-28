@@ -28,6 +28,10 @@ const std::unordered_map<Logger::Level, std::string> kLevel2Description = {
 
 constexpr uint32_t kSkipFrames = 3;
 
+// void DumpTraceback() {
+//   Logger::Instance()->
+// }
+
 }  // namespace
 
 Logger* Logger::instance_ = new Logger();
@@ -79,7 +83,16 @@ bool Logger::Init(const std::string& conf_path) {
     return false;
   }
   is_console_output_ = false;
+
+  // 注册信号处理函数
+
   return true;
+}
+
+// TODO:
+void Logger::HandleSignal(int signal) {
+  if (!receive_fatal_.exchange(true)) {
+  }
 }
 
 void Logger::Log(Level log_level, const char* fmt, ...) {
