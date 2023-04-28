@@ -110,6 +110,7 @@
         "pdebug",
         "PTRACER",
         "rdynamic",
-        "sptr"
+        "sptr",
+        "yyyymmddhh"
     ],
 }

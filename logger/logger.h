@@ -32,6 +32,7 @@ class Logger {
    */
   void Log(Level log_level, const char* fmt, ...);
 
+  // TODO(c): 收到信号时调用 Log(Level::Fatal, );
  public:
   static void set_pid(int pid);
   static int pid();
