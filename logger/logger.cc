@@ -1,6 +1,7 @@
 #include "logger/logger.h"
 
 #include <execinfo.h>
+#include <signal.h>
 #include <sys/time.h>
 #include <uuid/uuid.h>
 
@@ -28,9 +29,25 @@ const std::unordered_map<Logger::Level, std::string> kLevel2Description = {
 
 constexpr uint32_t kSkipFrames = 3;
 
-// void DumpTraceback() {
-//   Logger::Instance()->
-// }
+void HandleSignal() {
+  auto handler = [](int signal) {
+    Logger::Instance()->Log(Logger::Level::FATAL_LEVEL, "Exiting due to receive signal: %d", signal);
+  };
+
+  signal(SIGHUP, SIG_IGN);
+  signal(SIGQUIT, SIG_IGN);
+  signal(SIGPIPE, SIG_IGN);
+  signal(SIGTTOU, SIG_IGN);
+  signal(SIGTTIN, SIG_IGN);
+  signal(SIGCHLD, SIG_IGN);
+  signal(SIGTERM, SIG_IGN);
+
+  signal(SIGBUS, handler);   // 10: Bus error (bad memory access)
+  signal(SIGSEGV, handler);  // 11: Invalid memory reference
+  signal(SIGABRT, handler);  // 6: Abort signal from abort(3)
+  signal(SIGILL, handler);   // 4: Illegal Instruction
+  signal(SIGFPE, handler);   // 8: Floating poing exception
+}
 
 }  // namespace
 
@@ -85,14 +102,9 @@ bool Logger::Init(const std::string& conf_path) {
   is_console_output_ = false;
 
   // 注册信号处理函数
+  HandleSignal();
 
   return true;
-}
-
-// TODO:
-void Logger::HandleSignal(int signal) {
-  if (!receive_fatal_.exchange(true)) {
-  }
 }
 
 void Logger::Log(Level log_level, const char* fmt, ...) {
