@@ -1,18 +1,16 @@
-#include "logger/file_appender.h"
-
 #include <chrono>
 #include <thread>
 #include <vector>
 
+#include "logger/file_appender.h"
 #include "util/macro_util.h"
 #include "util/time/timestamp.h"
 
 using logger::FileAppender;
 const int THREAD_NUMBER = 10;  // 线程数
 const int RUNNING_HOURS = 24;  // 运行小时数
-const int RETAIN_HOURS = 6;    // 日志保留小时数
 
-FileAppender g_file_appender("./log", "TestFileAppender.log", RETAIN_HOURS, true);
+FileAppender g_file_appender("./log", "TestCrashFileAppender.log", 0, false);
 
 void ThreadRoutine(int idx) {
   g_file_appender.Write("[idx:%d]start!", idx);

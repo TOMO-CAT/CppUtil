@@ -15,6 +15,7 @@
 
 #include "cpptoml/cpptoml.h"
 #include "logger/backtrace.h"
+#include "logger/file_appender.h"
 #include "logger/log.h"
 #include "util/config/toml_helper.h"
 namespace logger {
@@ -48,7 +49,7 @@ void HandleSignal() {
   signal(SIGSEGV, handler);  // 11: Invalid memory reference
   signal(SIGABRT, handler);  // 6: Abort signal from abort(3)
   signal(SIGILL, handler);   // 4: Illegal Instruction
-  signal(SIGFPE, handler);   // 8: Floating poing exception
+  signal(SIGFPE, handler);   // 8: Floating point exception
 }
 
 }  // namespace
@@ -65,6 +66,10 @@ Logger::Logger() : is_console_output_(true), file_appender_(nullptr), priority_(
 Logger::~Logger() {
   if (file_appender_) {
     delete file_appender_;
+  }
+
+  if (crash_file_appender_) {
+    delete crash_file_appender_;
   }
 }
 
@@ -99,8 +104,12 @@ bool Logger::Init(const std::string& conf_path) {
   if (!util::ParseTomlValue(g, "RetainHours", &retain_hours)) {
     retain_hours = 0;  // don't delete overdue log file
   }
-  file_appender_ = new FileAppender(dir, file_name, retain_hours);
+  file_appender_ = new FileAppender(dir, file_name, retain_hours, true);
   if (!file_appender_->Init()) {
+    return false;
+  }
+  crash_file_appender_ = new FileAppender(dir, file_name + ".fatal", 0, false);
+  if (!crash_file_appender_->Init()) {
     return false;
   }
   is_console_output_ = false;
@@ -120,27 +129,38 @@ void Logger::Log(Level log_level, const char* fmt, ...) {
   }
 
   va_list args;
-  va_start(args, fmt);
-
-  // ERROR 及 FATAL 日志输出到控制台
-  if (is_console_output_ || log_level >= Level::ERROR_LEVEL) {
+  {
+    va_start(args, fmt);
+    // ERROR 及 FATAL 日志输出到控制台
+    if (is_console_output_ || log_level >= Level::ERROR_LEVEL) {
 // https://stackoverflow.com/questions/36120717/correcting-format-string-is-not-a-string-literal-warning
 #if defined(__has_warning)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
 #endif
-    vprintf((new_fmt + "\n").c_str(), args);
+      vprintf((new_fmt + "\n").c_str(), args);
 #if defined(__has_warning)
 #pragma clang diagnostic pop
 #endif
+    }
+    va_end(args);
   }
-  va_end(args);
 
-  va_start(args, fmt);
-  if (!is_console_output_) {
-    file_appender_->Write(new_fmt.c_str(), args);
+  {
+    va_start(args, fmt);
+    if (file_appender_) {
+      file_appender_->Write(new_fmt.c_str(), args);
+    }
+    va_end(args);
   }
-  va_end(args);
+
+  {
+    va_start(args, fmt);
+    if (crash_file_appender_ && log_level >= Level::FATAL_LEVEL) {
+      crash_file_appender_->Write(new_fmt.c_str(), args);
+    }
+    va_end(args);
+  }
 
   if (log_level == Level::FATAL_LEVEL) {
 #ifdef NDEBUG
@@ -189,8 +209,11 @@ void Logger::Backtrace(const uint32_t skip_frames) {
     output << "\t\t" << sf << '\n';
   }
   printf("%s", output.str().c_str());
-  if (!is_console_output_) {
+  if (file_appender_) {
     file_appender_->Write(output.str().c_str());
+  }
+  if (crash_file_appender_) {
+    crash_file_appender_->Write(output.str().c_str());
   }
 }
 

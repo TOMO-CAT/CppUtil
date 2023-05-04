@@ -14,8 +14,8 @@ namespace logger {
 
 __thread char FileAppender::buffer_[kFileAppenderBuffSize];
 
-FileAppender::FileAppender(std::string dir, std::string file_name, int retain_hours)
-    : file_dir_(dir), file_name_(file_name), retain_hours_(retain_hours) {
+FileAppender::FileAppender(std::string dir, std::string file_name, int retain_hours, bool is_cut)
+    : file_dir_(dir), file_name_(file_name), retain_hours_(retain_hours), is_cut_(is_cut) {
   if (file_dir_.empty()) {
     file_dir_ = ".";
   }
@@ -83,6 +83,10 @@ int64_t FileAppender::GenHourSuffix(const struct timeval* tv) {
 }
 
 void FileAppender::CutIfNeed() {
+  if (!is_cut_) {
+    return;
+  }
+
   struct timeval now;
   ::gettimeofday(&now, nullptr);
 

@@ -15,8 +15,9 @@ class FileAppender {
    * @param dir 日志保存路径
    * @param file_name 日志名
    * @param retain_hours 保存小时数
+   * @param is_cut 是否切割日志
    */
-  FileAppender(std::string dir, std::string file_name, int retain_hours);
+  FileAppender(std::string dir, std::string file_name, int retain_hours, bool is_cut);
   ~FileAppender();
 
  public:
@@ -52,6 +53,9 @@ class FileAppender {
   int retain_hours_;
   int64_t last_hour_suffix_;
   pthread_mutex_t write_mutex_;
+  bool is_cut_ = true;
+
+ private:
   static __thread char buffer_[kFileAppenderBuffSize];
 
   DISALLOW_COPY_AND_ASSIGN(FileAppender);

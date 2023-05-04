@@ -11,6 +11,20 @@ cc_binary(
     visibility=['PUBLIC'],
 )
 
+cc_binary(
+    name='crash_file_appender_test',
+    srcs=[
+        'crash_file_appender_test.cpp',
+    ],
+    deps=[
+        '//util:util',
+        '//util/time:time',
+        '//logger:logger',
+    ],
+    visibility=['PUBLIC'],
+)
+
+
 gen_rule(
     name='logger_test_gen',
     srcs=[

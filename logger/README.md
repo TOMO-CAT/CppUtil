@@ -121,6 +121,7 @@ RetainHours=4
 * 作为配置项支持异步写入日志
 * 性能测试
 * 支持自定义日志格式
-* 收到信号时打印堆栈并退出
+* ~~收到信号时打印堆栈并退出~~
 * 解除对 util 的依赖并提供 make install 脚本
-* CHECK 或者捕获到 Signal 将日志打印到单独的 fatal.log 文件中, 不删除
+* ~~CHECK 或者捕获到 Signal 将日志打印到单独的 fatal.log 文件中, 不删除~~
+* 支持不同 Topic 打印到不同日志文件中

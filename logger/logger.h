@@ -32,7 +32,6 @@ class Logger {
    */
   void Log(Level log_level, const char* fmt, ...);
 
-  // TODO(c): 收到信号时调用 Log(Level::Fatal, );
  public:
   static void set_pid(int pid);
   static int pid();
@@ -51,12 +50,15 @@ class Logger {
 
  private:
   static Logger* instance_;
-  bool is_console_output_;
-  FileAppender* file_appender_;
+  bool is_console_output_ = true;
+  FileAppender* file_appender_ = nullptr;
+  FileAppender* crash_file_appender_ = nullptr;
   Level priority_;
+  std::atomic<bool> receive_fatal_ = false;
+
+ private:
   static __thread uint64_t trace_id_;
   static __thread int pid_;
-  std::atomic<bool> receive_fatal_ = false;
 
   DISALLOW_COPY_AND_ASSIGN(Logger);
 };
