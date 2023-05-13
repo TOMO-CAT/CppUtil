@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <set>
 #include <string>
 
 #include "util/macro_util.h"
@@ -40,7 +41,7 @@ class FileAppender {
   static int64_t GenNowHourSuffix();
   static int64_t GenHourSuffix(const struct timeval* tv);
   void CutIfNeed();
-  void DeleteOverdueFile(const struct timeval* tv);
+  void DeleteOverdueFile(int64_t now_hour_suffix);
 
  private:
   static constexpr uint32_t kFileAppenderBuffSize = 4096;
@@ -50,10 +51,11 @@ class FileAppender {
   std::string file_dir_;
   std::string file_name_;
   std::string file_path_;
-  int retain_hours_;
-  int64_t last_hour_suffix_;
+  int retain_hours_ = 0;
+  int64_t last_hour_suffix_ = -1;
   pthread_mutex_t write_mutex_;
   bool is_cut_ = true;
+  std::set<int64_t> history_files_;
 
  private:
   static __thread char buffer_[kFileAppenderBuffSize];

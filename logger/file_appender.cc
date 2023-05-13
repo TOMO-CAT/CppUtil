@@ -104,25 +104,31 @@ void FileAppender::CutIfNeed() {
       file_stream_.open(file_path_.c_str(), std::fstream::out | std::fstream::app);
       printf2console("cut file, last hour:%ld now hour:%ld file_path:%s new_file_path:%s", last_hour_suffix_,
                      now_hour_suffix, file_path_.c_str(), new_file_path.c_str());
+      // 只有需要删除历史日志时才记录历史文件
+      if (retain_hours_ > 0) {
+        history_files_.insert(last_hour_suffix_);
+      }
       last_hour_suffix_ = now_hour_suffix;
     }
+    DeleteOverdueFile(now_hour_suffix);
     pthread_mutex_unlock(&write_mutex_);
-    DeleteOverdueFile(&now);
   }
 }
 
-void FileAppender::DeleteOverdueFile(const struct timeval* tv) {
+void FileAppender::DeleteOverdueFile(int64_t now_hour_suffix) {
   if (retain_hours_ <= 0) {
     return;
   }
-  struct timeval old_tv;
-  old_tv.tv_sec = tv->tv_sec - retain_hours_ * 3600;
-  old_tv.tv_usec = tv->tv_usec;
 
-  int64_t old_hour_suffix = GenHourSuffix(&old_tv);
-  std::string old_file_path = file_path_ + "." + std::to_string(old_hour_suffix);
-  remove(old_file_path.c_str());
-  printf2console("delete old file, file_path:%s", old_file_path.c_str());
+  for (int64_t hour_suffix : history_files_) {
+    printf2console("hour_suffix: %ld", hour_suffix);
+    if (now_hour_suffix >= hour_suffix + retain_hours_) {
+      std::string old_file_path = file_path_ + "." + std::to_string(hour_suffix);
+      ::remove(old_file_path.c_str());
+      history_files_.erase(hour_suffix);
+      printf2console("delete old file, file_path:%s", old_file_path.c_str());
+    }
+  }
 }
 
 }  // namespace logger

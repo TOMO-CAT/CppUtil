@@ -6,7 +6,6 @@
 #include "logger/file_appender.h"
 
 namespace logger {
-
 class Logger {
  public:
   enum class Level {
@@ -33,8 +32,8 @@ class Logger {
   void Log(Level log_level, const char* fmt, ...);
 
  public:
-  static void set_pid(int pid);
-  static int pid();
+  // static void set_trace_id(uint64_t trace_id = 0);
+  // static uint64_t trace_id();
   static void set_trace_id(uint64_t trace_id = 0);
   static uint64_t trace_id();
 
@@ -53,12 +52,11 @@ class Logger {
   bool is_console_output_ = true;
   FileAppender* file_appender_ = nullptr;
   FileAppender* crash_file_appender_ = nullptr;
-  Level priority_;
+  Level priority_ = Level::DEBUG_LEVEL;
   std::atomic<bool> receive_fatal_ = false;
 
  private:
-  static __thread uint64_t trace_id_;
-  static __thread int pid_;
+  // static __thread uint64_t trace_id_;
 
   DISALLOW_COPY_AND_ASSIGN(Logger);
 };

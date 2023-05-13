@@ -10,9 +10,9 @@
 using logger::FileAppender;
 const int THREAD_NUMBER = 10;  // 线程数
 const int RUNNING_HOURS = 24;  // 运行小时数
-const int RETAIN_HOURS = 6;    // 日志保留小时数
+const int RETAIN_HOURS = 4;    // 日志保留小时数
 
-FileAppender g_file_appender("./log", "TestFileAppender.log", RETAIN_HOURS, true);
+FileAppender g_file_appender("./log", "logger.log", RETAIN_HOURS, true);
 
 void ThreadRoutine(int idx) {
   g_file_appender.Write("[idx:%d]start!", idx);
