@@ -11,6 +11,7 @@ RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
     bear \
     wget \
     uuid-dev \
+    unzip \
     # libuv1-dev \
     # libglib2.0-dev \
     # libsystemd-dev \
@@ -39,6 +40,11 @@ RUN wget https://curl.se/download/archeology/curl-7.29.0.tar.gz --no-check-certi
     make install && \
     echo 'export LD_LIBRARY_PATH=/usr/local/lib' >> ~/.bashrc && \
     bash
+
+# 安装 xmake
+# RUN wget https://xmake.io/shget.text -O - | bash && /bin/bash -c "source ~/.xmake/profile"
+RUN wget https://xmake.io/shget.text -O - | bash && echo 'source ~/.xmake/profile' >> ~/.bashrc
+ENV  XMAKE_ROOT=y
 
 # 指定工作目录
 WORKDIR /CppUtil

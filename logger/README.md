@@ -22,7 +22,17 @@
 
 ## 具体使用方法
 
-编译：
+### 1. 环境搭建
+
+具体搭建方法参考 Dockerfile，搭建 docker 环境直接执行脚本即可：
+
+```bash
+bash docker.sh
+```
+
+### 2. 编译
+
+可以使用 blade 编译：
 
 ```bash
 # release 模式
@@ -35,7 +45,20 @@ $blade build -pdebug logger/...
 $bear -- blade build logger/...
 ```
 
-测试：
+也可以使用 xmake：
+
+```bash
+# 编译静态库
+$xmake -a
+
+# 安装 libcpputil
+# 1. 打包安装到 ./pkg 目录
+$xmake install -o pkg
+# 2. 安装到 /usr/local 目录
+$xmake install -o /usr/local
+```
+
+### 3. 测试
 
 ```bash
 $./build64_debug/logger/test/logger_test

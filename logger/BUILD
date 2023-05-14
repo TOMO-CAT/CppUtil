@@ -25,13 +25,3 @@ cc_library(
     ],
     visibility=['PUBLIC'],
 )
-
-cc_test(
-    name='backtrace_test',
-    srcs=[
-        'backtrace_test.cc',
-    ],
-    deps=[
-        ':logger',
-    ]
-)

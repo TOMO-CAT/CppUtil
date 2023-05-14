@@ -28,5 +28,5 @@ if docker ps -a | grep -q "${CONTAINER_NAME}"; then
     fi
 else
     echo "Docker container ${CONTAINER_NAME} does not exist. Creating the container..."
-    docker run --name "${CONTAINER_NAME}" -v "${ROOT_DIR}:${PROJECT_PATH}" -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -it "${IMAGE_NAME}"
+    docker run --name "${CONTAINER_NAME}" -v "${ROOT_DIR}/CppUtil:${PROJECT_PATH}" -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -it "${IMAGE_NAME}"
 fi

@@ -8,3 +8,5 @@ compile_commands.json
 logs/
 log/
 logger/log
+.xmake/
+build/

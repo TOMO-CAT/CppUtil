@@ -67,6 +67,17 @@ cc_binary(
     optimize=['-O1'],
 )
 
+cc_test(
+    name='backtrace_test2',
+    srcs=[
+        'backtrace_test2.cc',
+    ],
+    deps=[
+        '//logger:logger',
+    ]
+)
+
+
 cc_binary(
     name='signal8_test',
     srcs=[
