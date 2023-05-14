@@ -1,6 +1,6 @@
 set_config("plat", "linux")
 set_project("cpp-util")
-set_xmakever("2.7.8")
+set_xmakever("2.7.5")
 
 set_languages("c++17")
 set_warnings("all")
@@ -18,5 +18,5 @@ add_installfiles("logger/README.md", {prefixdir = "include/cpputil/logger"})
 target("cpputil")
     set_kind("static")
     add_files("logger/*.cc|*_test.cc")  -- 添加 logger 下所有的 *.cc 文件, 但不包括 logger 下的 *_test.cc 文件
-    add_files("thirdparty/backtrace/lib/libbacktrace.a")
+    -- add_files("thirdparty/backtrace/lib/libbacktrace.a", "thirdparty/uuid/lib/libuuid.a")
     add_packages("libbacktrace", { public = true })

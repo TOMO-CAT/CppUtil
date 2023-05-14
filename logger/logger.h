@@ -54,7 +54,7 @@ class Logger {
   FileAppender* file_appender_ = nullptr;
   FileAppender* crash_file_appender_ = nullptr;
   Level priority_ = Level::DEBUG_LEVEL;
-  std::atomic<bool> receive_fatal_ = false;
+  std::atomic<bool> receive_fatal_ = {false};
 
  private:
   DISALLOW_COPY_AND_ASSIGN(Logger);
