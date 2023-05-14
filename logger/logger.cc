@@ -31,12 +31,9 @@ uint64_t GenerateTraceId() {
   return trace_id_list[0];
 }
 
-thread_local int t_pid = ::getpid();
-thread_local uint64_t t_trace_id = GenerateTraceId();
-
 const std::unordered_map<Logger::Level, std::string> kLevel2Description = {
-    {Logger::Level::DEBUG_LEVEL, "[DEBUG]"}, {Logger::Level::INFO_LEVEL, "[INFO ]"},
-    {Logger::Level::WARN_LEVEL, "[WARN ]"},  {Logger::Level::ERROR_LEVEL, "[ERROR]"},
+    {Logger::Level::DEBUG_LEVEL, "[DEBUG]"}, {Logger::Level::INFO_LEVEL, "[INFO]"},
+    {Logger::Level::WARN_LEVEL, "[WARN]"},   {Logger::Level::ERROR_LEVEL, "[ERROR]"},
     {Logger::Level::FATAL_LEVEL, "[FATAL]"},
 };
 
@@ -66,12 +63,12 @@ void HandleSignal() {
 
 }  // namespace
 
+thread_local int t_pid = ::getpid();
+thread_local uint64_t t_traceid = 0;
+
 Logger* Logger::instance_ = new Logger();
-// __thread uint64_t Logger::trace_id_ = 0;
 
 Logger::Logger() : is_console_output_(true), file_appender_(nullptr) {
-  set_trace_id();
-
   // 注册信号处理函数
   HandleSignal();
 }
@@ -235,29 +232,20 @@ std::string Logger::GenLogPrefix() {
   char time_str[100];
   snprintf(time_str, sizeof(time_str), "[%04d-%02d-%02d %02d:%02d:%02d.%06ld][%d:%lx]", tm_now.tm_year + 1900,
            tm_now.tm_mon + 1, tm_now.tm_mday, tm_now.tm_hour, tm_now.tm_min, tm_now.tm_sec, now.tv_usec, t_pid,
-           t_trace_id);
+           t_traceid);
   return time_str;
 }
 
-void Logger::set_trace_id(uint64_t trace_id) {
-  // if (trace_id == 0) {
-  //   uuid_t uuid;
-  //   uuid_generate(uuid);
-  //   // 将 uuid 解析成 uint64_t 数组并取第一个元素作为 trace_id
-  //   uint64_t* trace_id_list = reinterpret_cast<uint64_t*>(uuid);
-  //   trace_id_ = trace_id_list[0];
-  // } else {
-  //   trace_id_ = trace_id;
-  // }
-  if (t_trace_id == 0) {
-    trace_id = GenerateTraceId();
+void Logger::set_trace_id(const uint64_t trace_id) {
+  if (trace_id == 0) {
+    t_traceid = GenerateTraceId();
   } else {
-    t_trace_id = trace_id;
+    t_traceid = trace_id;
   }
 }
 
 uint64_t Logger::trace_id() {
-  return t_trace_id;
+  return t_traceid;
 }
 
 }  // namespace logger

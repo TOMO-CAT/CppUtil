@@ -79,7 +79,13 @@ int64_t FileAppender::GenNowHourSuffix() {
 int64_t FileAppender::GenHourSuffix(const struct timeval* tv) {
   struct tm tm_val;
   ::localtime_r(&tv->tv_sec, &tm_val);
-  return tm_val.tm_hour + tm_val.tm_mday * 100 + (tm_val.tm_mon + 1) * 10000 + (tm_val.tm_year + 1900) * 1000000;
+  return static_cast<int64_t>(tm_val.tm_hour) + static_cast<int64_t>(tm_val.tm_mday) * 100 +
+         static_cast<int64_t>(tm_val.tm_mon + 1) * 10000 + static_cast<int64_t>(tm_val.tm_year + 1900) * 1000000;
+  // 每分钟切割一次
+  // return (static_cast<int64_t>(tm_val.tm_hour) + static_cast<int64_t>(tm_val.tm_mday) * 100 +
+  //         static_cast<int64_t>(tm_val.tm_mon + 1) * 10000 + static_cast<int64_t>(tm_val.tm_year + 1900) * 1000000) *
+  //            100 +
+  //        tm_val.tm_min;
 }
 
 void FileAppender::CutIfNeed() {
@@ -102,15 +108,20 @@ void FileAppender::CutIfNeed() {
       }
       file_stream_.close();
       file_stream_.open(file_path_.c_str(), std::fstream::out | std::fstream::app);
+#ifndef NDEBUG
       printf2console("cut file, last hour:%ld now hour:%ld file_path:%s new_file_path:%s", last_hour_suffix_,
                      now_hour_suffix, file_path_.c_str(), new_file_path.c_str());
+#endif
       // 只有需要删除历史日志时才记录历史文件
       if (retain_hours_ > 0) {
+#ifndef NDEBUG
+        printf2console("[debug] insert history file:%ld", last_hour_suffix_);
+#endif
         history_files_.insert(last_hour_suffix_);
+        DeleteOverdueFile(now_hour_suffix);
       }
       last_hour_suffix_ = now_hour_suffix;
     }
-    DeleteOverdueFile(now_hour_suffix);
     pthread_mutex_unlock(&write_mutex_);
   }
 }
@@ -120,13 +131,35 @@ void FileAppender::DeleteOverdueFile(int64_t now_hour_suffix) {
     return;
   }
 
-  for (int64_t hour_suffix : history_files_) {
-    printf2console("hour_suffix: %ld", hour_suffix);
-    if (now_hour_suffix >= hour_suffix + retain_hours_) {
+  // 不能在 for 循环中 erase, 会使得迭代器失效
+  // for (int64_t hour_suffix : history_files_) {
+  //   if (now_hour_suffix >= hour_suffix + retain_hours_) {
+  //     std::string old_file_path = file_path_ + "." + std::to_string(hour_suffix);
+  //     ::remove(old_file_path.c_str());
+  //     history_files_.erase(hour_suffix);
+  //     printf2console("delete old file, file_path:%s", old_file_path.c_str());
+  //   }
+  // }
+
+  // 在循环中使用 erase 删除 set 元素会导致迭代器失效, 从而可能导致未定义的行为。
+  // 因此在循环中删除 set 元素时, 应该使用迭代器进行删除, 而不是使用循环变量或者其他迭代器。
+  // 可以使用迭代器自身的后缀自增运算符 (iterator++) 来遍历集合, 并使用 iterator = set.erase(iterator) 来删除元素。
+  // 这样可以确保迭代器指向下一个有效元素。
+  for (auto it = history_files_.begin(); it != history_files_.end();) {
+    int64_t hour_suffix = *it;
+#ifndef NDEBUG
+    printf2console("[debug] hour_suffix:%ld, now_hour_suffix:%ld, retain_hours=%d", hour_suffix, now_hour_suffix,
+                   retain_hours_);
+#endif
+    if (now_hour_suffix > hour_suffix + retain_hours_) {
       std::string old_file_path = file_path_ + "." + std::to_string(hour_suffix);
       ::remove(old_file_path.c_str());
-      history_files_.erase(hour_suffix);
+      it = history_files_.erase(it);
+#ifndef NDEBUG
       printf2console("delete old file, file_path:%s", old_file_path.c_str());
+#endif
+    } else {
+      ++it;
     }
   }
 }

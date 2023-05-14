@@ -73,8 +73,8 @@ namespace logger {
 #define LOG_ERROR_EVERY(N) __LOG_EVERY_N__(::logger::Logger::Level::ERROR_LEVEL, N)
 
 // 打印前 N 条日志
-#define LOG_DEBUG_FIRST_N(n) __LOG_FIRST_N__(::logger::Logger::Level::DEBUG_LEVEL, N)
-#define LOG_INFO_FIRST_N(n) __LOG_FIRST_N__(::logger::Logger::Level::INFO_LEVEL, N)
+#define LOG_DEBUG_FIRST_N(N) __LOG_FIRST_N__(::logger::Logger::Level::DEBUG_LEVEL, N)
+#define LOG_INFO_FIRST_N(N) __LOG_FIRST_N__(::logger::Logger::Level::INFO_LEVEL, N)
 #define LOG_WARN_FIRST_N(N) __LOG_FIRST_N__(::logger::Logger::Level::WARN_LEVEL, N)
 #define LOG_ERROR_FIRST_N(N) __LOG_FIRST_N__(::logger::Logger::Level::ERROR_LEVEL, N)
 

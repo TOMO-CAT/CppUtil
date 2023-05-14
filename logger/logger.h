@@ -6,6 +6,7 @@
 #include "logger/file_appender.h"
 
 namespace logger {
+
 class Logger {
  public:
   enum class Level {
@@ -34,7 +35,7 @@ class Logger {
  public:
   // static void set_trace_id(uint64_t trace_id = 0);
   // static uint64_t trace_id();
-  static void set_trace_id(uint64_t trace_id = 0);
+  static void set_trace_id(const uint64_t trace_id = 0);
   static uint64_t trace_id();
 
  private:
@@ -56,8 +57,6 @@ class Logger {
   std::atomic<bool> receive_fatal_ = false;
 
  private:
-  // static __thread uint64_t trace_id_;
-
   DISALLOW_COPY_AND_ASSIGN(Logger);
 };
 
