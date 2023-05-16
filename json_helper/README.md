@@ -2,6 +2,8 @@
 
 ## 编译
 
+### 1. blade
+
 ```bash
 # 编译 json helper
 blade build json_helper
@@ -13,3 +15,5 @@ blade test json_helper/unit_test
 blade build json_helper/example
 ./build64_release/json_helper/example/marshal
 ```
+
+### 2. xmake

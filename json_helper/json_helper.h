@@ -54,6 +54,9 @@ std::string ToString(const T& obj) {
   if (!Marshal(obj, &res, false)) {
     return "";
   }
+  if (res.back() == '\n') {
+    res.erase(res.size() - 1);
+  }
   return res;
 }
 

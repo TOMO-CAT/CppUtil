@@ -1,10 +1,15 @@
-#include "logger/log.h"
+#include "json_helper/json_helper.h"
 
 int main() {
-  if (!logger::Logger::Instance()->Init("./logger.conf")) {
-    LOG_ERROR << "Init logger fail, print to console";
-  }
+  class Cat {
+   private:
+    std::string name = "cc";
+    int age = -10;
+    double birthday = 3.1;
+    std::vector<int> favorite_nums = {5, 7, 9};
 
-  logger::Logger::set_trace_id();
-  LOG_INFO << "Init logger successfully!";
+   public:
+    JSON_HELPER_MARSHAL_MEMBER_FUNCTION(name, age, birthday, favorite_nums);
+  };
+  std::cout << json_helper::ToString(Cat()) << std::endl;
 }

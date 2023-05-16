@@ -97,7 +97,7 @@ typename std::enable_if<HasMarshalFunc<T>::value, bool>::type Marshal(const T& o
   return obj.Marshal(root);
 }
 
-// enum class
+// enum && enum class
 template <typename T>
 typename std::enable_if<std::is_enum<T>::value, bool>::type Marshal(const T& obj, Json::Value* const root) {
   *root = Json::Int(static_cast<int>(obj));
