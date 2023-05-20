@@ -20,11 +20,50 @@ add_definitions("-g")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS "-lbacktrace")
 
+# Install prefix
+# set(CMAKE_INSTALL_PREFIX "")
+
 # Include path
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/cpptoml/include
 )
 
-# Source files
-set(logger_srcs logger/*.cc)
+# SourceFiles
+
+## 1. Logger
+file(GLOB_RECURSE logger_srcs logger/*.cc logger/*.cpp)
+list(FILTER logger_srcs EXCLUDE REGEX ".*_test\.(cpp|cc)$")
 MESSAGE(STATUS "this logger_srcs key = ${logger_srcs}.")
+
+# Library
+add_library(cpputil ${logger_srcs})
+
+# Example
+add_executable(
+    logger_example
+    logger/test/logger_test.cpp
+    ${logger_srcs}
+)
+target_link_libraries(logger_example uuid backtrace)
+
+# Install
+install(
+    TARGETS cpputil
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY logger
+        DESTINATION include/cpputil
+        FILES_MATCHING
+        PATTERN "*.h"
+        # PATTERN "*~" EXCLUDE
+)
+
+install(DIRECTORY util
+        DESTINATION include/cpputil
+        FILES_MATCHING
+        PATTERN "*.h"
+)
