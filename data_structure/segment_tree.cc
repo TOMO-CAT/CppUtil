@@ -74,7 +74,7 @@ void SegmentTree::Update(const Range& k_range, const int32_t increment, const st
   // 如果 current_range 完全在 k_range 内
   if (k_range.left <= current_range.left && k_range.right >= current_range.right) {
     sum_[current] += (increment * current_range.length());
-    // 增加懒惰标记, 表示本区间的 sum 正确, 但是自区间的 sum 仍然需要根据 lazy_add_ 的值来调整
+    // 增加懒惰标记, 表示本区间的 sum 正确, 但是子区间的 sum 仍然需要根据 lazy_add_ 的值来调整
     lazy_add_[current] += increment;
     return;
   }
