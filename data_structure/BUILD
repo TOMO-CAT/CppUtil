@@ -1,0 +1,20 @@
+cc_library(
+    name='data_structure',
+    hdrs=[
+        'segment_tree.h',
+    ],
+    srcs=[
+        'segment_tree.cc',
+    ],
+    deps=[
+        '//logger:logger',
+    ]
+)
+
+cc_test(
+    name='segment_tree_test',
+    srcs=['segment_tree_test.cc'],
+    deps=[
+        ':data_structure',
+    ]
+)

@@ -68,9 +68,9 @@ cc_binary(
 )
 
 cc_test(
-    name='backtrace_test2',
+    name='backtrace2_test',
     srcs=[
-        'backtrace_test2.cc',
+        'backtrace2_test.cc',
     ],
     deps=[
         '//logger:logger',

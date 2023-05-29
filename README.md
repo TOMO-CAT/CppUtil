@@ -12,7 +12,28 @@ $bash docker.sh
 
 ## 编译
 
-### 1. xmake
+### 1. cmake
+
+```bash
+# 创建编译文件夹
+$ mkdir build
+$ cd build
+
+# 编译全部目标
+$ cmake -DCMAKE_BUILD_TYPE=Release ..
+$ make
+
+# 执行 logger 测试代码
+$ ./bin/logger_example
+
+# 安装
+# 1. 安装到 ./output 目录
+# $ cmake --install . --prefix output
+# 2. 安装到 /usr/local 目录
+$ cmake --install .
+```
+
+### 2. xmake
 
 ```bash
 # 编译全部目标
@@ -25,7 +46,7 @@ $xmake -a
 $xmake install -o /usr/local
 ```
 
-### 2. blade
+### 3. blade
 
 ```bash
 # 编译 logger
