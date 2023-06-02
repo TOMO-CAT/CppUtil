@@ -1,0 +1,11 @@
+cc_test(
+    name='shared_memory_test',
+    srcs=[
+        'shared_memory_test.cc',
+    ],
+    deps=[
+        '//logger:logger',
+        '#boost_system',
+        '#boost_filesystem',
+    ],
+)

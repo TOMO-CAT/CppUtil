@@ -113,4 +113,7 @@
         "sptr",
         "yyyymmddhh"
     ],
+    "cSpell.enableFiletypes": [
+        "!jsonc"
+    ],
 }
