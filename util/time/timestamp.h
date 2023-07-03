@@ -21,8 +21,14 @@ inline uint64_t TimestampSec() {
  */
 inline uint64_t TimestampMicroSec() {
   struct timeval time;
-  gettimeofday(&time, NULL);
+  ::gettimeofday(&time, NULL);
   return time.tv_sec * 1000 * 1000 + time.tv_usec;
+}
+
+inline uint64_t TimestampNanoSec() {
+  struct timespec time;
+  ::clock_gettime(CLOCK_REALTIME, &time);
+  return time.tv_sec * 1000 * 1000 * 1000 + time.tv_nsec;
 }
 
 }  // namespace util

@@ -10,3 +10,4 @@ log/
 logger/log
 .xmake/
 build/
+ring_buffer_shared_memory/

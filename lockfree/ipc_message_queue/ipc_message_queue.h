@@ -24,6 +24,12 @@ class IpcMessageQueue {
   }
 
  public:
+  struct MessageInfo {
+    int32_t process_id = 0;
+    uint32_t channel_id = 0;
+  };
+
+ public:
   void Read(std::vector<uint8_t>* const message);
   void Write(const std::vector<uint8_t>& message);
   void Write(uint8_t* const data, const uint32_t data_len);

@@ -13,6 +13,8 @@
 // NOLINT
 #include "boost/interprocess/detail/file_wrapper.hpp"
 #include "lockfree/ipc_message_queue/message/message.h"
+
+// to move to *.cpp file
 #include "logger/log.h"
 
 namespace cpputil {
@@ -35,23 +37,11 @@ class RingBufferSharedMemory {
    * @param shared_memory_key 共享内存 key, 相同的 key 读写同一块共享内存
    * @param shared_memory_size_mb
    */
-  RingBufferSharedMemory(const std::string& shared_memory_key, const uint32_t shared_memory_size_mb,
-                         const bool is_readonly)
-      : shared_memory_key_(shared_memory_key),
-        shared_memory_size_mb_(shared_memory_size_mb),
-        is_readonly_(is_readonly) {
+  RingBufferSharedMemory(const std::string& shared_memory_key, const uint32_t shared_memory_size_mb)
+      : shared_memory_key_(shared_memory_key), shared_memory_size_mb_(shared_memory_size_mb), is_readonly_(false) {
     CHECK(!shared_memory_key_.empty());
     CHECK_GT(shared_memory_size_mb_, 0);
     file_lock_path_ = "./ring_buffer_shared_memory/" + shared_memory_key_ + ".lock";
-  }
-
-  /**
-   * @brief
-   *
-   * @note 这种方法构造的共享内存是只读的
-   */
-  explicit RingBufferSharedMemory(const std::string& shared_memory_key) {
-    is_readonly_ = true;
   }
 
  public:
@@ -74,12 +64,18 @@ class RingBufferSharedMemory {
   bool Write(uint8_t* const data, const uint32_t data_len);
 
  private:
+  /**
+   * @brief 打开并映射共享内存空间
+   *
+   * @return true
+   * @return false
+   */
   bool OpenSharedMemory() {
     std::int64_t desired_size_bytes = shared_memory_size_mb_ << 20;  // * 1024 * 1024
 
     // 1. 只读模式
     if (is_readonly_) {
-      LOG_INFO << "Going to open shared memory with [readonly] mode";
+      LOG_INFO << "Trying to open shared memory with [readonly] mode";
       // 1.1 共享内存文件尚未创建, 延迟访问
       try {
         shared_memory_ = std::make_unique<::boost::interprocess::shared_memory_object>(
@@ -89,6 +85,11 @@ class RingBufferSharedMemory {
         return false;
       }
       CHECK_NOTNULL(shared_memory_);
+
+      // 1.2 虽然有共享内存, 但是 size 为 0, 延迟访问
+      int64_t current_size_bytes = SharedMemorySize();
+      if (current_size_bytes == 0) {
+      }
 
       // 1.2 虽然有共享内存, 但是 size 不一致, 延迟访问
       int64_t current_size_bytes = SharedMemorySize();
@@ -108,7 +109,7 @@ class RingBufferSharedMemory {
       return true;
     } else {
       // 2. 读写模式 (加文件锁避免并发读写风险, 析构时会释放锁)
-      LOG_INFO << "Going to open shared memory with [non-readonly] mode";
+      LOG_INFO << "Trying to open shared memory with [non-readonly] mode";
       ::boost::interprocess::file_lock file_lock(file_lock_path_.c_str());
       LOG_INFO << "Trying to lock [" << file_lock_path_ << "] to creating or resize shared memory";
       file_lock.lock();
@@ -244,16 +245,18 @@ class RingBufferSharedMemory {
   std::string shared_memory_key_;
   std::string file_lock_path_;
   uint32_t shared_memory_size_mb_ = 0;
-  bool is_readonly_ = true;
-  bool is_available_ = false;  // 共享内存 shared_memory_ 是否可用, 用于延后创建和映射共享内存
+  const bool is_readonly_;
+  bool is_available_ = false;  // read_only_ 下 共享内存 shared_memory_ 是否可用, 用于延后创建和映射共享内存, 如果上次
+                               // read 失败的话也置为 false 重新映射 (可能是生产者重新分配了共享内存空间)
 
   std::queue<Node> nodes_;
   std::unique_ptr<::boost::interprocess::shared_memory_object> shared_memory_ = nullptr;
   std::unique_ptr<::boost::interprocess::mapped_region> mapped_region_ = nullptr;
 
  private:
-  // std::string file_lock_path_ = "./ring_buffer_shared_memory.lock";  // 文件锁路径
-  //   std::string shared_memory_key_ = "ring_buffer_shared_memory";
+  uint64_t total_size_bytes_ = 0;  // 总的共享内存大小 (非 read_only_ 时有效)
+  uint64_t free_size_bytes_ = 0;   // 剩余可用内存大小 (非 read_only_ 时有效)
+  uint64_t free_offset_ = 0;       // 当前剩余内存的指针 (非 read_only_ 时有效)
 };
 
 }  // namespace lock_free
