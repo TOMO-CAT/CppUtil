@@ -1,6 +1,6 @@
-#include "logger/backtrace.h"
-
 #include <iostream>
+
+#include "logger/backtrace.h"
 
 void fail() {
   for (int i = 0; i < 10; ++i) {
