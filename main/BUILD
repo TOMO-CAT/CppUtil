@@ -3,5 +3,6 @@ cc_binary(
     srcs=['main.cc'],
     deps=[
         '//json_helper:json_helper',
+        '//double_buffer:double_buffer',
     ]
 )

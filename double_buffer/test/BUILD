@@ -7,3 +7,13 @@ cc_binary(
         'double_buffer_test.cc',
     ]
 )
+
+cc_test(
+    name='unit_test',
+    deps=[
+        '//double_buffer:double_buffer',
+    ],
+    srcs=[
+        'unit_test.cc',
+    ],
+)

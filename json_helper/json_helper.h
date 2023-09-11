@@ -60,6 +60,18 @@ std::string ToString(const T& obj) {
   return res;
 }
 
+template <typename T>
+std::string ToStringFormatted(const T& obj) {
+  std::string res;
+  if (!Marshal(obj, &res, true)) {
+    return "";
+  }
+  if (res.back() == '\n') {
+    res.erase(res.size() - 1);
+  }
+  return res;
+}
+
 #define JSON_HELPER(...) \
   JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(__VA_ARGS__) JSON_HELPER_MARSHAL_MEMBER_FUNCTION(__VA_ARGS__)
 
