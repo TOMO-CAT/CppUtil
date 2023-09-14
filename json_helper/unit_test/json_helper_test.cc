@@ -47,7 +47,7 @@ TEST(JsonHelperTest, to_string) {
 
     Cat cat;
     std::string expected_str = R"({"age":-10,"birthday":3.1000000000000001,"favorite_nums":[5,7,9],"name":"cc"})";
-    EXPECT_EQ(expected_str + "\n", ::json_helper::ToString(cat));
+    EXPECT_EQ(expected_str, ::json_helper::ToString(cat));
   }
 }
 
