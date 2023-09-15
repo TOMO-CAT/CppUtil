@@ -110,6 +110,7 @@ Unmarshal(const Json::Value& root, T* const obj) {
 template <typename T>
 inline typename std::enable_if<HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root,
                                                                                  T* const obj) {
+  std::cout << "[DEBUG]: 调用类的反序列化函数" << std::endl;
   return obj->Unmarshal(root);
 }
 
@@ -131,9 +132,7 @@ typename std::enable_if<std::is_pointer<T>::value, bool>::type Unmarshal(const J
     return true;
   }
   if (*obj == nullptr) {
-#ifndef NDEBUG
     std::cout << "[JsonHelper][Unmarshal][Warning] unmarshal json to a nullptr" << std::endl;
-#endif
     return false;
   }
   return Unmarshal(root, *obj);

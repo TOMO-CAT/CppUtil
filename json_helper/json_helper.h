@@ -13,9 +13,7 @@ bool Unmarshal(const std::string& str, T* const obj) {
   Json::Value root;
   Json::Reader reader;
   if (!reader.parse(str, root)) {
-#ifndef NDEBUG
     std::cout << "[JsonHelper][Warning] jsoncpp parse fail, str: " << str << std::endl;
-#endif
     return false;
   }
   return Unmarshal(root, obj);

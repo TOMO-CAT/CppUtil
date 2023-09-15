@@ -1,8 +1,10 @@
 #include <cassert>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 
 #include "json_helper/json_helper.h"
+#include "logger/log.h"
 
 class Foo {
  private:
@@ -37,7 +39,8 @@ class Foo {
   // stl container
   std::vector<int> list;
   std::set<std::string> set;
-  std::unordered_map<std::string, bool> map;
+  // std::unordered_map<std::string, bool> map;
+  std::unordered_map<int, int> map;
 
   // enum
   Color color;
@@ -66,35 +69,37 @@ class Foo {
 int main() {
   std::string json_str = R"(
 {
-   "age" : 24,
-   "birthday" : 3.1099999999999999,
-   "color" : 1,
-   "gender" : 1,
-   "id" : 100,
-   "list" : [ -5, 10, 100, 20033 ],
-   "map" : {
-      "dog" : false,
-      "mouse" : true
-   },
-   "money" : -1,
-   "name" : "foo",
-   "p_sub_class" : {
-      "name" : "p_sub_class",
-      "pi" : 3.1415925025939941
-   },
-   "pi" : "nullptr",
-   "ps" : "string",
-   "set" : [ "cc", "kkk-mmm" ],
-   "sub_class" : {
-      "name" : "sub_class",
-      "pi" : 3.1414999961853027
-   },
-   "uid" : 1234567890
-}        
+  "age": 24,
+  "birthday": 3.1099999999999999,
+  "color": 1,
+  "gender": 1,
+  "id": 100,
+  "list": [-5, 10, 100, 20033],
+  "map": {
+    "10": 20,
+    "30": 123
+  },
+  "money": -1,
+  "name": "foo",
+  "p_sub_class": {
+    "name": "p_sub_class",
+    "pi": 3.1415925025939941
+  },
+  "pi": "nullptr",
+  "ps": "string",
+  "set": ["cc", "kkk-mmm"],
+  "sub_class": {
+    "name": "sub_class",
+    "pi": 3.1414999961853027
+  },
+  "uid": 1234567890
+}
     )";
 
   Foo foo;
-  printf("bbb\n");
-  assert(0);
-  printf("aaa\n");
+  ::json_helper::Unmarshal(json_str, &foo);
+
+  // TODO: 用 Unmarshal 把 json_str 转成 Json::Value, 然后用 Json::Value 转 string 的方法去转
+
+  LOG_INFO << ::json_helper::ToString(foo);
 }

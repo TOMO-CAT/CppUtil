@@ -111,6 +111,7 @@
         "PTRACER",
         "rdynamic",
         "sptr",
+        "tomo",
         "yyyymmddhh"
     ],
     "cSpell.enableFiletypes": [
