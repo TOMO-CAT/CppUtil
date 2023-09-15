@@ -427,9 +427,34 @@ TEST(UnmarshalTest, unmarshal_pointer) {
     // nullptr
     {
       int* pi = nullptr;
-      EXPECT_FALSE(::json_helper::Unmarshal(root, &pi));
+      EXPECT_TRUE(::json_helper::Unmarshal(root, &pi));
     }
   }
+}
+
+struct ClassWithStaticConstexprVariable {
+  std::string name;
+  static constexpr int age = 100;
+
+  JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(name, age);
+};
+
+// 禁止反序列化 static constexpr 成员变量
+TEST(UnmarshalTest, unmarshal_constexpr) {
+  const std::string str = R"(
+    {
+        "name": "tomo",
+        "age": 100
+    }
+    )";
+  Json::Value root;
+  Json::Reader reader;
+  ASSERT_TRUE(reader.parse(str, root));
+  ClassWithStaticConstexprVariable obj;
+  ASSERT_FALSE(::json_helper::Unmarshal(root, &obj));
+
+  // 依然能解析出来部分字段
+  ASSERT_EQ("tomo", obj.name);
 }
 
 }  // namespace json_helper

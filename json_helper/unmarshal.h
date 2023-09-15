@@ -82,11 +82,20 @@ bool Unmarshal(const Json::Value& root, std::set<T>* const obj);
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::unordered_set<T>* const obj);
 
+#ifndef NDEBUG
+#define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)                                                        \
+  std::cout << "[JsonHelper][Unmarshal][Debug] parse class field [" << BOOST_PP_STRINGIZE(field)<< "]" << std::endl; \
+  if (!::json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) {                                          \
+    ret = false;                                                                                                     \
+  }
+#else
 #define __JSON_HELPER_UNMARSHAL_SINGLE_FIELD__(_1, _2, field)               \
   if (!::json_helper::Unmarshal(root[BOOST_PP_STRINGIZE(field)], &field)) { \
     ret = false;                                                            \
   }
+#endif
 
+// 结构体中有任意一个字段解析失败就会返回 false
 #define JSON_HELPER_UNMARSHAL_MEMBER_FUNCTION(...)                                                           \
   bool Unmarshal(const Json::Value& root) {                                                                  \
     bool ret = true;                                                                                         \
@@ -100,9 +109,7 @@ template <typename T>
 typename std::enable_if<!HasUnmarshalFunc<T>::value && !std::is_enum<T>::value && !std::is_pointer<T>::value,
                         bool>::type
 Unmarshal(const Json::Value& root, T* const obj) {
-#ifndef NDEBUG
-  std::cout << "[JsonHelper][Unmarshal][Warning] fallback to uncaught types: " << typeid(obj).name() << std::endl;
-#endif
+  std::cerr << "[JsonHelper][Unmarshal][Warning] fallback to uncaught types: " << typeid(obj).name() << std::endl;
   return false;
 }
 
@@ -110,13 +117,18 @@ Unmarshal(const Json::Value& root, T* const obj) {
 template <typename T>
 inline typename std::enable_if<HasUnmarshalFunc<T>::value, bool>::type Unmarshal(const Json::Value& root,
                                                                                  T* const obj) {
-  std::cout << "[DEBUG]: 调用类的反序列化函数" << std::endl;
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal class with Unmarshal function" << std::endl;
+#endif
   return obj->Unmarshal(root);
 }
 
 // enum class
 template <typename T>
 inline typename std::enable_if<std::is_enum<T>::value, bool>::type Unmarshal(const Json::Value& root, T* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal enum class" << std::endl;
+#endif
   if (!root.isIntegral()) {
     return false;
   }
@@ -127,19 +139,27 @@ inline typename std::enable_if<std::is_enum<T>::value, bool>::type Unmarshal(con
 // pointer
 template <typename T>
 typename std::enable_if<std::is_pointer<T>::value, bool>::type Unmarshal(const Json::Value& root, T* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal pointer" << std::endl;
+#endif
   if (root.isString() && root.asString() == kNullptrJsonStr) {
     *obj = nullptr;
     return true;
   }
   if (*obj == nullptr) {
-    std::cout << "[JsonHelper][Unmarshal][Warning] unmarshal json to a nullptr" << std::endl;
-    return false;
+#ifndef NDEBUG
+    std::cerr << "[JsonHelper][Unmarshal][Warning] unmarshal json to a nullptr" << std::endl;
+#endif
+    return true;
   }
   return Unmarshal(root, *obj);
 }
 
 // int32_t
 inline bool Unmarshal(const Json::Value& root, int32_t* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal int32_t" << std::endl;
+#endif
   if (!root.isIntegral()) {
     return false;
   }
@@ -149,6 +169,9 @@ inline bool Unmarshal(const Json::Value& root, int32_t* const obj) {
 
 // int64_t
 inline bool Unmarshal(const Json::Value& root, int64_t* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal int64_t" << std::endl;
+#endif
   if (!root.isIntegral()) {
     return false;
   }
@@ -158,6 +181,9 @@ inline bool Unmarshal(const Json::Value& root, int64_t* const obj) {
 
 // uint32_t
 inline bool Unmarshal(const Json::Value& root, uint32_t* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal uint32_t" << std::endl;
+#endif
   if (!root.isIntegral()) {
     return false;
   }
@@ -167,6 +193,9 @@ inline bool Unmarshal(const Json::Value& root, uint32_t* const obj) {
 
 // uint64_t
 inline bool Unmarshal(const Json::Value& root, uint64_t* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal uint64_t" << std::endl;
+#endif
   if (!root.isIntegral()) {
     return false;
   }
@@ -176,6 +205,9 @@ inline bool Unmarshal(const Json::Value& root, uint64_t* const obj) {
 
 // float
 inline bool Unmarshal(const Json::Value& root, float* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal float" << std::endl;
+#endif
   if (!root.isDouble()) {
     return false;
   }
@@ -185,6 +217,9 @@ inline bool Unmarshal(const Json::Value& root, float* const obj) {
 
 // double
 inline bool Unmarshal(const Json::Value& root, double* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal double" << std::endl;
+#endif
   if (!root.isDouble()) {
     return false;
   }
@@ -194,6 +229,9 @@ inline bool Unmarshal(const Json::Value& root, double* const obj) {
 
 // bool
 inline bool Unmarshal(const Json::Value& root, bool* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal bool" << std::endl;
+#endif
   if (!root.isBool()) {
     return false;
   }
@@ -203,6 +241,9 @@ inline bool Unmarshal(const Json::Value& root, bool* const obj) {
 
 // string
 inline bool Unmarshal(const Json::Value& root, std::string* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal string" << std::endl;
+#endif
   if (!root.isString()) {
     return false;
   }
@@ -213,6 +254,9 @@ inline bool Unmarshal(const Json::Value& root, std::string* const obj) {
 // std::vector<T>
 template <typename T>
 inline bool Unmarshal(const Json::Value& root, std::vector<T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::vector<T>" << std::endl;
+#endif
   if (!root.isArray()) {
     return false;
   }
@@ -232,6 +276,9 @@ inline bool Unmarshal(const Json::Value& root, std::vector<T>* const obj) {
 // std::map<std::string, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::map<std::string, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::map<std::string, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -250,6 +297,9 @@ bool Unmarshal(const Json::Value& root, std::map<std::string, T>* const obj) {
 // std::map<int32_t, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::map<int32_t, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::map<int32_t, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -267,6 +317,9 @@ bool Unmarshal(const Json::Value& root, std::map<int32_t, T>* const obj) {
 // std::map<uint32_t, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::map<uint32_t, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::map<uint32_t, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -284,6 +337,9 @@ bool Unmarshal(const Json::Value& root, std::map<uint32_t, T>* const obj) {
 // std::map<int64_t, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::map<int64_t, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::map<int64_t, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -301,6 +357,9 @@ bool Unmarshal(const Json::Value& root, std::map<int64_t, T>* const obj) {
 // std::map<uint64_t, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::map<uint64_t, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::map<uint64_t, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -315,9 +374,33 @@ bool Unmarshal(const Json::Value& root, std::map<uint64_t, T>* const obj) {
   return ret;
 }
 
+// std::unordered_map<std::string, T>
+template <typename T>
+bool Unmarshal(const Json::Value& root, std::unordered_map<std::string, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::unordered_map<std::string, T>" << std::endl;
+#endif
+  if (!root.isObject()) {
+    return false;
+  }
+  obj->clear();
+  const auto& mems = root.getMemberNames();
+  bool ret = true;
+
+  for (auto iter = mems.begin(); iter != mems.end(); ++iter) {
+    if (!Unmarshal(root[*iter], &((*obj)[*iter]))) {
+      ret = false;
+    }
+  }
+  return ret;
+}
+
 // std::unordered_map<int32_t, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::unordered_map<int32_t, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::map<int32_t, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -335,6 +418,9 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<int32_t, T>* const ob
 // std::unordered_map<uint32_t, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::unordered_map<uint32_t, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::unordered_map<uint32_t, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -352,6 +438,9 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<uint32_t, T>* const o
 // std::unordered_map<int64_t, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::unordered_map<int64_t, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::unordered_map<int64_t, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -369,6 +458,9 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<int64_t, T>* const ob
 // std::unordered_map<uint64_t, T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::unordered_map<uint64_t, T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::unordered_map<uint64_t, T>" << std::endl;
+#endif
   if (!root.isObject()) {
     return false;
   }
@@ -386,6 +478,9 @@ bool Unmarshal(const Json::Value& root, std::unordered_map<uint64_t, T>* const o
 // std::set<T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::set<T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::set<T>" << std::endl;
+#endif
   if (!root.isArray()) {
     return false;
   }
@@ -404,6 +499,9 @@ bool Unmarshal(const Json::Value& root, std::set<T>* const obj) {
 // std::unordered_set<T>
 template <typename T>
 bool Unmarshal(const Json::Value& root, std::unordered_set<T>* const obj) {
+#ifndef NDEBUG
+  std::cout << "[JsonHelper][Unmarshal][Debug] unmarshal std::unordered_set<T>" << std::endl;
+#endif
   if (!root.isArray()) {
     return false;
   }

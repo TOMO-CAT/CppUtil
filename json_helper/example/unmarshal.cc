@@ -7,7 +7,7 @@
 #include "logger/log.h"
 
 class Foo {
- private:
+ public:
   struct SubClass {
     std::string name;
     float pi = 0.0;
@@ -28,7 +28,7 @@ class Foo {
     kFemale = 2,
   };
 
- private:
+ public:
   // basic type
   int32_t money = 0;
   int64_t uid = 0;
@@ -51,19 +51,19 @@ class Foo {
   // nested class
   SubClass sub_class;
 
-  // pointer
-  int* pi;
-  std::string* ps;
-  SubClass* p_sub_class;
-
   // static variable
   static constexpr uint64_t id = 100;
+
+  // pointer
+  int* pi = nullptr;
+  std::string* ps = nullptr;
+  SubClass* p_sub_class = nullptr;
 
   //  skip types
   std::mutex mtx_;
 
  public:
-  JSON_HELPER(money, uid, age, birthday, name, list, set, color, gender, sub_class, map, pi, ps, p_sub_class, id);
+  JSON_HELPER(money, uid, age, birthday, name, list, set, color, gender, sub_class, map, pi, ps, p_sub_class);
 };
 
 int main() {
@@ -73,7 +73,6 @@ int main() {
   "birthday": 3.1099999999999999,
   "color": 1,
   "gender": 1,
-  "id": 100,
   "list": [-5, 10, 100, 20033],
   "map": {
     "10": 20,
@@ -97,9 +96,31 @@ int main() {
     )";
 
   Foo foo;
-  ::json_helper::Unmarshal(json_str, &foo);
 
-  // TODO: 用 Unmarshal 把 json_str 转成 Json::Value, 然后用 Json::Value 转 string 的方法去转
+  // 读取成 ::Json::Value 再转成 String
+  // 保证是一个合法 Json
+  {
+    Json::Value root;
+    Json::Reader reader;
+    if (!reader.parse(json_str, root)) {
+      std::cout << "jsoncpp parse fail!" << std::endl;
+      return -1;
+    }
+    Json::StyledWriter writer;
+    std::cout << "======================= jsoncpp =======================" << std::endl;
+    std::cout << "jsoncpp str:" << writer.write(root) << std::endl;
+    std::cout << "=======================================================" << std::endl;
+  }
 
-  LOG_INFO << ::json_helper::ToString(foo);
+  // 通过 json_helper 进行反序列化和序列化
+  {
+    std::cout << "===================== json_helper =====================" << std::endl;
+    CHECK(::json_helper::Unmarshal(json_str, &foo));
+    std::cout << ::json_helper::ToStringFormatted(foo) << std::endl;
+    std::cout << "=======================================================" << std::endl;
+
+    CHECK_EQ(24, foo.age);
+    CHECK_EQ(Foo::Color::kBlue, foo.color);
+    CHECK_EQ(Foo::Gender::kMale, foo.gender);
+  }
 }
