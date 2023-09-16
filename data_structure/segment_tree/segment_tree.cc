@@ -1,4 +1,4 @@
-#include "data_structure/segment_tree.h"
+#include "data_structure/segment_tree/segment_tree.h"
 
 #include "logger/log.h"
 
