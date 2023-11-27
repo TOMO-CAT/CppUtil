@@ -1,0 +1,22 @@
+cc_library(
+    name='ring_buffer_queue',
+    hdrs=[
+        'queue.h',
+    ],
+    srcs=[
+    ],
+    deps=[
+    ],
+    visibility=['PUBLIC'],
+)
+
+cc_test(
+    name='queue_test',
+    srcs=[
+        'queue_test.cc',
+    ],
+    deps=[
+        ':ring_buffer_queue',
+    ],
+    exclusive=True,
+)
