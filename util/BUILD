@@ -5,8 +5,20 @@ cc_library(
     hdrs=[
         'macro_util.h',
         'random.h',
+        'magic_enum.h'
     ],
     deps=[
     ],
     visibility=['PUBLIC'],
+)
+
+cc_test(
+    name='magic_enum_test',
+    srcs=[
+        'magic_enum_test.cc',
+    ],
+    deps=[
+        ':util',
+        '//thirdparty/gtest:gtest',
+    ]
 )

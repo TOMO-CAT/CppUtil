@@ -4,5 +4,6 @@ cc_binary(
     deps=[
         '//json_helper:json_helper',
         '//double_buffer:double_buffer',
+        '//util:util',
     ]
 )
