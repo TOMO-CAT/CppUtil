@@ -55,16 +55,4 @@ constexpr auto enum_name(T value) {
   return names[static_cast<std::size_t>(value)];
 }
 
-// template <typename T>
-// constexpr auto enum_name(T value) {
-//   static_assert(std::is_enum<T>::value, "T must be an enum type");
-
-//   constexpr auto num = enum_max<T>();
-//   constexpr auto names = []<std::size_t... Is>(std::index_sequence<Is...>) {
-//     return std::array<std::string_view, num>{enum_name<static_cast<T>(Is)>()...};
-//   }
-//   (std::make_index_sequence<num>{});
-//   return names[static_cast<std::size_t>(value)];
-// }
-
 }  // namespace util
